@@ -12,10 +12,10 @@ const Project = new Schema(
     roles: [
       {
         interested_applicants: [{ type: Schema.Types.ObjectId, ref: "User" }],
-        status: { type: String, required: true, enum: ["Draft", "Published"] },
+        status: { type: String, enum: ["Draft", "Published"] },
         category: { type: String, enum: ["Software Engineer", "UX Designer"] },
-        title: { type: String, required: true },
-        description: { type: String, required: true, maxlength: 300 },
+        title: { type: String },
+        description: { type: String, maxlength: 300 },
         skills: [{ type: String }],
         desired_headcount: { type: Number },
       },
