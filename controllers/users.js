@@ -15,7 +15,10 @@ exp.setDate(today.getDate() + 30);
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find(); //.populate({
+    console.log("try");
+    const users = await User.find();
+    console.log(users);
+    //.populate({
     //   path: "member_of_projects",
     //   model: project,
     // });

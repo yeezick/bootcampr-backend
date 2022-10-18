@@ -99,7 +99,7 @@ const insertData = async () => {
     role: "Software Engineer",
   });
   await user6.save();
-  
+
   const projects = [
     {
       description: "building gaming app",
@@ -108,7 +108,7 @@ const insertData = async () => {
       interested_applicants: [user3, user4, user5, user6], // projects[0]
       seeking: true,
       team_members: [user2],
-      time_commitment: 'no preference',
+      time_commitment: "no preference",
       title: "GameBot",
       tools: [],
       owner: user1,
@@ -120,7 +120,7 @@ const insertData = async () => {
       interested_applicants: [user4], //projects[1]
       seeking: true,
       team_members: [user1, user3],
-      time_commitment: 'hobby',
+      time_commitment: "hobby",
       title: "PaintBot",
       tools: [],
       owner: user2,
@@ -132,7 +132,7 @@ const insertData = async () => {
       interested_applicants: [user4], //projects[2]
       seeking: false,
       team_members: [user2, user1],
-      time_commitment: 'part-time',
+      time_commitment: "part-time",
       title: "GardenBot",
       tools: [],
       owner: user3,
@@ -144,7 +144,7 @@ const insertData = async () => {
       interested_applicants: [user2], //projects[3]
       seeking: true,
       team_members: [user3],
-      time_commitment: 'full-time',
+      time_commitment: "full-time",
       title: "BabysitterBot",
       tools: [],
       owner: user4,
@@ -156,7 +156,7 @@ const insertData = async () => {
       interested_applicants: [user2], //projects[4]
       seeking: true,
       team_members: [user1, user3],
-      time_commitment: 'full-time',
+      time_commitment: "full-time",
       title: "MyMoney.io",
       tools: [],
       owner: user4,
@@ -170,11 +170,7 @@ const insertData = async () => {
 
   // console.log("first", project1[0]);
   // adding allProjects to each user's member_of_projects array:
-  user1.member_of_projects.push(
-    allProjects[1],
-    allProjects[2],
-    allProjects[4]
-  );
+  user1.member_of_projects.push(allProjects[1], allProjects[2], allProjects[4]);
   user2.member_of_projects.push(allProjects[0]);
   user3.member_of_projects.push(allProjects[1], allProjects[3]);
   user4.member_of_projects.push();
@@ -198,52 +194,51 @@ const insertData = async () => {
   await user4.save();
 
   console.log("Created users & projects!");
-  console.log(user1)
+  console.log(user1);
 
-  // tools 
+  // tools
 
   const tools = [
     {
-      category: 'Engineering',
-      icon: '/assets/icons/javascript.svg',
-      name: 'JavaScript',
+      category: "Engineering",
+      icon: "/assets/icons/javascript.svg",
+      name: "JavaScript",
     },
     {
-      category: 'Engineering',
-      icon: '/assets/icons/react.svg',
-      name: 'React',
+      category: "Engineering",
+      icon: "/assets/icons/react.svg",
+      name: "React",
     },
     {
-      category: 'Engineering',
-      icon: '/assets/icons/html.svg',
-      name: 'HTML',
+      category: "Engineering",
+      icon: "/assets/icons/html.svg",
+      name: "HTML",
     },
     {
-      category: 'Engineering',
-      icon: '/assets/icons/css.png',
-      name: 'CSS',
+      category: "Engineering",
+      icon: "/assets/icons/css.png",
+      name: "CSS",
     },
     {
-      category: 'Engineering',
-      icon: '/assets/icons/rails.png',
-      name: 'Rails',
+      category: "Engineering",
+      icon: "/assets/icons/rails.png",
+      name: "Rails",
     },
     {
-      category: 'Engineering',
-      icon: '/assets/icons/ruby.svg',
-      name: 'Ruby',
+      category: "Engineering",
+      icon: "/assets/icons/ruby.svg",
+      name: "Ruby",
     },
     {
-      category: 'Design',
-      icon: '/assets/icons/figma.svg',
-      name: 'Figma',
+      category: "Design",
+      icon: "/assets/icons/figma.svg",
+      name: "Figma",
     },
-    
   ];
   await Tool.insertMany(tools);
-  console.log('Created tools!')
-  const allTools = await Tool.find()
-  console.log(allTools)
+  console.log("Created tools!");
+  const allTools = await Tool.find();
+  console.log(allTools);
   db.close();
 };
 
