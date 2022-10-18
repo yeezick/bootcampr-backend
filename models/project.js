@@ -3,16 +3,22 @@ const Schema = mongoose.Schema;
 
 const Project = new Schema(
   {
-    description: { type: String, required: true, maxlength: 300 },
-    designer_count: {type: Number },
-    engineer_count: {type: Number},
-    interested_applicants: [{ type: Schema.Types.ObjectId, ref: "User" }],
-    owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    seeking: { type: Boolean, required: true },
-    time_commitment: {type: String, enum: ["no preference", "hobby", "part-time", "full-time"]},
-    team_members: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    status: { type: String, required: true, enum: ["Draft", "Published"] },
     title: { type: String, required: true, maxlength: 45 },
-    tools: [{ type: Schema.Types.ObjectId, ref: 'Tool'}],
+    project_owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    overview: { type: String, required: true },
+    meeting_cadence: { type: String, required: true },
+    technologies_used: { type: String, required: true },
+    roles: [
+      {
+        _id: mongoose.Schema.Types.ObjectId,
+        category: { type: String, enum: ["Software Engineer", "UX Designer"] },
+        title: { type: String, required: true },
+        description: { type: String, required: true, maxlength: 300 },
+        interested_applicants: [{ type: Schema.Types.ObjectId, ref: "User" }],
+      },
+    ],
+    duration: { type: String },
   },
   { timestamps: true }
 );
