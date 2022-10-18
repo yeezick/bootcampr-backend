@@ -11,13 +11,16 @@ const Project = new Schema(
     technologies_used: { type: String, required: true },
     roles: [
       {
-        _id: mongoose.Schema.Types.ObjectId,
+        interested_applicants: { type: Schema.Types.ObjectId, ref: "User" },
+        status: { type: String, required: true, enum: ["Draft", "Published"] },
         category: { type: String, enum: ["Software Engineer", "UX Designer"] },
         title: { type: String, required: true },
         description: { type: String, required: true, maxlength: 300 },
-        interested_applicants: [{ type: Schema.Types.ObjectId, ref: "User" }],
+        skills: { type: String },
+        desired_headcount: { type: Number },
       },
     ],
+
     duration: { type: String },
   },
   { timestamps: true }

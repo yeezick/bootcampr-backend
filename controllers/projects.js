@@ -20,15 +20,16 @@ import Tool from "../models/tool.js";
 export const getAllProjects = async (req, res) => {
   try {
     const projects = await Project.find().populate({
-      path: "tools",
-      model: Tool,
-    }); // .populate({path: "interested_applicants",model: User,  });
+      path: "project_owner roles.interested_applicants",
+      model: User,
+    });
+
     res.json(projects);
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: error.message });
   }
-}; //tested and is good
+};
 
 export const getOneProject = async (req, res) => {
   try {
