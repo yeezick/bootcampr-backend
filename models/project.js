@@ -8,15 +8,15 @@ const Project = new Schema(
     project_owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
     overview: { type: String, required: true },
     meeting_cadence: { type: String, required: true },
-    technologies_used: { type: String, required: true },
+    technologies_used: [{ type: String, required: true }],
     roles: [
       {
-        interested_applicants: { type: Schema.Types.ObjectId, ref: "User" },
+        interested_applicants: [{ type: Schema.Types.ObjectId, ref: "User" }],
         status: { type: String, required: true, enum: ["Draft", "Published"] },
         category: { type: String, enum: ["Software Engineer", "UX Designer"] },
         title: { type: String, required: true },
         description: { type: String, required: true, maxlength: 300 },
-        skills: { type: String },
+        skills: [{ type: String }],
         desired_headcount: { type: Number },
       },
     ],
