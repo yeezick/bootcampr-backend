@@ -29,6 +29,7 @@ db.on("connected", () => {
     }
   });
 });
+import("./seed/data.js");
 
 // what is the purpose of this file?
 // server.js must be the gatekeeper or "start-up" file. I believe the purpose of its logic is to initiate express -> initiate helperWare like cors and morgan -> attach 'api' to all endpoints of the app -> then start it actually starts the server

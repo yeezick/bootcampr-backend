@@ -1,4 +1,4 @@
-import User from "../models/user.js";
+import { User } from "../models/user.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
@@ -13,16 +13,9 @@ const today = new Date();
 const exp = new Date(today);
 exp.setDate(today.getDate() + 30);
 
-export const getAllUsers = async (req, res) => {
+export const getAllUsers = (req, res) => {
   try {
-    console.log("try");
-    const users = await User.find();
-    console.log(users);
-    //.populate({
-    //   path: "member_of_projects",
-    //   model: project,
-    // });
-    res.json(users);
+    User.find({}).then((user) => res.status(200).send(user));
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: error.message });

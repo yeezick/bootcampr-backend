@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 // set connection location
 const MONGODB_URI =
-  "mongodb+srv://Bestnogm:1231234560s@koffi0.vbmwl.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+  "mongodb+srv://Bestnogm:1231234560s@koffi0.vbmwl.mongodb.net/bootcampr?retryWrites=true&w=majority";
 /*process.env.PROD_MONGODB || "mongodb://localhost:27017";*/
 
 mongoose.set("returnOriginal", false); //for findByAndUpdate to return a reference to object at location

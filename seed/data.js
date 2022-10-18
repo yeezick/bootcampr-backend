@@ -1,27 +1,29 @@
 import bcrypt from "bcrypt";
 import db from "../db/connection.js";
-import Project from "../models/project.js";
+import { Project } from "../models/project.js";
 import Tool from "../models/tool.js";
-import User from "../models/user.js";
+import { User } from "../models/user.js";
 
 const insertData = async () => {
   //reset database
 
-  await db.dropDatabase();
+  // await db.dropDatabase();
 
   const user1 = new User({
     about:
       "American whole magazine truth stop whose. On traditional measure example sense peace. Would mouth relate own chair. Role together range line. Government first policy daughter.",
-    email: "firstUser@mail.com",
+    email: "lagtestuy@mail.com",
     first_name: "Wiggle",
     interested_projects: [],
     last_name: "Jones",
+    fun_fact: "I like turtles",
     member_of_projects: [],
     password_digest: await bcrypt.hash("gumballs", 11),
     portfolio_link: "www.wigglejones.com",
     portfolio_projects: [],
     rejected_projects: [],
     role: "Software Engineer",
+    show_portfolio: true,
   });
   await user1.save();
 
@@ -239,7 +241,7 @@ const insertData = async () => {
   console.log("Created tools!");
   const allTools = await Tool.find();
   console.log(allTools);
-  db.close();
+  // db.close();
 };
 
 insertData();
