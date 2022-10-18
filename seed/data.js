@@ -7,7 +7,7 @@ import { User } from "../models/user.js";
 const insertData = async () => {
   //reset database
 
-  // await db.dropDatabase();
+  await db.dropDatabase();
 
   const user1 = new User({
     about:
