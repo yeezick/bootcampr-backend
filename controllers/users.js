@@ -146,10 +146,10 @@ export const signIn = async (req, res) => {
         const token = jwt.sign(payload, TOKEN_KEY);
         res.status(201).json({ user: secureUser, token });
       } else {
-        res.status(401).send("Invalid credentials");
+        res.status(401).json({ unauthorized: "Invalid Credentials" });
       }
     } else {
-      res.status(401).send("Invalid credentials");
+      res.status(401).json({ unauthorized: "Invalid Credentials" });
     }
   } catch (error) {
     console.log(error.message);
