@@ -13,7 +13,7 @@ app.use(logger("dev"));
 
 //attaching api to the parameter so the CRUD requests are made to the url/api/endpoint
 app.use("/api", routes);
-
+import('./seed/data.js')
 // once there is a successful connection to mongoDB, express will start server to listen at PORT
 db.on("connected", () => {
   console.log("Connected to MongoDB!");

@@ -129,20 +129,25 @@ export const signUp = async (req, res) => {
 export const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log(email, password)
     let user = await User.findOne({ email }).select(
       "about email first_name fun_fact interested_projects last_name member_of_projects password_digest portfolio_projects portfolio_link rejected_projects role"
     ); // to avoid setting `select` to true on the user model, i select all properties here then copy the user object without the password_digest below
-    let secureUser = Object.assign({}, user._doc, {
-      password_digest: undefined,
-    });
-    if (await bcrypt.compare(password, user.password_digest)) {
-      const payload = {
-        userID: user._id,
-        email: user.email,
-        exp: parseInt(exp.getTime() / 1000),
-      };
-      const token = jwt.sign(payload, TOKEN_KEY);
-      res.status(201).json({ user: secureUser, token });
+    if (user) {
+      let secureUser = Object.assign({}, user._doc, {
+        password_digest: undefined,
+      });
+      if (await bcrypt.compare(password, user.password_digest)) {
+        const payload = {
+          userID: user._id,
+          email: user.email,
+          exp: parseInt(exp.getTime() / 1000),
+        };
+        const token = jwt.sign(payload, TOKEN_KEY);
+        res.status(201).json({ user: secureUser, token });
+      } else {
+        res.status(401).send("Invalid credentials");
+      }
     } else {
       res.status(401).send("Invalid credentials");
     }
