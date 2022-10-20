@@ -6,7 +6,7 @@
  *  - might even be able to make a helper function since a lot of the special endpoints share the same funcitonality
  * - consider what properties containing objectId's should be populated in the response
  */
-import { Project } from "../models/project.js";
+import Project from "../models/project.js";
 import { User } from "../models/user.js";
 
 import Tool from "../models/tool.js";

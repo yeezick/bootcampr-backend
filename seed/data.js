@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import db from "../db/connection.js";
-import { Project } from "../models/project.js";
+import Project from "../models/project.js";
 import Tool from "../models/tool.js";
 import { User } from "../models/user.js";
 
@@ -195,9 +195,6 @@ const insertData = async () => {
   await user3.save();
   await user4.save();
 
-  console.log("Created users & projects!");
-  console.log(user1);
-
   // tools
 
   const tools = [
@@ -238,9 +235,7 @@ const insertData = async () => {
     },
   ];
   await Tool.insertMany(tools);
-  console.log("Created tools!");
   const allTools = await Tool.find();
-  console.log(allTools);
   // db.close();
 };
 
