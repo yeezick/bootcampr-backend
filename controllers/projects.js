@@ -35,8 +35,8 @@ export const getOneProject = async (req, res) => {
   try {
     const { id } = req.params;
     const project = await Project.findById(id).populate({
-      path: "tools",
-      model: Tool,
+      path: "project_owner roles.interested_applicants",
+      model: User,
     });
     if (project) {
       return res.json(project);
