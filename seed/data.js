@@ -1,3 +1,4 @@
+import "dotenv/config.js";
 import bcrypt from "bcrypt";
 import db from "../db/connection.js";
 import Project from "../models/project.js";
