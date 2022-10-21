@@ -5,16 +5,16 @@ const User = new Schema(
   {
     about: { type: String, maxlength: 300 },
     email: {
-      match: /.+\@.+\..+/,
+      // match: /.+\@.+\..+/,
       type: String,
       required: true,
-      unique: [true, "E-mail already exists."],
+      // unique: [true, "E-mail already exists."],
     },
+    member_of_projects: { type: Array },
     first_name: { type: String, required: true },
     fun_fact: { type: String },
     interested_projects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
     last_name: { type: String, required: true },
-    member_of_projects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
     password_digest: { type: String, required: true, select: false },
     portfolio_projects: [{ type: Object }],
     portfolio_link: { type: String },
@@ -24,5 +24,4 @@ const User = new Schema(
   },
   { timestamps: true }
 );
-
-export default mongoose.model("users", User);
+export default mongoose.model("User", User);
