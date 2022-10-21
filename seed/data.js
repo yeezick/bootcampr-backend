@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import db from "../db/connection.js";
 import Project from "../models/project.js";
 import Tool from "../models/tool.js";
-import { User } from "../models/user.js";
+import User from "../models/user.js";
 
 const insertData = async () => {
   //reset database

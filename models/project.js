@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
-const projectsSchema = new Schema(
+const Project = new Schema(
   {
     description: { type: String, required: true, maxlength: 300 },
     designer_count: { type: Number },
@@ -19,4 +19,4 @@ const projectsSchema = new Schema(
   },
   { timestamps: true }
 );
-export default mongoose.model("Projects", projectsSchema);
+export default mongoose.model("Project", Project);
