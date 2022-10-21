@@ -103,6 +103,21 @@ const insertData = async () => {
   });
   await user6.save();
 
+  const user7 = new User({
+    about: " lets get this bread",
+    email: "letsgetthisbread@mail.com",
+    first_name: "BREAD",
+    interested_projects: [],
+    last_name: "CHASER",
+    member_of_projects: [],
+    password_digest: await bcrypt.hash("makingMoney", 11),
+    portfolio_link: "www.bootCamper.com",
+    portfolio_projects: [],
+    rejected_projects: [],
+    role: "Software Engineer",
+  });
+  await user7.save();
+
   const projects = [
     {
       description: "building gaming app",
@@ -237,7 +252,7 @@ const insertData = async () => {
   ];
   await Tool.insertMany(tools);
   const allTools = await Tool.find();
-  // db.close();
+  db.close();
 };
 
 insertData();

@@ -13,12 +13,17 @@ const today = new Date();
 const exp = new Date(today);
 exp.setDate(today.getDate() + 30);
 
-export const getAllUsers = (req, res) => {
+export const getAllUsers = async (req, res) => {
   try {
-    User.find({}).then((user) => res.status(200).send(user));
+    const allUser = await User.find({});
+    if (allUser) {
+      res.status(200).json(allUser);
+    }
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ error: error.message });
+    return res
+      .status(404)
+      .json({ message: "All User not found.", error: error.message });
   }
 };
 
@@ -27,12 +32,13 @@ export const getOneUser = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById(id);
     if (user) {
-      return res.json(user);
+      return res.status(200).json(user);
     }
-    return res.status(404).json({ message: "User not found." });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ error: error.message });
+    return res
+      .status(404)
+      .json({ message: "User not found.", error: error.message });
   }
 };
 
@@ -48,7 +54,9 @@ export const deleteUser = async (req, res) => {
     throw new Error("User not found.");
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ deletionStatus: false, error: error.message });
+    return res
+      .status(500)
+      .json({ deletionStatus: false, error: error.message });
   }
 };
 
@@ -67,7 +75,10 @@ export const addPortfolioProject = async (req, res) => {
       return res.status(404).json({ message: "User not found." });
     }
   } catch (error) {
-    res.status(500).send(error.message);
+    console.log(error.message);
+    return res
+      .status(404)
+      .json({ message: "User not found.", error: error.message });
   }
 };
 
@@ -77,7 +88,8 @@ export const updateUserInfo = async (req, res) => {
     const user = await User.findByIdAndUpdate(id, req.body, { new: true });
     res.status(200).send(user);
   } catch (error) {
-    res.status(500).send(error.message);
+    console.log(error.message);
+    return res.status(404).json({ error: error.message });
   }
 };
 
