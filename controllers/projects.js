@@ -3,12 +3,11 @@
  * - need to add edge cases
  * - need to add edge cases
  * - refactor this code because there is a for sure cleaner way to do all of this
- *  - might even be able to make a helper function since a lot of the special endpoints share the same funcitonality
+ *  - might even be able to make a helper function since a lot of the special endpoints share the same functionality
  * - consider what properties containing objectId's should be populated in the response
  */
 import Project from "../models/project.js";
 import User from "../models/user.js";
-
 import Tool from "../models/tool.js";
 // barbra : 61e1eccd385f4c5e6251a67a
 // wiggle jones: 61e1eccc385f4c5e6251a676
@@ -21,22 +20,23 @@ import Tool from "../models/tool.js";
 export const getAllProjects = async (req, res) => {
   try {
     const projects = await Project.find().populate({
-      path: "tools",
-      model: Tool,
-    }); // .populate({path: "interested_applicants",model: User,  });
+      path: "project_owner roles.interested_applicants",
+      model: User,
+    });
+
     res.json(projects);
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: error.message });
   }
-}; //tested and is good
+};
 
 export const getOneProject = async (req, res) => {
   try {
     const { id } = req.params;
     const project = await Project.findById(id).populate({
-      path: "tools",
-      model: Tool,
+      path: "project_owner roles.interested_applicants",
+      model: User,
     });
     if (project) {
       return res.json(project);
