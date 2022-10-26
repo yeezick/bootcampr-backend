@@ -1,3 +1,4 @@
+import "dotenv/config.js";
 import bcrypt from "bcrypt";
 import db from "../db/connection.js";
 import Project from "../models/project.js";
@@ -12,16 +13,18 @@ const insertData = async () => {
   const user1 = new User({
     about:
       "American whole magazine truth stop whose. On traditional measure example sense peace. Would mouth relate own chair. Role together range line. Government first policy daughter.",
-    email: "firstUser@mail.com",
+    email: "lagtestuy@mail.com",
     first_name: "Wiggle",
     interested_projects: [],
     last_name: "Jones",
+    fun_fact: "I like turtles",
     member_of_projects: [],
     password_digest: await bcrypt.hash("gumballs", 11),
     portfolio_link: "www.wigglejones.com",
     portfolio_projects: [],
     rejected_projects: [],
     role: "Software Engineer",
+    show_portfolio: true,
   });
   await user1.save();
 
@@ -100,6 +103,21 @@ const insertData = async () => {
   });
   await user6.save();
 
+  const user7 = new User({
+    about: " lets get this bread",
+    email: "letsgetthisbread@mail.com",
+    first_name: "BREAD",
+    interested_projects: [],
+    last_name: "CHASER",
+    member_of_projects: [],
+    password_digest: await bcrypt.hash("makingMoney", 11),
+    portfolio_link: "www.bootCamper.com",
+    portfolio_projects: [],
+    rejected_projects: [],
+    role: "Software Engineer",
+  });
+  await user7.save();
+
   const projects = [
     {
       description: "building gaming app",
@@ -108,7 +126,7 @@ const insertData = async () => {
       interested_applicants: [user3, user4, user5, user6], // projects[0]
       seeking: true,
       team_members: [user2],
-      time_commitment: 'no preference',
+      time_commitment: "no preference",
       title: "GameBot",
       tools: [],
       owner: user1,
@@ -120,7 +138,7 @@ const insertData = async () => {
       interested_applicants: [user4], //projects[1]
       seeking: true,
       team_members: [user1, user3],
-      time_commitment: 'hobby',
+      time_commitment: "hobby",
       title: "PaintBot",
       tools: [],
       owner: user2,
@@ -132,7 +150,7 @@ const insertData = async () => {
       interested_applicants: [user4], //projects[2]
       seeking: false,
       team_members: [user2, user1],
-      time_commitment: 'part-time',
+      time_commitment: "part-time",
       title: "GardenBot",
       tools: [],
       owner: user3,
@@ -144,7 +162,7 @@ const insertData = async () => {
       interested_applicants: [user2], //projects[3]
       seeking: true,
       team_members: [user3],
-      time_commitment: 'full-time',
+      time_commitment: "full-time",
       title: "BabysitterBot",
       tools: [],
       owner: user4,
@@ -156,7 +174,7 @@ const insertData = async () => {
       interested_applicants: [user2], //projects[4]
       seeking: true,
       team_members: [user1, user3],
-      time_commitment: 'full-time',
+      time_commitment: "full-time",
       title: "MyMoney.io",
       tools: [],
       owner: user4,
@@ -170,11 +188,7 @@ const insertData = async () => {
 
   // console.log("first", project1[0]);
   // adding allProjects to each user's member_of_projects array:
-  user1.member_of_projects.push(
-    allProjects[1],
-    allProjects[2],
-    allProjects[4]
-  );
+  user1.member_of_projects.push(allProjects[1], allProjects[2], allProjects[4]);
   user2.member_of_projects.push(allProjects[0]);
   user3.member_of_projects.push(allProjects[1], allProjects[3]);
   user4.member_of_projects.push();
@@ -197,53 +211,48 @@ const insertData = async () => {
   await user3.save();
   await user4.save();
 
-  console.log("Created users & projects!");
-  console.log(user1)
-
-  // tools 
+  // tools
 
   const tools = [
     {
-      category: 'Engineering',
-      icon: '/assets/icons/javascript.svg',
-      name: 'JavaScript',
+      category: "Engineering",
+      icon: "/assets/icons/javascript.svg",
+      name: "JavaScript",
     },
     {
-      category: 'Engineering',
-      icon: '/assets/icons/react.svg',
-      name: 'React',
+      category: "Engineering",
+      icon: "/assets/icons/react.svg",
+      name: "React",
     },
     {
-      category: 'Engineering',
-      icon: '/assets/icons/html.svg',
-      name: 'HTML',
+      category: "Engineering",
+      icon: "/assets/icons/html.svg",
+      name: "HTML",
     },
     {
-      category: 'Engineering',
-      icon: '/assets/icons/css.png',
-      name: 'CSS',
+      category: "Engineering",
+      icon: "/assets/icons/css.png",
+      name: "CSS",
     },
     {
-      category: 'Engineering',
-      icon: '/assets/icons/rails.png',
-      name: 'Rails',
+      category: "Engineering",
+      icon: "/assets/icons/rails.png",
+      name: "Rails",
     },
     {
-      category: 'Engineering',
-      icon: '/assets/icons/ruby.svg',
-      name: 'Ruby',
+      category: "Engineering",
+      icon: "/assets/icons/ruby.svg",
+      name: "Ruby",
     },
     {
-      category: 'Design',
-      icon: '/assets/icons/figma.svg',
-      name: 'Figma',
+      category: "Design",
+      icon: "/assets/icons/figma.svg",
+      name: "Figma",
     },
-
   ];
+
   await Tool.insertMany(tools);
-  console.log('Created tools!')
-  const allTools = await Tool.find()
-  console.log(allTools)
+  const allTools = await Tool.find();
   db.close();
 };
 
