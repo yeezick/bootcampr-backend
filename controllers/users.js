@@ -138,7 +138,7 @@ export const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
     let user = await User.findOne({ email }).select(
-      "about email firstName fun_fact interestedProjects lastName memberOfProjects passwordDigest portfolioProjects portfolio_link rejected_projects role"
+      "about email firstName fun_fact interestedProjects lastName memberOfProjects passwordDigest portfolioProjects portfolioUrl declinedProjects role"
     ); // to avoid setting `select` to true on the user model, i select all properties here then copy the user object without the passwordDigest below
     let secureUser = Object.assign({}, user._doc, {
       passwordDigest: undefined,

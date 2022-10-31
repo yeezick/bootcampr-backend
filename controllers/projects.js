@@ -153,7 +153,7 @@ export const removeMemberFromProject = async (req, res) => {
   userId: "61e1dd56f0433b2d40e12cdb",
   userUpdate: {
     memberOfProjects: [],
-    rejected_projects: ["61e1dd57f0433b2d40e12cdf"], // dont forget to add project here
+    declinedProjects: ["61e1dd57f0433b2d40e12cdf"], // dont forget to add project here
   },
 };
  */
@@ -211,7 +211,7 @@ export const removeInterestedUser = async (req, res) => {
   "userId": "61e1dd56f0433b2d40e12cdb",
   "userUpdate": {
     "interestedProjects": [],
-    "rejected_projects": ["61e1dd57f0433b2d40e12cdf"]
+    "declinedProjects": ["61e1dd57f0433b2d40e12cdf"]
   }
 }
 */

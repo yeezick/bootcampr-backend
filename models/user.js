@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 const User = new Schema(
   {
     bio: { type: String, maxlength: 300 },
+    declinedProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
     email: {
       // match: /.+\@.+\..+/,
       type: String,
@@ -17,10 +18,9 @@ const User = new Schema(
     memberOfProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
     ownerOfProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
     passwordDigest: { type: String, required: true, select: false },
-    profilePicture: {type: String},
     portfolioProjects: [{ type: Object }],
     portfolioUrl: { type: String },
-    declinedProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+    profilePicture: {type: String},
     role: { type: String },
     savedProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
   },
