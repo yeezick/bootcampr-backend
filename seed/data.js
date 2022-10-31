@@ -11,17 +11,17 @@ const insertData = async () => {
   await db.dropDatabase();
 
   const user1 = new User({
-    about:
+    bio:
       "American whole magazine truth stop whose. On traditional measure example sense peace. Would mouth relate own chair. Role together range line. Government first policy daughter.",
     email: "lagtestuy@mail.com",
-    first_name: "Wiggle",
-    interested_projects: [],
-    last_name: "Jones",
+    firstName: "Wiggle",
+    interestedProjects: [],
+    lastName: "Jones",
     fun_fact: "I like turtles",
-    member_of_projects: [],
-    password_digest: await bcrypt.hash("gumballs", 11),
+    memberOfProjects: [],
+    passwordDigest: await bcrypt.hash("gumballs", 11),
     portfolio_link: "www.wigglejones.com",
-    portfolio_projects: [],
+    portfolioProjects: [],
     rejected_projects: [],
     role: "Software Engineer",
     show_portfolio: true,
@@ -29,90 +29,90 @@ const insertData = async () => {
   await user1.save();
 
   const user2 = new User({
-    about: "Designer for LA",
+    bio: "Designer for LA",
     email: "laguy@mail.com",
-    first_name: "Mike",
-    interested_projects: [],
-    last_name: "Hunt",
-    member_of_projects: [],
-    password_digest: await bcrypt.hash("pizza12", 11),
+    firstName: "Mike",
+    interestedProjects: [],
+    lastName: "Hunt",
+    memberOfProjects: [],
+    passwordDigest: await bcrypt.hash("pizza12", 11),
     portfolio_link: "www.ladesigner.com",
-    portfolio_projects: [],
+    portfolioProjects: [],
     rejected_projects: [],
     role: "UX Designer",
   });
   await user2.save();
 
   const user3 = new User({
-    about: "I code for fun",
+    bio: "I code for fun",
     email: "barbra@mail.com",
-    first_name: "Barbra",
-    last_name: "Woo",
-    interested_projects: [],
-    member_of_projects: [],
-    password_digest: await bcrypt.hash("gumballs", 11),
+    firstName: "Barbra",
+    lastName: "Woo",
+    interestedProjects: [],
+    memberOfProjects: [],
+    passwordDigest: await bcrypt.hash("gumballs", 11),
     portfolio_link: "www.bras.com",
-    portfolio_projects: [],
+    portfolioProjects: [],
     rejected_projects: [],
     role: "Software Engineer",
   });
   await user3.save();
 
   const user4 = new User({
-    about: "I like all the colors!",
+    bio: "I like all the colors!",
     email: "wondergirl@mail.com",
-    first_name: "Stephanie",
-    interested_projects: [],
-    last_name: "Carter",
-    member_of_projects: [],
-    password_digest: await bcrypt.hash("gumballs", 11),
+    firstName: "Stephanie",
+    interestedProjects: [],
+    lastName: "Carter",
+    memberOfProjects: [],
+    passwordDigest: await bcrypt.hash("gumballs", 11),
     portfolio_link: "www.colorsofrainbows.com",
-    portfolio_projects: [],
+    portfolioProjects: [],
     rejected_projects: [],
     role: "UX Designer",
   });
   await user4.save();
 
   const user5 = new User({
-    about: "I'm an engineer and I like it",
+    bio: "I'm an engineer and I like it",
     email: "engineer1@mail.com",
-    first_name: "Dude",
-    interested_projects: [],
-    last_name: "Guy",
-    member_of_projects: [],
-    password_digest: await bcrypt.hash("donkeyballs", 11),
+    firstName: "Dude",
+    interestedProjects: [],
+    lastName: "Guy",
+    memberOfProjects: [],
+    passwordDigest: await bcrypt.hash("donkeyballs", 11),
     portfolio_link: "www.myportfoliostuff.com",
-    portfolio_projects: [],
+    portfolioProjects: [],
     rejected_projects: [],
     role: "Software Engineer",
   });
   await user5.save();
 
   const user6 = new User({
-    about: "I like nerd stuff. A lot.",
+    bio: "I like nerd stuff. A lot.",
     email: "lady@mail.com",
-    first_name: "Maria",
-    interested_projects: [],
-    last_name: "Lastname",
-    member_of_projects: [],
-    password_digest: await bcrypt.hash("usbdongle", 11),
+    firstName: "Maria",
+    interestedProjects: [],
+    lastName: "Lastname",
+    memberOfProjects: [],
+    passwordDigest: await bcrypt.hash("usbdongle", 11),
     portfolio_link: "www.nerds4nerds.com",
-    portfolio_projects: [],
+    portfolioProjects: [],
     rejected_projects: [],
     role: "Software Engineer",
   });
   await user6.save();
 
   const user7 = new User({
-    about: " lets get this bread",
+    bio: " lets get this bread",
     email: "letsgetthisbread@mail.com",
-    first_name: "BREAD",
-    interested_projects: [],
-    last_name: "CHASER",
-    member_of_projects: [],
-    password_digest: await bcrypt.hash("makingMoney", 11),
+    firstName: "BREAD",
+    interestedProjects: [],
+    lastName: "CHASER",
+    memberOfProjects: [],
+    passwordDigest: await bcrypt.hash("makingMoney", 11),
     portfolio_link: "www.bootCamper.com",
-    portfolio_projects: [],
+    portfolioProjects: [],
     rejected_projects: [],
     role: "Software Engineer",
   });
@@ -187,16 +187,16 @@ const insertData = async () => {
   // );
 
   // console.log("first", project1[0]);
-  // adding allProjects to each user's member_of_projects array:
-  user1.member_of_projects.push(allProjects[1], allProjects[2], allProjects[4]);
-  user2.member_of_projects.push(allProjects[0]);
-  user3.member_of_projects.push(allProjects[1], allProjects[3]);
-  user4.member_of_projects.push();
+  // adding allProjects to each user's memberOfProjects array:
+  user1.memberOfProjects.push(allProjects[1], allProjects[2], allProjects[4]);
+  user2.memberOfProjects.push(allProjects[0]);
+  user3.memberOfProjects.push(allProjects[1], allProjects[3]);
+  user4.memberOfProjects.push();
 
-  // adding projects to each user's interested_projects array:
-  user2.interested_projects.push(allProjects[3], allProjects[4]);
-  user3.interested_projects.push(allProjects[0]);
-  user4.interested_projects.push(
+  // adding projects to each user's interestedProjects array:
+  user2.interestedProjects.push(allProjects[3], allProjects[4]);
+  user3.interestedProjects.push(allProjects[0]);
+  user4.interestedProjects.push(
     allProjects[0],
     allProjects[1],
     allProjects[2]
