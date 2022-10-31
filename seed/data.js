@@ -135,66 +135,6 @@ const insertData = async () => {
   });
   await user7.save();
 
-  const engineer = {
-    duration: "10",
-    meeting_cadence: "1 month",
-    overview: "It's a rad project",
-    project_owner: user1,
-    roles: [
-      {
-        interested_applicants: [user1, user3],
-        status: "Draft",
-        category: "Software Engineer",
-        title: "Software Engineer",
-        description: "Must be able to code.",
-        skills: ["React", "JavaScript"],
-        desired_headcount: 2,
-      },
-      {
-        interested_applicants: [user2, user4],
-        status: "Published",
-        category: "UX Designer",
-        title: "UX Designer",
-        description: "Must be able to UX Design.",
-        skills: ["Figma", "Chrome"],
-        desired_headcount: 2,
-      }
-    ],
-    status:  "Draft" ,
-    technologies_used: ["VSCode", "Chrome"],
-    title: "Extra Radical",
-  }
-
-  const designer = {
-    duration: "2 months",
-    meeting_cadence: "weekly",
-    overview: "Less Rad Project",
-    project_owner: user2,
-    roles: [
-      {
-        interested_applicants: [user4, user5],
-        status: "Draft",
-        category: "Software Engineer",
-        title: "Software Engineer",
-        description: "Must be able to code.",
-        skills: ["React", "JavaScript"],
-        desired_headcount: 2,
-      },
-      {
-        interested_applicants: [user2, user4],
-        status: "Published",
-        category: "UX Designer",
-        title: "UX Designer",
-        description: "Must be able to UX Design.",
-        skills: ["Figma", "Chrome"],
-        desired_headcount: 2,
-      }
-    ],
-    status:  "Published" ,
-    technologies_used: ["Figma", "Chrome"],
-    title: "Extra Lame",
-  }
-
   const projects = [
     {
       duration: "10",

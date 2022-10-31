@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
  * 
  * Need to discuss:
  * - options for meeting cadence
- * - is duration necessary?
+ * - is duration necessary? what are the possible options?
  * - how we will handle multiple roles
  * - how we handle applicants to a role
  * -
