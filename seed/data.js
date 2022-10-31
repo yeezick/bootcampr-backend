@@ -416,9 +416,6 @@ const insertData = async () => {
   await Tool.insertMany(tools);
   const allTools = await Tool.find();
 
-  console.log(allUsers)
-  console.log(allProjects)
-  console.log(allTools)
   db.close();
 };
 
