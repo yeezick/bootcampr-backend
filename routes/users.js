@@ -16,8 +16,12 @@ router.delete('/users/:id', controllers.deleteUser);
 router.post("/sign-in", controllers.signIn);
 router.get("/verify", controllers.verify);
 router.post("/email", controllers.checkEmail)
+router.patch('/update-email/:userID', controllers.updateEmail);
 router.post('/confirm-password/:userID', controllers.confirmPassword);
 router.patch('/update-password/:userID', controllers.updatePassword);
 
 
+
 export default router;
+
+// mynewpassword
