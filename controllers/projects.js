@@ -107,7 +107,7 @@ const body = {
   user: {
     userId: "61e096f7dcab51d3edee52e6",
     userUpdate: {
-      member_of_projects: ["61e090dc02b0f84cd989cd1b"], //must have old project id's too
+      memberOfProjects: ["61e090dc02b0f84cd989cd1b"], //must have old project id's too
     },
   },
 };
@@ -138,8 +138,8 @@ export const removeMemberFromProject = async (req, res) => {
   },
   userId: "61e1dd56f0433b2d40e12cdb",
   userUpdate: {
-    member_of_projects: [],
-    rejected_projects: ["61e1dd57f0433b2d40e12cdf"], // dont forget to add project here
+    memberOfProjects: [],
+    declinedProjects: ["61e1dd57f0433b2d40e12cdf"], // dont forget to add project here
   },
 };
  */
@@ -167,7 +167,7 @@ export const addInterestedUser = async (req, res) => {
   },
   "userId": "61e1dd56f0433b2d40e12cdb",
   "userUpdate": {
-    "interested_projects": ["61e1dd57f0433b2d40e12cdf"],
+    "interestedProjects": ["61e1dd57f0433b2d40e12cdf"],
   }
 }
 */
@@ -196,8 +196,8 @@ export const removeInterestedUser = async (req, res) => {
   },
   "userId": "61e1dd56f0433b2d40e12cdb",
   "userUpdate": {
-    "interested_projects": [],
-    "rejected_projects": ["61e1dd57f0433b2d40e12cdf"]
+    "interestedProjects": [],
+    "declinedProjects": ["61e1dd57f0433b2d40e12cdf"]
   }
 }
 */
