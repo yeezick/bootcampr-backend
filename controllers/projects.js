@@ -8,22 +8,11 @@
  */
 import Project from "../models/project.js";
 import User from "../models/user.js";
-import Tool from "../models/tool.js";
-// barbra : 61e1eccd385f4c5e6251a67a
-// wiggle jones: 61e1eccc385f4c5e6251a676
-// mike: 61e1eccd385f4c5e6251a678
-
-// project id gamebot: 61e1eccd385f4c5e6251a67e //owned by wiggle jones
-// gardening app: 61e1eccd385f4c5e6251a680 // owned by mike
 
 //basic CRUD functions:
 export const getAllProjects = async (req, res) => {
   try {
-    const projects = await Project.find().populate({
-      path: "project_owner roles.interested_applicants",
-      model: User,
-    });
-
+    const projects = await Project.find()
     res.json(projects);
   } catch (error) {
     console.log(error.message);
@@ -34,10 +23,7 @@ export const getAllProjects = async (req, res) => {
 export const getOneProject = async (req, res) => {
   try {
     const { id } = req.params;
-    const project = await Project.findById(id).populate({
-      path: "project_owner roles.interested_applicants",
-      model: User,
-    });
+    const project = await Project.findById(id)
     if (project) {
       return res.json(project);
     }
