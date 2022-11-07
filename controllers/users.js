@@ -197,12 +197,12 @@ export const updatePassword = async (req, res) => {
   try {
     const { newPassword, password } = req.body;
     const { userID } = req.params;
-    const user = await User.findOne({ _id: userID }).select('+password_digest')
+    const user = await User.findOne({ _id: userID }).select('+passwordDigest')
 
-    if (await bcrypt.compare(password, user.password_digest)) {
+    if (await bcrypt.compare(password, user._doc.passwordDigest)) {
       const user = await User.findByIdAndUpdate(
         userID,
-        { password_digest: await bcrypt.hash(newPassword, SALT_ROUNDS) },
+        { passwordDigest: await bcrypt.hash(newPassword, SALT_ROUNDS) },
         { new: true }
       );
       const payload = {
@@ -227,9 +227,9 @@ export const updateEmail = async (req, res) => {
   try {
     const { newEmail, password } = req.body;
     const { userID } = req.params;
-    const user = await User.findOne({ _id: userID }).select('+password_digest')
-
-    if (await bcrypt.compare(password, user.password_digest)) {
+    const user = await User.findOne({ _id: userID }).select('+passwordDigest')
+    console.log(await bcrypt.compare(password, user._doc.passwordDigest))
+    if (await bcrypt.compare(password, user._doc.passwordDigest)) {
       const user = await User.findByIdAndUpdate(
         userID,
         { email: newEmail },
