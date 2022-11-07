@@ -137,14 +137,14 @@ export const signUp = async (req, res) => {
 export const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
-    let user = await User.findOne({ email }).select(
-      "about email first_name fun_fact interested_projects last_name member_of_projects password_digest portfolio_projects portfolio_link rejected_projects role"
-    ); // to avoid setting `select` to true on the user model, i select all properties here then copy the user object without the password_digest below
+    let user = await User.findOne({ email }).select('+passwordDigest')
+    console.log("user", user)
     if (user) {
       let secureUser = Object.assign({}, user._doc, {
-        password_digest: undefined,
+        passwordDigest: undefined,
       });
-      if (await bcrypt.compare(password, user.password_digest)) {
+      console.log('Secure User', secureUser)
+      if (await bcrypt.compare(password, user.passwordDigest)) {
         const payload = {
           userID: user._id,
           email: user.email,
