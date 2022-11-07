@@ -197,7 +197,6 @@ export const updatePassword = async (req, res) => {
   try {
     const { newPassword, password } = req.body;
     const { userID } = req.params;
-<<<<<<< HEAD
     const user = await User.findOne({ _id: userID }).select('+passwordDigest')
 
     if (await bcrypt.compare(password, user._doc.passwordDigest)) {
@@ -218,23 +217,6 @@ export const updatePassword = async (req, res) => {
     } else {
       res.status(401).json({ message: "Wrong Password" })
     }
-=======
-    const newPasswordDigest = await bcrypt.hash(newPassword, SALT_ROUNDS);
-    const user = await User.findByIdAndUpdate(
-      userID,
-      { passwordDigest: newPasswordDigest },
-      { new: true }
-    );
-    const payload = {
-      userID: user._id,
-      email: user.email,
-      exp: parseInt(exp.getTime() / 1000),
-    };
-    const token = jwt.sign(payload, TOKEN_KEY);
-    res
-      .status(201)
-      .json({ status: true, message: "Password Updated", user, token });
->>>>>>> feature/BC-323-sign-in-functionality
   } catch (error) {
     console.error(error.message);
     res.status(400).json({ status: false, message: error.message });
