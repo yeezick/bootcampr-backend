@@ -1,14 +1,23 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
+/**
+ * TODO:
+ * - Concert snake_case properties to camelCase
+ * 
+ * Need to discuss:
+ * - options for meeting cadence
+ * - is duration necessary? what are the possible options?
+ * - how we will handle multiple roles
+ * - how we handle applicants to a role
+ * -
+ */
 
 const Project = new Schema(
   {
-    status: { type: String, required: true, enum: ["Draft", "Published"] },
-    title: { type: String, required: true, maxlength: 45 },
-    project_owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    overview: { type: String, required: true },
+    duration: { type: String },
     meeting_cadence: { type: String, required: true },
-    technologies_used: [{ type: String, required: true }],
+    overview: { type: String, required: true },
+    project_owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
     roles: [
       {
         interested_applicants: [{ type: Schema.Types.ObjectId, ref: "User" }],
@@ -20,8 +29,9 @@ const Project = new Schema(
         desired_headcount: { type: Number },
       },
     ],
-
-    duration: { type: String },
+    status: { type: String, required: true, enum: ["Draft", "Published"] },
+    technologies_used: [{ type: String, required: true }],
+    title: { type: String, required: true, maxlength: 45 },
   },
   { timestamps: true }
 );
