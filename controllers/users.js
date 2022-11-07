@@ -137,7 +137,6 @@ export const signUp = async (req, res) => {
 export const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(email, password)
     let user = await User.findOne({ email }).select(
       "about email first_name fun_fact interested_projects last_name member_of_projects password_digest portfolio_projects portfolio_link rejected_projects role"
     ); // to avoid setting `select` to true on the user model, i select all properties here then copy the user object without the password_digest below
@@ -154,13 +153,13 @@ export const signIn = async (req, res) => {
         const token = jwt.sign(payload, TOKEN_KEY);
         res.status(201).json({ user: secureUser, token });
       } else {
-        res.status(401).json({ unauthorized: "Invalid Credentials" });
+        res.status(401).json({ message: "Invalid email or password" });
       }
     } else {
-      res.status(401).json({ unauthorized: "Invalid Credentials" });
+      res.status(401).json({ message: "Invalid email or password" });
     }
   } catch (error) {
-    console.log(error.message);
+    console.error(error.message);
     res.status(500).json({ error: error.message });
   }
 };
