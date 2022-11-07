@@ -138,12 +138,10 @@ export const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
     let user = await User.findOne({ email }).select('+passwordDigest')
-    console.log("user", user)
     if (user) {
       let secureUser = Object.assign({}, user._doc, {
         passwordDigest: undefined,
       });
-      console.log('Secure User', secureUser)
       if (await bcrypt.compare(password, user.passwordDigest)) {
         const payload = {
           userID: user._id,
@@ -180,7 +178,6 @@ export const verify = async (req, res) => {
 export const confirmPassword = async (req, res) => {
   const { email, password } = req.body;
   // is it better to find the user by their email or id?
-  console.log("email", email);
   if (email) {
     let user = await User.findOne({ email }).select("passwordDigest");
     if (await bcrypt.compare(password, user.passwordDigest)) {
