@@ -5,206 +5,314 @@ import Project from "../models/project.js";
 import Tool from "../models/tool.js";
 import User from "../models/user.js";
 
+/**
+ * Whoever refactors this file, please make sure of the following:
+ * - memberOfProjects, ownerOfProjects, etc all make sense 
+ * - User models / references don't clash
+ *    EX: a user is in "interestedApplicant" and "DeclinedProject" of the same project
+ * 
+ * I've only adapted these to fit the new schemas to avoid breaking in execution, I have not checked the logic of this file.
+ * 
+ * Feel free to take initative and organize this file. It needs structure!! 
+ * If you organize, think about how we can make it easy to update in the future too.
+ */
+
 const insertData = async () => {
   //reset database
 
   await db.dropDatabase();
 
   const user1 = new User({
-    about:
-      "American whole magazine truth stop whose. On traditional measure example sense peace. Would mouth relate own chair. Role together range line. Government first policy daughter.",
+    bio: "American whole magazine truth stop whose. On traditional measure example sense peace. Would mouth relate own chair. Role together range line. Government first policy daughter.",
+    declinedProjects: [],
     email: "lagtestuy@mail.com",
-    first_name: "Wiggle",
-    interested_projects: [],
-    last_name: "Jones",
-    fun_fact: "I like turtles",
-    member_of_projects: [],
-    password_digest: await bcrypt.hash("gumballs", 11),
-    portfolio_link: "www.wigglejones.com",
-    portfolio_projects: [],
-    rejected_projects: [],
+    firstName: "Wiggle",
+    interestedProjects: [],
+    lastName: "Jones",
+    linkedinUrl: "www.linkedin.com",
+    memberOfProjects: [],
+    ownerOfProjects: [],
+    passwordDigest: await bcrypt.hash("gumballs", 11),
+    portfolioUrl: "www.wigglejones.com",
+    portfolioProjects: [],
+    profilePicture: "IMAGE",
     role: "Software Engineer",
-    show_portfolio: true,
+    savedProjects: []
   });
   await user1.save();
 
   const user2 = new User({
-    about: "Designer for LA",
+    bio: "Developer PSA: Do not update this user. This user should be immutable and used as a dummy user with pristine date. ",
+    declinedProjects: [],
     email: "laguy@mail.com",
-    first_name: "Mike",
-    interested_projects: [],
-    last_name: "Hunt",
-    member_of_projects: [],
-    password_digest: await bcrypt.hash("pizza12", 11),
-    portfolio_link: "www.ladesigner.com",
-    portfolio_projects: [],
-    rejected_projects: [],
+    firstName: "Mike",
+    interestedProjects: [],
+    lastName: "Hunt",
+    linkedinUrl: "www.linkedin.com",
+    memberOfProjects: [],
+    ownerOfProjects: [],
+    passwordDigest: await bcrypt.hash("pizza12", 11),
+    portfolioUrl: "www.ladesigner.com",
+    portfolioProjects: [],
+    profilePicture: "IMAGE",
     role: "UX Designer",
+    savedProjects: []
   });
   await user2.save();
 
   const user3 = new User({
-    about: "I code for fun",
+    bio: "I code for fun",
+    declinedProjects: [],
     email: "barbra@mail.com",
-    first_name: "Barbra",
-    last_name: "Woo",
-    interested_projects: [],
-    member_of_projects: [],
-    password_digest: await bcrypt.hash("gumballs", 11),
-    portfolio_link: "www.bras.com",
-    portfolio_projects: [],
-    rejected_projects: [],
+    firstName: "Barbra",
+    lastName: "Woo",
+    interestedProjects: [],
+    memberOfProjects: [],
+    passwordDigest: await bcrypt.hash("gumballs", 11),
+    portfolioUrl: "www.bras.com",
+    portfolioProjects: [],
     role: "Software Engineer",
   });
   await user3.save();
 
   const user4 = new User({
-    about: "I like all the colors!",
+    bio: "I like all the colors!",
+    declinedProjects: [],
     email: "wondergirl@mail.com",
-    first_name: "Stephanie",
-    interested_projects: [],
-    last_name: "Carter",
-    member_of_projects: [],
-    password_digest: await bcrypt.hash("gumballs", 11),
-    portfolio_link: "www.colorsofrainbows.com",
-    portfolio_projects: [],
-    rejected_projects: [],
+    firstName: "Stephanie",
+    interestedProjects: [],
+    lastName: "Carter",
+    memberOfProjects: [],
+    passwordDigest: await bcrypt.hash("gumballs", 11),
+    portfolioUrl: "www.colorsofrainbows.com",
+    portfolioProjects: [],
     role: "UX Designer",
   });
   await user4.save();
 
   const user5 = new User({
-    about: "I'm an engineer and I like it",
+    bio: "I'm an engineer and I like it",
+    declinedProjects: [],
     email: "engineer1@mail.com",
-    first_name: "Dude",
-    interested_projects: [],
-    last_name: "Guy",
-    member_of_projects: [],
-    password_digest: await bcrypt.hash("donkeyballs", 11),
-    portfolio_link: "www.myportfoliostuff.com",
-    portfolio_projects: [],
-    rejected_projects: [],
+    firstName: "Dude",
+    interestedProjects: [],
+    lastName: "Guy",
+    memberOfProjects: [],
+    passwordDigest: await bcrypt.hash("donkeyballs", 11),
+    portfolioUrl: "www.myportfoliostuff.com",
+    portfolioProjects: [],
     role: "Software Engineer",
   });
   await user5.save();
 
   const user6 = new User({
-    about: "I like nerd stuff. A lot.",
+    bio: "I like nerd stuff. A lot.",
+    declinedProjects: [],
     email: "lady@mail.com",
-    first_name: "Maria",
-    interested_projects: [],
-    last_name: "Lastname",
-    member_of_projects: [],
-    password_digest: await bcrypt.hash("usbdongle", 11),
-    portfolio_link: "www.nerds4nerds.com",
-    portfolio_projects: [],
-    rejected_projects: [],
+    firstName: "Maria",
+    interestedProjects: [],
+    lastName: "Lastname",
+    memberOfProjects: [],
+    passwordDigest: await bcrypt.hash("usbdongle", 11),
+    portfolioUrl: "www.nerds4nerds.com",
+    portfolioProjects: [],
     role: "Software Engineer",
   });
   await user6.save();
 
   const user7 = new User({
-    about: " lets get this bread",
+    bio: " lets get this bread",
+    declinedProjects: [],
     email: "letsgetthisbread@mail.com",
-    first_name: "BREAD",
-    interested_projects: [],
-    last_name: "CHASER",
-    member_of_projects: [],
-    password_digest: await bcrypt.hash("makingMoney", 11),
-    portfolio_link: "www.bootCamper.com",
-    portfolio_projects: [],
-    rejected_projects: [],
+    firstName: "BREAD",
+    interestedProjects: [],
+    lastName: "CHASER",
+    memberOfProjects: [],
+    passwordDigest: await bcrypt.hash("makingMoney", 11),
+    portfolioUrl: "www.bootCamper.com",
+    portfolioProjects: [],
     role: "Software Engineer",
   });
   await user7.save();
 
   const projects = [
     {
-      overview: "building gaming app",
-      // designer_count: 1,
-      // engineer_count: 1,
-      interested_applicants: [user3, user4, user5, user6], // projects[0]
-      // seeking: true,
-      // team_members: [user2],
-      meeting_cadence: 'no preference',
-      title: "GameBot",
-      technologies_used: ["C#"],
-      // tools: [],
+      duration: "10",
+      meeting_cadence: "1 month",
+      overview: "It's a rad project",
       project_owner: user1,
-      duration: "1 month",
-      status: "Published"
+      roles: [
+        {
+          interested_applicants: [user1, user3],
+          status: "Draft",
+          category: "Software Engineer",
+          title: "Software Engineer",
+          description: "Must be able to code.",
+          skills: ["React", "JavaScript"],
+          desired_headcount: 2,
+        },
+        {
+          interested_applicants: [user2, user4],
+          status: "Published",
+          category: "UX Designer",
+          title: "UX Designer",
+          description: "Must be able to UX Design.",
+          skills: ["Figma", "Chrome"],
+          desired_headcount: 2,
+        }
+      ],
+      status:  "Draft" ,
+      technologies_used: ["VSCode", "Chrome"],
+      title: "Extra Radical",
     },
     {
-      overview: "Painting app",
-      interested_applicants: [user4], //projects[1]
-      meeting_cadence: "hobby",
-      title: "PaintBot",
-      technologies_used: ["Java", "Spring"],
+      duration: "2 months",
+      meeting_cadence: "weekly",
+      overview: "Less Rad Project",
       project_owner: user2,
+      roles: [
+        {
+          interested_applicants: [user4, user5],
+          status: "Draft",
+          category: "Software Engineer",
+          title: "Software Engineer",
+          description: "Must be able to code.",
+          skills: ["React", "JavaScript"],
+          desired_headcount: 2,
+        },
+        {
+          interested_applicants: [user2, user4],
+          status: "Published",
+          category: "UX Designer",
+          title: "UX Designer",
+          description: "Must be able to UX Design.",
+          skills: ["Figma", "Chrome"],
+          desired_headcount: 2,
+        }
+      ],
+      status:  "Published" ,
+      technologies_used: ["Figma", "Chrome"],
+      title: "Extra Lame",
+    },
+    {
+      duration: "10",
+      meeting_cadence: "1 month",
+      overview: "It's a rad project",
+      project_owner: user1,
+      roles: [
+        {
+          interested_applicants: [user1, user3],
+          status: "Draft",
+          category: "Software Engineer",
+          title: "Software Engineer",
+          description: "Must be able to code.",
+          skills: ["React", "JavaScript"],
+          desired_headcount: 2,
+        },
+        {
+          interested_applicants: [user2, user4],
+          status: "Published",
+          category: "UX Designer",
+          title: "UX Designer",
+          description: "Must be able to UX Design.",
+          skills: ["Figma", "Chrome"],
+          desired_headcount: 2,
+        }
+      ],
+      status:  "Draft" ,
+      technologies_used: ["VSCode", "Chrome"],
+      title: "Extra Radical",
+    },
+    {
       duration: "2 months",
-      status: "Published"
+      meeting_cadence: "weekly",
+      overview: "Less Rad Project",
+      project_owner: user2,
+      roles: [
+        {
+          interested_applicants: [user4, user5],
+          status: "Draft",
+          category: "Software Engineer",
+          title: "Software Engineer",
+          description: "Must be able to code.",
+          skills: ["React", "JavaScript"],
+          desired_headcount: 2,
+        },
+        {
+          interested_applicants: [user2, user4],
+          status: "Published",
+          category: "UX Designer",
+          title: "UX Designer",
+          description: "Must be able to UX Design.",
+          skills: ["Figma", "Chrome"],
+          desired_headcount: 2,
+        }
+      ],
+      status:  "Published" ,
+      technologies_used: ["Figma", "Chrome"],
+      title: "Extra Lame",
     },
     {
-      overview: "gardening app",
-      interested_applicants: [user4], //projects[2]
-      meeting_cadence: "part-time",
-      title: "GardenBot",
-      project_owner: user3,
-      technologies_used: ["React", "AWS"],
-      duration: "3 months",
-      status: "Published"
-    },
-    {
-      overview: "babysitter app",
-      interested_applicants: [user2], //projects[3]
-      meeting_cadence: "full-time",
-      title: "BabysitterBot",
-      project_owner: user4,
-      technologies_used: ["HTML", "CSS"],
-      duration: "4 months",
-      status: "Published"
-    },
-    {
-      overview: "finance app",
-      interested_applicants: [user2], //projects[4]
-      meeting_cadence: "full-time",
-      title: "MyMoney.io",
-      technologies_used: ["HTML", "CSS"],
-      status: "Published",
-      duration: "2 months",
-      project_owner: user4,
-    },
+      duration: "10",
+      meeting_cadence: "1 month",
+      overview: "It's a rad project",
+      project_owner: user1,
+      roles: [
+        {
+          interested_applicants: [user1, user3],
+          status: "Draft",
+          category: "Software Engineer",
+          title: "Software Engineer",
+          description: "Must be able to code.",
+          skills: ["React", "JavaScript"],
+          desired_headcount: 2,
+        },
+        {
+          interested_applicants: [user2, user4],
+          status: "Published",
+          category: "UX Designer",
+          title: "UX Designer",
+          description: "Must be able to UX Design.",
+          skills: ["Figma", "Chrome"],
+          desired_headcount: 2,
+        }
+      ],
+      status:  "Draft" ,
+      technologies_used: ["VSCode", "Chrome"],
+      title: "Extra Radical",
+    }
   ];
   await Project.insertMany(projects);
   const allProjects = await Project.find();
-  // const projArr = (await project1).forEach((project) =>
-  //   console.log("Project:", project)
-  // );
 
-  // console.log("first", project1[0]);
-  // adding allProjects to each user's member_of_projects array:
-  user1.member_of_projects.push(allProjects[1], allProjects[2], allProjects[4]);
-  user2.member_of_projects.push(allProjects[0]);
-  user3.member_of_projects.push(allProjects[1], allProjects[3]);
-  user4.member_of_projects.push();
+  // adding allProjects to each user's memberOfProjects array:
+  user1.memberOfProjects.push(allProjects[1], allProjects[2], allProjects[4]);
+  user2.memberOfProjects.push(allProjects[0]);
+  user3.memberOfProjects.push(allProjects[1], allProjects[3]);
+  user4.memberOfProjects.push();
 
-  // adding projects to each user's interested_projects array:
-  user2.interested_projects.push(allProjects[3], allProjects[4]);
-  user3.interested_projects.push(allProjects[0]);
-  user4.interested_projects.push(
+  // adding projects to each user's interestedProjects array:
+  user2.interestedProjects.push(allProjects[3], allProjects[4]);
+  user3.interestedProjects.push(allProjects[0]);
+  user4.interestedProjects.push(
     allProjects[0],
     allProjects[1],
     allProjects[2]
   );
 
-  // adding projects to each user's rejected_projects array:
-  user2.rejected_projects.push(allProjects[2]);
-  user3.rejected_projects.push(allProjects[3]);
+  // adding projects to each user's declinedProjects array:
+  user2.declinedProjects.push(allProjects[2]);
+  user3.declinedProjects.push(allProjects[3]);
+
+  // add project to savedProjects and ownerOfProjects
+  // user1.
 
   await user1.save();
   await user2.save();
   await user3.save();
   await user4.save();
+
+  const allUsers = User.find();
 
   // tools
 
@@ -247,6 +355,7 @@ const insertData = async () => {
   ];
   await Tool.insertMany(tools);
   const allTools = await Tool.find();
+
   db.close();
 };
 
