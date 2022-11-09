@@ -160,21 +160,6 @@ export const signIn = async (req, res) => {
   }
 };
 
-export const logOut = async (req, res) => {
-  try {
-    const options = {
-      expires: parseInt(exp.now() + 10000),
-      secure: process.env.NODE_ENV === "production" ? true : false,
-      httpOnly: process.env.NODE_ENV === "production" ? true : false,
-    }
-    res.cookies("jwt", "expiredtoken", options);
-    res.status(200).json({ status: "success" });
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: error.message });
-  }
-};
-
 export const verify = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
