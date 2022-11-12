@@ -32,7 +32,7 @@ on:
 
 env:
   AWS_REGION: us-east-1                   # set this to your preferred AWS region, e.g. us-west-1
-  ECR_REPOSITORY: MY_ECR_REPOSITORY           # set this to your Amazon ECR repository name
+  ECR_REPOSITORY: dev-bootcampr-backend           # set this to your Amazon ECR repository name
   ECS_SERVICE: nginx-service                 # set this to your Amazon ECS service name
   ECS_CLUSTER: https://us-east-1.console.aws.amazon.com/ecs/home?region=us-east-1#/clusters/dev-bc-backend-cluster                 # set this to your Amazon ECS cluster name
   ECS_TASK_DEFINITION: utils/ecsTaskDefinition.json # set this to the path to your Amazon ECS task definition
