@@ -9,7 +9,7 @@
         "logDriver": "awslogs",
         "secretOptions": null,
         "options": {
-          "awslogs-group": "/ecs/dev-bc-gh-actions-task",
+          "awslogs-group": "/ecs/dev-ghactions-be",
           "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "ecs"
         }
@@ -22,7 +22,10 @@
           "containerPort": 80
         }
       ],
-      "command": [],
+      "command": [
+        "node",
+        "server.js"
+      ],
       "linuxParameters": null,
       "cpu": 256,
       "environment": [],
@@ -37,7 +40,7 @@
       "memoryReservation": 512,
       "volumesFrom": [],
       "stopTimeout": null,
-      "image": "nginx:latest",
+      "image": "node:16",
       "startTimeout": null,
       "firelensConfiguration": null,
       "dependsOn": null,
@@ -54,13 +57,13 @@
       "dockerLabels": null,
       "systemControls": null,
       "privileged": null,
-      "name": "nginx"
+      "name": "dev-bc-be-container"
     }
   ],
   "placementConstraints": [],
   "memory": "512",
   "taskRoleArn": null,
-  "family": "dev-bc-gh-actions-task",
+  "family": "dev-ghactions-be",
   "pidMode": null,
   "requiresCompatibilities": [
     "FARGATE"
