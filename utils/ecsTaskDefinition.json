@@ -23,8 +23,9 @@
         }
       ],
       "command": [
-        "node",
-        "server.js"
+        "npm",
+        "run",
+        "dev"
       ],
       "linuxParameters": null,
       "cpu": 256,
