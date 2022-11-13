@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 // set connection location
 // todo: add switch case for different env uri's
-const MONGODB_URI = process.env.PROD_MONGODB || "mongodb://localhost:27017";
+const MONGODB_URI = process.env.LOCAL_MDB_URI || process.env.DEV_MDB_URI
 
 mongoose.set("returnOriginal", false); //for findByAndUpdate to return a reference to object at location
 
