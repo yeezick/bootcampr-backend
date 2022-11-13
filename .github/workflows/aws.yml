@@ -24,7 +24,7 @@
 #    See the documentation for each action used below for the recommended IAM policies for this IAM user,
 #    and best practices on handling the access key credentials.
 
-name: Deploy to Amazon ECS
+name: Dev ECS Deployment
 
 on:
   push:
@@ -36,7 +36,6 @@ env:
   ECS_SERVICE: nginx-service                 # set this to your Amazon ECS service name
   ECS_CLUSTER: https://us-east-1.console.aws.amazon.com/ecs/home?region=us-east-1#/clusters/dev-bc-backend-cluster                 # set this to your Amazon ECS cluster name
   ECS_TASK_DEFINITION: utils/ecsTaskDefinition.json # set this to the path to your Amazon ECS task definition
-                                               # file, e.g. .aws/task-definition.json
   CONTAINER_NAME: nginx           # set this to the name of the container in the
                                                # containerDefinitions section of your task definition
 
