@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 
+// should token key be generated here or how do we go about identifying the token to store in env?
 const TOKEN_KEY =
   process.env.NODE_ENV === "production"
     ? process.env.TOKEN_KEY
@@ -15,14 +16,15 @@ exp.setDate(today.getDate() + 30);
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find(); //.populate({
-    //   path: "member_of_projects",
-    //   model: project,
-    // });
-    res.json(users);
+    const allUser = await User.find({});
+    if (allUser) {
+      res.status(200).json(allUser);
+    }
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ error: error.message });
+    return res
+      .status(404)
+      .json({ message: "All User not found.", error: error.message });
   }
 };
 
@@ -31,12 +33,13 @@ export const getOneUser = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById(id);
     if (user) {
-      return res.json(user);
+      return res.status(200).json(user);
     }
-    return res.status(404).json({ message: "User not found." });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ error: error.message });
+    return res
+      .status(404)
+      .json({ message: "User not found.", error: error.message });
   }
 };
 
@@ -52,7 +55,9 @@ export const deleteUser = async (req, res) => {
     throw new Error("User not found.");
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ deletionStatus: false, error: error.message });
+    return res
+      .status(500)
+      .json({ deletionStatus: false, error: error.message });
   }
 };
 
@@ -61,7 +66,7 @@ export const addPortfolioProject = async (req, res) => {
     const { id } = req.params;
     const user = await User.findByIdAndUpdate(
       id,
-      { $push: { portfolio_projects: req.body } },
+      { $push: { portfolioProjects: req.body } },
       { new: true }
     );
     // i believe this can be handled better by throwing an error rather than responding with a 404
@@ -71,7 +76,10 @@ export const addPortfolioProject = async (req, res) => {
       return res.status(404).json({ message: "User not found." });
     }
   } catch (error) {
-    res.status(500).send(error.message);
+    console.log(error.message);
+    return res
+      .status(404)
+      .json({ message: "User not found.", error: error.message });
   }
 };
 
@@ -81,7 +89,8 @@ export const updateUserInfo = async (req, res) => {
     const user = await User.findByIdAndUpdate(id, req.body, { new: true });
     res.status(200).send(user);
   } catch (error) {
-    res.status(500).send(error.message);
+    console.log(error.message);
+    return res.status(404).json({ error: error.message });
   }
 };
 
@@ -103,10 +112,10 @@ export const checkEmail = async (req, res) => {
 // Auth
 export const signUp = async (req, res) => {
   try {
-    const { email, first_name, last_name, password } = req.body;
+    const { email, firstName, lastName, password } = req.body;
 
-    const password_digest = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = new User({ email, first_name, last_name, password_digest });
+    const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
+    const user = new User({ email, firstName, lastName, passwordDigest });
     await user.save();
 
     const payload = {
@@ -116,7 +125,7 @@ export const signUp = async (req, res) => {
     };
     const token = jwt.sign(payload, TOKEN_KEY);
     let secureUser = Object.assign({}, user._doc, {
-      password_digest: undefined,
+      passwordDigest: undefined,
     });
 
     res.status(201).json({ user: secureUser, token });
@@ -130,12 +139,12 @@ export const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
     let user = await User.findOne({ email }).select(
-      "about email first_name fun_fact interested_projects last_name member_of_projects password_digest portfolio_projects portfolio_link rejected_projects role"
-    ); // to avoid setting `select` to true on the user model, i select all properties here then copy the user object without the password_digest below
+      "about email firstName fun_fact interestedProjects lastName memberOfProjects passwordDigest portfolioProjects portfolioUrl declinedProjects role"
+    ); // to avoid setting `select` to true on the user model, i select all properties here then copy the user object without the passwordDigest below
     let secureUser = Object.assign({}, user._doc, {
-      password_digest: undefined,
+      passwordDigest: undefined,
     });
-    if (await bcrypt.compare(password, user.password_digest)) {
+    if (await bcrypt.compare(password, user.passwordDigest)) {
       const payload = {
         userID: user._id,
         email: user.email,
@@ -170,8 +179,8 @@ export const confirmPassword = async (req, res) => {
   // is it better to find the user by their email or id?
   console.log("email", email);
   if (email) {
-    let user = await User.findOne({ email }).select("password_digest");
-    if (await bcrypt.compare(password, user.password_digest)) {
+    let user = await User.findOne({ email }).select("passwordDigest");
+    if (await bcrypt.compare(password, user.passwordDigest)) {
       res.status(201).json({ passwordConfirmed: true });
     } else {
       res.status(401).json({ passwordConfirmed: false }); // status code: unnacceptable lol
@@ -188,7 +197,7 @@ export const updatePassword = async (req, res) => {
     const newPasswordDigest = await bcrypt.hash(newPassword, SALT_ROUNDS);
     const user = await User.findByIdAndUpdate(
       userID,
-      { password_digest: newPasswordDigest },
+      { passwordDigest: newPasswordDigest },
       { new: true }
     );
     const payload = {
