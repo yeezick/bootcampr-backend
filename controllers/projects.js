@@ -3,34 +3,27 @@
  * - need to add edge cases
  * - need to add edge cases
  * - refactor this code because there is a for sure cleaner way to do all of this
- *  - might even be able to make a helper function since a lot of the special endpoints share the same funcitonality
+ *  - might even be able to make a helper function since a lot of the special endpoints share the same functionality
  * - consider what properties containing objectId's should be populated in the response
  */
 import Project from "../models/project.js";
 import User from "../models/user.js";
-import Tool from '../models/tool.js';
-// barbra : 61e1eccd385f4c5e6251a67a
-// wiggle jones: 61e1eccc385f4c5e6251a676
-// mike: 61e1eccd385f4c5e6251a678
-
-// project id gamebot: 61e1eccd385f4c5e6251a67e //owned by wiggle jones
-// gardening app: 61e1eccd385f4c5e6251a680 // owned by mike
 
 //basic CRUD functions:
 export const getAllProjects = async (req, res) => {
   try {
-    const projects = await Project.find().populate({path: 'tools', model: Tool}); // .populate({path: "interested_applicants",model: User,  });
+    const projects = await Project.find()
     res.json(projects);
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: error.message });
   }
-}; //tested and is good
+};
 
 export const getOneProject = async (req, res) => {
   try {
     const { id } = req.params;
-    const project = await Project.findById(id).populate({path: 'tools', model: Tool}) 
+    const project = await Project.findById(id)
     if (project) {
       return res.json(project);
     }
@@ -114,7 +107,7 @@ const body = {
   user: {
     userId: "61e096f7dcab51d3edee52e6",
     userUpdate: {
-      member_of_projects: ["61e090dc02b0f84cd989cd1b"], //must have old project id's too
+      memberOfProjects: ["61e090dc02b0f84cd989cd1b"], //must have old project id's too
     },
   },
 };
@@ -145,8 +138,8 @@ export const removeMemberFromProject = async (req, res) => {
   },
   userId: "61e1dd56f0433b2d40e12cdb",
   userUpdate: {
-    member_of_projects: [],
-    rejected_projects: ["61e1dd57f0433b2d40e12cdf"], // dont forget to add project here
+    memberOfProjects: [],
+    declinedProjects: ["61e1dd57f0433b2d40e12cdf"], // dont forget to add project here
   },
 };
  */
@@ -174,7 +167,7 @@ export const addInterestedUser = async (req, res) => {
   },
   "userId": "61e1dd56f0433b2d40e12cdb",
   "userUpdate": {
-    "interested_projects": ["61e1dd57f0433b2d40e12cdf"],
+    "interestedProjects": ["61e1dd57f0433b2d40e12cdf"],
   }
 }
 */
@@ -203,8 +196,8 @@ export const removeInterestedUser = async (req, res) => {
   },
   "userId": "61e1dd56f0433b2d40e12cdb",
   "userUpdate": {
-    "interested_projects": [],
-    "rejected_projects": ["61e1dd57f0433b2d40e12cdf"]
+    "interestedProjects": [],
+    "declinedProjects": ["61e1dd57f0433b2d40e12cdf"]
   }
 }
 */
