@@ -3,24 +3,26 @@ const Schema = mongoose.Schema;
 
 const User = new Schema(
   {
-    about: { type: String, maxlength: 300 },
+    bio: { type: String, maxlength: 300 },
+    declinedProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
     email: {
       match: /.+\@.+\..+/,
       type: String,
       required: true,
       unique: [true, "E-mail already exists."],
     },
-    member_of_projects: { type: Array },
-    first_name: { type: String, required: true },
-    fun_fact: { type: String },
-    interested_projects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
-    last_name: { type: String, required: true },
-    password_digest: { type: String, required: true, select: false },
-    portfolio_projects: [{ type: Object }],
-    portfolio_link: { type: String },
-    show_portfolio: { type: Boolean },
-    rejected_projects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
-    role: { type: String, enum: ["Software Engineer", "UX Designer"] },
+    firstName: { type: String, required: true },
+    interestedProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+    lastName: { type: String, required: true },
+    linkedinUrl: { type: String },
+    memberOfProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+    ownerOfProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+    passwordDigest: { type: String, required: true, select: false },
+    portfolioProjects: [{ type: Object }],
+    portfolioUrl: { type: String },
+    profilePicture: {type: String},
+    role: { type: String },
+    savedProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
   },
   { timestamps: true }
 );
