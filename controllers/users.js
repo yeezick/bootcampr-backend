@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 
+// should token key be generated here or how do we go about identifying the token to store in env?
 const TOKEN_KEY =
   process.env.NODE_ENV === "production"
     ? process.env.TOKEN_KEY
