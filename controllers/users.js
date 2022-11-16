@@ -196,6 +196,8 @@ export const updatePassword = async (req, res) => {
     const { userID } = req.params;
     const user = await User.findOne({ _id: userID }).select('+passwordDigest')
 
+    if (password === "") return res.status(401).json({ message: 'Password is required' })
+
     if (await bcrypt.compare(password, user._doc.passwordDigest)) {
       const user = await User.findByIdAndUpdate(
         userID,
@@ -216,7 +218,7 @@ export const updatePassword = async (req, res) => {
     }
   } catch (error) {
     console.error(error.message);
-    res.status(400).json({ status: false, message: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
