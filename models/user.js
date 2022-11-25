@@ -20,7 +20,7 @@ const User = new Schema(
     passwordDigest: { type: String, required: true, select: false },
     portfolioProjects: [{ type: Object }],
     portfolioUrl: { type: String },
-    profilePicture: { type: String },
+    profilePicture: String,
     role: { type: String },
     savedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     tempNanoidId: String,

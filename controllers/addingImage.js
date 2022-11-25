@@ -65,7 +65,8 @@ export const getAllUSerImage = async (allUser) => {
       };
       const command = new GetObjectCommand(getAllImage);
       const imageUrl = await getSignedUrl(s3, command, { expiresIn: 571000 });
-      user.profilePicture = url;
+      console.log(user);
+      user.profilePicture = imageUrl;
       return [...user];
     }
   } catch (error) {
