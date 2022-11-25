@@ -24,7 +24,6 @@ const User = new Schema(
     role: { type: String },
     savedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     tempNanoidId: String,
-    profilePicture: String,
   },
   { timestamps: true },
 );

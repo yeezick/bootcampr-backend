@@ -1,6 +1,7 @@
 import User from '../models/user.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { deleteImageFromS3, getAllUSerImage } from './addingImage.js';
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 
@@ -14,8 +15,9 @@ exp.setDate(today.getDate() + 30);
 export const getAllUsers = async (req, res) => {
   try {
     const allUser = await User.find({}).populate(['memberOfProjects']);
-    if (allUser) {
-      res.status(200).json(allUser);
+    const allUserWithImage = getAllUSerImage(allUser);
+    if (allUserWithImage) {
+      res.status(200).json(allUserWithImage);
     }
   } catch (error) {
     console.log(error.message);
@@ -39,6 +41,7 @@ export const getOneUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
+    deleteImageFromS3(id);
     const deletedUser = await User.findByIdAndDelete(id);
     if (deletedUser) {
       return res.status(200).send({ deletionStatus: true, message: 'User deleted.' });

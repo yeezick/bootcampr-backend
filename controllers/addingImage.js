@@ -1,5 +1,6 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import User from '../models/user.js';
 
 const bucketName = process.env.BUCKET_NAME;
 const region = process.env.BUCKET_REGION;
@@ -24,12 +25,13 @@ export const addImagesToUser = async (req, res) => {
     };
     const addingImageToAws = new PutObjectCommand(params);
     await s3.send(addingImageToAws);
-    // get(req.body.tempNanoidId);
+    gettingImageFromS3(req.body.tempNanoidId);
     res.sendStatus(200);
   } catch (error) {
     if (error) res.send(error);
   }
 };
+
 export const gettingImageFromS3 = async (tempNanoidId) => {
   try {
     const GetImageParams = {
@@ -38,16 +40,49 @@ export const gettingImageFromS3 = async (tempNanoidId) => {
     };
     const command = new GetObjectCommand(GetImageParams);
     const imageUrl = await getSignedUrl(s3, command, { expiresIn: 571000 });
-    settingImageToSingleUser(tempNanoidId, imageUrl);
+    gettingImageToOneUser(tempNanoidId, imageUrl);
   } catch (error) {
     if (error) console.log(error);
   }
 };
-export const settingImageToSingleUser = async (tempNanoidId, imageUrl) => {
+
+export const gettingImageToOneUser = async (tempNanoidId, imageUrl) => {
   try {
-    const ticket = await Ticket.findOne({ tempUUID: tempUUID });
-    // ticket.imageUrl = url;
-    console.log(ticket);
-    ticket.save();
-  } catch (error) {}
+    const user = await User.findOne({ tempNanoidId: tempNanoidId });
+    user.profilePicture = imageUrl;
+    user.save();
+  } catch (error) {
+    if (error) console.log(error);
+  }
+};
+
+export const getAllUSerImage = async (allUser) => {
+  try {
+    for (const user of allUser) {
+      const getAllImage = {
+        Bucket: bucketName,
+        Key: user.tempNanoidId,
+      };
+      const command = new GetObjectCommand(getAllImage);
+      const imageUrl = await getSignedUrl(s3, command, { expiresIn: 571000 });
+      user.profilePicture = url;
+      return [...user];
+    }
+  } catch (error) {
+    if (error) console.log(error);
+  }
+};
+
+export const deleteImageFromS3 = async (id) => {
+  try {
+    const user = await User.findById(id);
+    const params = {
+      Bucket: bucketName,
+      Key: user.tempUUID,
+    };
+    const deleteImage = new DeleteObjectCommand(params);
+    await s3.send(deleteImage);
+  } catch (error) {
+    if (error) console.log(error);
+  }
 };
