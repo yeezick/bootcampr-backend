@@ -1,7 +1,7 @@
 import User from '../models/user.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { addImageToUserSchema, deleteImageFromS3Bucket, getAllUSerImage } from './addingImage.js';
+import { addImageToUserSchema, deleteImageFromS3Bucket } from './addingImage.js';
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 
@@ -15,9 +15,9 @@ exp.setDate(today.getDate() + 30);
 export const getAllUsers = async (req, res) => {
   try {
     const allUser = await User.find({}).populate(['memberOfProjects']);
-    const allUserWithImage = getAllUSerImage(allUser);
-    if (allUserWithImage) {
-      res.status(200).json(allUserWithImage);
+    // const allUserWithImage = getAllUSerImage(allUser);
+    if (allUser) {
+      res.status(200).json(allUser);
     }
   } catch (error) {
     console.log(error.message);
@@ -73,10 +73,8 @@ export const updateUserInfo = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findByIdAndUpdate(id, req.body, { new: true });
-    console.log(user, 'justUsers');
-    const userWithImage = addImageToUserSchema(user);
-    console.log(userWithImage, 'userWithImage');
-    res.status(200).send(userWithImage);
+
+    res.status(200).send(user);
   } catch (error) {
     console.log(error.message);
     return res.status(404).json({ error: error.message });
@@ -99,15 +97,18 @@ export const checkEmail = async (req, res) => {
 };
 
 // Auth
+const randomHexCodeColor = () => {
+  const hexCodes = ['442288', '6CA2EA', 'B5D33D', 'EB7D5B', 'FED23F'];
+  return hexCodes[Math.floor(Math.random() * 5)];
+};
 export const signUp = async (req, res) => {
   try {
     const { email, firstName, lastName, password } = req.body;
 
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
     const user = new User({ email, firstName, lastName, passwordDigest });
-    console.log(user);
+    user.profilePicture = `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=${randomHexCodeColor()}`;
     await user.save();
-
     const payload = {
       userID: user._id,
       email: user.email,

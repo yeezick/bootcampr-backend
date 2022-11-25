@@ -25,64 +25,23 @@ export const addImagesToS3Bucket = async (req, res) => {
       Body: req.file.buffer,
       ContentType: req.file.mimetype,
     };
-    const addingImageToAws = new PutObjectCommand(params);
-    await s3.send(addingImageToAws);
-
-    gettingImageFromS3Bucket(req.body.userId);
-    res.sendStatus(200);
+    const addingImageToAWSBucket = new PutObjectCommand(params);
+    await s3.send(addingImageToAWSBucket);
+    await addImageToUserSchema(req.body.userId);
+    res.status(200).json({ success: 'image sent successfully' });
   } catch (error) {
-    if (error) res.send(error);
+    console.error(error);
   }
 };
 
-// Getting the Image from the S3 Bucket
-export const gettingImageFromS3Bucket = async (userId) => {
+// Setting the Image URL to the user profilePicture image
+export const addImageToUserSchema = async (userId) => {
   try {
-    const getImageParams = {
-      Bucket: bucketName,
-      Key: userId,
-    };
-    const command = new GetObjectCommand(getImageParams);
-    const imageUrl = await getSignedUrl(s3, command, { expiresIn: 571000 });
-  } catch (error) {
-    if (error) console.log(error);
-  }
-};
-
-//Setting the Image URL to the user profilePicture image
-export const addImageToUserSchema = async (updateUser) => {
-  try {
-    const getImageParams = {
-      Bucket: bucketName,
-      Key: updateUser._id,
-    };
-    const command = new GetObjectCommand(getImageParams);
-    const imageUrl = await getSignedUrl(s3, command, { expiresIn: 571000 });
-    const user = await User.findById(updateUser._id);
-    user.profilePicture = imageUrl;
+    const user = await User.findById(userId);
+    user.profilePicture = `https://bootcampruserimage.s3.amazonaws.com/${userId}`;
     user.save();
-    return user;
   } catch (error) {
-    if (error) console.log(error);
-  }
-};
-
-//getting all the image to all the user with images
-export const getAllUSerImage = async (allUser) => {
-  try {
-    for (const user of allUser) {
-      const getAllImage = {
-        Bucket: bucketName,
-        Key: user._id,
-      };
-      const command = new GetObjectCommand(getAllImage);
-      const imageUrl = await getSignedUrl(s3, command, { expiresIn: 571000 });
-      console.log(user);
-      user.profilePicture = imageUrl;
-      return [...user];
-    }
-  } catch (error) {
-    if (error) console.log(error);
+    console.error(error);
   }
 };
 
@@ -97,6 +56,6 @@ export const deleteImageFromS3Bucket = async (id) => {
     const deleteImage = new DeleteObjectCommand(params);
     await s3.send(deleteImage);
   } catch (error) {
-    if (error) console.log(error);
+    console.error(error);
   }
 };
