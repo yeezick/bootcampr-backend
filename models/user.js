@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const User = new Schema(
+// const User = new Schema(
+const user = new Schema(
   {
     bio: { type: String, maxlength: 300 },
     declinedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
@@ -20,11 +21,13 @@ const User = new Schema(
     passwordDigest: { type: String, required: true, select: false },
     portfolioProjects: [{ type: Object }],
     portfolioUrl: { type: String },
-    profilePicture: String,
+    profilePicture: { type: String },
     role: { type: String },
     savedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
-    tempNanoidId: String,
   },
   { timestamps: true },
 );
-export default mongoose.model('User', User);
+// export default mongoose.model('User', User);
+const User = mongoose.model('Profile', user);
+
+export default User;

@@ -1,7 +1,7 @@
 import User from '../models/user.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { deleteImageFromS3, getAllUSerImage } from './addingImage.js';
+import { addImageToUserSchema, deleteImageFromS3Bucket, getAllUSerImage } from './addingImage.js';
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 
@@ -29,9 +29,6 @@ export const getOneUser = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id);
-    console.log('====================================');
-    console.log(user, ' from getOneUser');
-    console.log('====================================');
     if (user) {
       return res.status(200).json(user);
     }
@@ -44,7 +41,7 @@ export const getOneUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
-    deleteImageFromS3(id);
+    deleteImageFromS3Bucket(id);
     const deletedUser = await User.findByIdAndDelete(id);
     if (deletedUser) {
       return res.status(200).send({ deletionStatus: true, message: 'User deleted.' });
@@ -76,7 +73,10 @@ export const updateUserInfo = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findByIdAndUpdate(id, req.body, { new: true });
-    res.status(200).send(user);
+    console.log(user, 'justUsers');
+    const userWithImage = addImageToUserSchema(user);
+    console.log(userWithImage, 'userWithImage');
+    res.status(200).send(userWithImage);
   } catch (error) {
     console.log(error.message);
     return res.status(404).json({ error: error.message });
@@ -105,6 +105,7 @@ export const signUp = async (req, res) => {
 
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
     const user = new User({ email, firstName, lastName, passwordDigest });
+    console.log(user);
     await user.save();
 
     const payload = {

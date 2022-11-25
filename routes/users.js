@@ -2,7 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 
 import * as controllers from '../controllers/users.js';
-import { addImagesToUser } from '../controllers/addingImage.js';
+import { addImagesToS3Bucket } from '../controllers/addingImage.js';
 // import restrict from '../helpers/restrict.js'
 
 //middleware
@@ -17,7 +17,7 @@ router.post('/sign-up', controllers.signUp);
 router.put('/users/:id', controllers.updateUserInfo);
 router.patch('/users/:id', controllers.addPortfolioProject);
 router.delete('/users/:id', controllers.deleteUser);
-router.post('/addUserImage', uploadImage.single('image'), addImagesToUser);
+router.post('/addUserImage', uploadImage.single('image'), addImagesToS3Bucket);
 
 // auth
 router.post('/sign-in', controllers.signIn);

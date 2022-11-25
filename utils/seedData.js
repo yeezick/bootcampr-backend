@@ -38,7 +38,6 @@ const insertData = async () => {
     profilePicture: 'IMAGE',
     role: 'Software Engineer',
     savedProjects: [],
-    tempNanoidId: '',
   });
   await user1.save();
 
@@ -58,7 +57,6 @@ const insertData = async () => {
     profilePicture: 'IMAGE',
     role: 'UX Designer',
     savedProjects: [],
-    tempNanoidId: '',
   });
   await user2.save();
 
@@ -74,8 +72,6 @@ const insertData = async () => {
     portfolioUrl: 'www.bras.com',
     portfolioProjects: [],
     role: 'Software Engineer',
-    tempNanoidId: '',
-    profilePicture: '',
   });
   await user3.save();
 
@@ -91,7 +87,6 @@ const insertData = async () => {
     portfolioUrl: 'www.colorsofrainbows.com',
     portfolioProjects: [],
     role: 'UX Designer',
-    tempNanoidId: '',
     profilePicture: '',
   });
   await user4.save();
@@ -108,7 +103,6 @@ const insertData = async () => {
     portfolioUrl: 'www.myportfoliostuff.com',
     portfolioProjects: [],
     role: 'Software Engineer',
-    tempNanoidId: '',
     profilePicture: '',
   });
   await user5.save();
@@ -125,7 +119,6 @@ const insertData = async () => {
     portfolioUrl: 'www.nerds4nerds.com',
     portfolioProjects: [],
     role: 'Software Engineer',
-    tempNanoidId: '',
     profilePicture: '',
   });
   await user6.save();
@@ -142,7 +135,6 @@ const insertData = async () => {
     portfolioUrl: 'www.bootCamper.com',
     portfolioProjects: [],
     role: 'Software Engineer',
-    tempNanoidId: '',
     profilePicture: '',
   });
   await user7.save();
