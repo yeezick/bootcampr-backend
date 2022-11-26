@@ -73,7 +73,11 @@ export const updateUserInfo = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findByIdAndUpdate(id, req.body, { new: true });
-
+    if (!req.body.profilePicture && !user.profilePicture) {
+      user.profilePicture = `https://ui-avatars.com/api/?name=${req.body.firstName}+${
+        req.body.lastName
+      }&background=${randomHexCodeColor()}`;
+    }
     res.status(200).send(user);
   } catch (error) {
     console.log(error.message);
@@ -107,7 +111,7 @@ export const signUp = async (req, res) => {
 
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
     const user = new User({ email, firstName, lastName, passwordDigest });
-    user.profilePicture = `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=${randomHexCodeColor()}`;
+    // user.profilePicture = `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=${randomHexCodeColor()}`;
     await user.save();
     const payload = {
       userID: user._id,
