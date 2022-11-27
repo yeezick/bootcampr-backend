@@ -24,20 +24,6 @@ const insertData = async () => {
 
   const user1 = new User({
     bio: 'American whole magazine truth stop whose. On traditional measure example sense peace. Would mouth relate own chair. Role together range line. Government first policy daughter.',
-    customProfileLinks: [
-      {
-        customUrlName: 'github',
-        customUrlLink: 'www.github.com/mendo94',
-      },
-      {
-        customUrlName: 'HackerRank',
-        customUrlLink: 'www.hackerrank.com/dingus',
-      },
-      {
-        customUrlName: 'Medium',
-        customUrlLink: 'www.medium.com/dingus',
-      },
-    ],
     declinedProjects: [],
     email: 'lagtestuy@mail.com',
     firstName: 'Wiggle',
@@ -301,6 +287,7 @@ const insertData = async () => {
 
   // adding allProjects to each user's memberOfProjects array:
   user1.memberOfProjects.push(allProjects[1], allProjects[2], allProjects[4]);
+  user1.ownerOfProjects.push(allProjects[1], allProjects[2], allProjects[4]);
   user2.memberOfProjects.push(allProjects[0]);
   user3.memberOfProjects.push(allProjects[1], allProjects[3]);
   user4.memberOfProjects.push();
