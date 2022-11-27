@@ -44,6 +44,19 @@ export const addImageToUserSchema = async (userId) => {
     console.error(error);
   }
 };
+export const updatingImage = async (userId) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      { _id: userId },
+      { profilePicture: `https://bootcampruserimage.s3.amazonaws.com/${userId}` },
+    );
+    user.save();
+    return user;
+    // user.profilePicture = `https://bootcampruserimage.s3.amazonaws.com/${userId}`;
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 //Delete The image from the s3Bucket and updating it
 export const deleteImageFromS3Bucket = async (id) => {

@@ -1,7 +1,7 @@
 import User from '../models/user.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { addImageToUserSchema, deleteImageFromS3Bucket } from './addingImage.js';
+import { addImageToUserSchema, deleteImageFromS3Bucket, updatingImage } from './addingImage.js';
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 
@@ -73,12 +73,9 @@ export const updateUserInfo = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findByIdAndUpdate(id, req.body, { new: true });
-    if (!req.body.profilePicture && !user.profilePicture) {
-      user.profilePicture = `https://ui-avatars.com/api/?name=${req.body.firstName}+${
-        req.body.lastName
-      }&background=${randomHexCodeColor()}`;
-    }
-    res.status(200).send(user);
+    const updatedUserImg = await updatingImage(id);
+    console.log(updatedUserImg, 'hwrerer');
+    res.status(200).send(updatedUserImg);
   } catch (error) {
     console.log(error.message);
     return res.status(404).json({ error: error.message });
