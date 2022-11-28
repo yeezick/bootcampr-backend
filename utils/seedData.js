@@ -17,6 +17,18 @@ import User from "../models/user.js";
  * If you organize, think about how we can make it easy to update in the future too.
  */
 
+
+/**
+ * REFACTOR NOTES:
+ * We need to:
+ *  - create a set of users and save them to db
+ *  - create a set of projects, with certain user relations and restrictions, and save them to the db
+ *  - add projects to user arrays: interestedProjects, declinedProjects, memberOfProjects, ownerOfProjects, savedProjects
+ * 
+ * My notes:
+ *  - separate concerns: can we batch create users, projects and tools to separate this logic?
+ */
+
 const insertData = async () => {
   //reset database
 
@@ -143,22 +155,22 @@ const insertData = async () => {
       project_owner: user1,
       roles: [
         {
-          interested_applicants: [user1, user3],
+          interestedApplicants: [user1, user3],
           status: "Draft",
           category: "Software Engineer",
           title: "Software Engineer",
           description: "Must be able to code.",
           skills: ["React", "JavaScript"],
-          desired_headcount: 2,
+          desiredHeadcount: 2,
         },
         {
-          interested_applicants: [user2, user4],
+          interestedApplicants: [user2, user4],
           status: "Published",
           category: "UX Designer",
           title: "UX Designer",
           description: "Must be able to UX Design.",
           skills: ["Figma", "Chrome"],
-          desired_headcount: 2,
+          desiredHeadcount: 2,
         }
       ],
       status:  "Draft" ,
@@ -167,118 +179,118 @@ const insertData = async () => {
     },
     {
       duration: "2 months",
-      meeting_cadence: "weekly",
+      meetingCadence: "weekly",
       overview: "Less Rad Project",
-      project_owner: user2,
+      projectOwner: user2,
       roles: [
         {
-          interested_applicants: [user4, user5],
+          interestedApplicants: [user4, user5],
           status: "Draft",
           category: "Software Engineer",
           title: "Software Engineer",
           description: "Must be able to code.",
           skills: ["React", "JavaScript"],
-          desired_headcount: 2,
+          desiredHeadcount: 2,
         },
         {
-          interested_applicants: [user2, user4],
+          interestedApplicants: [user2, user4],
           status: "Published",
           category: "UX Designer",
           title: "UX Designer",
           description: "Must be able to UX Design.",
           skills: ["Figma", "Chrome"],
-          desired_headcount: 2,
+          desiredHeadcount: 2,
         }
       ],
       status:  "Published" ,
-      technologies_used: ["Figma", "Chrome"],
+      technologiesUsed: ["Figma", "Chrome"],
       title: "Extra Lame",
     },
     {
       duration: "10",
-      meeting_cadence: "1 month",
+      meetingCadence: "1 month",
       overview: "It's a rad project",
-      project_owner: user1,
+      projectOwner: user1,
       roles: [
         {
-          interested_applicants: [user1, user3],
+          interestedApplicants: [user1, user3],
           status: "Draft",
           category: "Software Engineer",
           title: "Software Engineer",
           description: "Must be able to code.",
           skills: ["React", "JavaScript"],
-          desired_headcount: 2,
+          desiredHeadcount: 2,
         },
         {
-          interested_applicants: [user2, user4],
+          interestedApplicants: [user2, user4],
           status: "Published",
           category: "UX Designer",
           title: "UX Designer",
           description: "Must be able to UX Design.",
           skills: ["Figma", "Chrome"],
-          desired_headcount: 2,
+          desiredHeadcount: 2,
         }
       ],
       status:  "Draft" ,
-      technologies_used: ["VSCode", "Chrome"],
+      technologiesUsed: ["VSCode", "Chrome"],
       title: "Extra Radical",
     },
     {
       duration: "2 months",
-      meeting_cadence: "weekly",
+      meetingCadence: "weekly",
       overview: "Less Rad Project",
-      project_owner: user2,
+      projectOwner: user2,
       roles: [
         {
-          interested_applicants: [user4, user5],
+          interestedApplicants: [user4, user5],
           status: "Draft",
           category: "Software Engineer",
           title: "Software Engineer",
           description: "Must be able to code.",
           skills: ["React", "JavaScript"],
-          desired_headcount: 2,
+          desiredHeadcount: 2,
         },
         {
-          interested_applicants: [user2, user4],
+          interestedApplicants: [user2, user4],
           status: "Published",
           category: "UX Designer",
           title: "UX Designer",
           description: "Must be able to UX Design.",
           skills: ["Figma", "Chrome"],
-          desired_headcount: 2,
+          desiredHeadcount: 2,
         }
       ],
       status:  "Published" ,
-      technologies_used: ["Figma", "Chrome"],
+      technologiesUsed: ["Figma", "Chrome"],
       title: "Extra Lame",
     },
     {
       duration: "10",
-      meeting_cadence: "1 month",
+      meetingCadence: "1 month",
       overview: "It's a rad project",
-      project_owner: user1,
+      projectOwner: user1,
       roles: [
         {
-          interested_applicants: [user1, user3],
+          interestedApplicants: [user1, user3],
           status: "Draft",
           category: "Software Engineer",
           title: "Software Engineer",
           description: "Must be able to code.",
           skills: ["React", "JavaScript"],
-          desired_headcount: 2,
+          desiredHeadcount: 2,
         },
         {
-          interested_applicants: [user2, user4],
+          interestedApplicants: [user2, user4],
           status: "Published",
           category: "UX Designer",
           title: "UX Designer",
           description: "Must be able to UX Design.",
           skills: ["Figma", "Chrome"],
-          desired_headcount: 2,
+          desiredHeadcount: 2,
         }
       ],
       status:  "Draft" ,
-      technologies_used: ["VSCode", "Chrome"],
+      technologiesUsed: ["VSCode", "Chrome"],
       title: "Extra Radical",
     }
   ];
