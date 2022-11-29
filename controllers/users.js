@@ -5,7 +5,6 @@ import Project from '../models/project.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
-
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 
 // should token key be generated here or how do we go about identifying the token to store in env?
