@@ -74,7 +74,6 @@ export const updateUserInfo = async (req, res) => {
     const { id } = req.params;
     const user = await User.findByIdAndUpdate(id, req.body, { new: true });
     const updatedUserImg = await updatingImage(id);
-    console.log(updatedUserImg, 'hwrerer');
     res.status(200).send(updatedUserImg);
   } catch (error) {
     console.log(error.message);
@@ -98,17 +97,13 @@ export const checkEmail = async (req, res) => {
 };
 
 // Auth
-const randomHexCodeColor = () => {
-  const hexCodes = ['442288', '6CA2EA', 'B5D33D', 'EB7D5B', 'FED23F'];
-  return hexCodes[Math.floor(Math.random() * 5)];
-};
+
 export const signUp = async (req, res) => {
   try {
-    const { email, firstName, lastName, password } = req.body;
+    const { email, firstName, lastName, password, profilePicture } = req.body;
 
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = new User({ email, firstName, lastName, passwordDigest });
-    // user.profilePicture = `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=${randomHexCodeColor()}`;
+    const user = new User({ email, firstName, lastName, passwordDigest, profilePicture });
     await user.save();
     const payload = {
       userID: user._id,
@@ -169,7 +164,6 @@ export const verify = async (req, res) => {
 export const confirmPassword = async (req, res) => {
   const { email, password } = req.body;
   // is it better to find the user by their email or id?
-  console.log('email', email);
   if (email) {
     let user = await User.findOne({ email }).select('passwordDigest');
     if (await bcrypt.compare(password, user.passwordDigest)) {
