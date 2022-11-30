@@ -291,6 +291,7 @@ const insertData = async () => {
 
   // adding allProjects to each user's memberOfProjects array:
   user1.memberOfProjects.push(allProjects[1], allProjects[2], allProjects[4]);
+  user1.ownerOfProjects.push(allProjects[1], allProjects[2], allProjects[4]);
   user2.memberOfProjects.push(allProjects[0]);
   user3.memberOfProjects.push(allProjects[1], allProjects[3]);
   user4.memberOfProjects.push();
