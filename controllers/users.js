@@ -1,7 +1,7 @@
 import User from '../models/user.js';
+import Project from '../models/project.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { deleteImageFromS3, getAllUSerImage } from './addingImage.js';
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 

@@ -6,13 +6,13 @@
  *  - might even be able to make a helper function since a lot of the special endpoints share the same functionality
  * - consider what properties containing objectId's should be populated in the response
  */
-import Project from "../models/project.js";
-import User from "../models/user.js";
+import Project from '../models/project.js';
+import User from '../models/user.js';
 
 //basic CRUD functions:
 export const getAllProjects = async (req, res) => {
   try {
-    const projects = await Project.find()
+    const projects = await Project.find();
     res.json(projects);
   } catch (error) {
     console.log(error.message);
@@ -23,11 +23,11 @@ export const getAllProjects = async (req, res) => {
 export const getOneProject = async (req, res) => {
   try {
     const { id } = req.params;
-    const project = await Project.findById(id)
+    const project = await Project.findById(id);
     if (project) {
       return res.json(project);
     }
-    res.status(404).json({ message: "Project not found." });
+    res.status(404).json({ message: 'Project not found.' });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: error.message });
@@ -44,6 +44,24 @@ export const createProject = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 }; // works, requires userID
+
+export const getUserProjects = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const userProjects = await Project.find({
+      where: {
+        project_owner: userId,
+      },
+    });
+    if (userProjects) {
+      return res.json(userProjects);
+    }
+    res.status(404).json({ message: 'Project not found.' });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 export const updateProject = async (req, res) => {
   try {
@@ -63,9 +81,9 @@ export const deleteProject = async (req, res) => {
     const { id } = req.params;
     const deletedProject = await Project.findByIdAndDelete(id);
     if (deletedProject) {
-      return res.status(200).send("Project deleted.");
+      return res.status(200).send('Project deleted.');
     }
-    throw new Error("Project not found.");
+    throw new Error('Project not found.');
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: error.message });
@@ -84,7 +102,7 @@ export const updateUserAndProject = async (req, res) => {
     const user = await User.findByIdAndUpdate(userID, userUpdate, {
       new: true,
     });
-    res.status(200).json({ message: "Success!", user, project });
+    res.status(200).json({ message: 'Success!', user, project });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: error.message });
