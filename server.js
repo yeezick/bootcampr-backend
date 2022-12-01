@@ -6,6 +6,7 @@ import cors from 'cors';
 import routes from './routes/index.js';
 import * as io from 'socket.io';
 import { createServer } from 'http';
+import project from './models/project.js';
 
 const app = express();
 const PORT = process.env.PORT || 8001;
@@ -20,6 +21,11 @@ const socketio = new io.Server(server, db, {
     origin: '*',
     credentials: true,
   },
+});
+
+project.watch().on('change', () => {
+  console.log('New Project Added');
+  socketio.emit('changes', 'New Project');
 });
 
 socketio.on(
