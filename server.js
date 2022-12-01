@@ -15,28 +15,29 @@ app.use(express.json());
 app.use(logger('dev'));
 app.use(routes);
 const server = createServer(app);
-const socketio = new io.Server(server, {
+const socketio = new io.Server(server, db, {
   cors: {
     origin: '*',
     credentials: true,
   },
 });
 
-// socketio.on(
-//   'connection',
-//   (socket) => {
-//     var clientIp = socket.request.socket.remoteAddress;
+socketio.on(
+  'connected',
+  (socket) => {
+    var clientIp = socket.request.socket.remoteAddress;
+    console.log(clientIp);
+  },
+  console.log('Connected to MongoDB!'),
+);
 
-//     console.log(clientIp);
-//   },
-//   console.log(`Server is running on Port ${PORT}`),
-// );
-
-// server.listen(PORT);
-
-db.on('connected', () => {
-  console.log('Connected to MongoDB!');
-  app.listen(PORT, () => {
-    console.log(`Express server application is running on port: ${PORT}\n\n`);
-  });
+server.listen(PORT, () => {
+  console.log(`Express server application is running on port: ${PORT}\n\n`);
 });
+
+// db.on('connected', () => {
+//   console.log('Connected to MongoDB!');
+//   app.listen(PORT, () => {
+//     console.log(`Express server application is running on port: ${PORT}\n\n`);
+//   });
+// });
