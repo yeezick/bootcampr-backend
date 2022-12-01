@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 // set connection location
 // todo: add switch case for different env uri's
-const MONGODB_URI = process.env.MONGODB_URI
+const MONGODB_URI = process.env.MONGODB_URI;
 
-mongoose.set("returnOriginal", false); //for findByAndUpdate to return a reference to object at location
+mongoose.set('returnOriginal', false); //for findByAndUpdate to return a reference to object at location
 
 mongoose
   .connect(MONGODB_URI, {
@@ -15,11 +15,11 @@ mongoose
     console.error(`Error connecting to MongoDB: ${error.message}`);
   });
 
-mongoose.connection.on("disconnected", () => {
-  console.log("MongoDB has disconnected!");
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB has disconnected!');
 });
 
-mongoose.connection.on("error", (error) => {
+mongoose.connection.on('error', (error) => {
   console.error(`Error connecting to MongoDB: ${error}`);
 });
 
