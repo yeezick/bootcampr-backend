@@ -24,6 +24,16 @@ const insertData = async () => {
 
   const user1 = new User({
     bio: 'American whole magazine truth stop whose. On traditional measure example sense peace. Would mouth relate own chair. Role together range line. Government first policy daughter.',
+    customProfileLinks: [
+      {
+        customUrlName: 'github',
+        customUrlLink: 'www.github.com/mendo94435345',
+      },
+      {
+        customUrlName: 'twitter',
+        customUrlLink: 'www.twitter.com/dingus',
+      },
+    ],
     declinedProjects: [],
     email: 'lagtestuy@mail.com',
     firstName: 'Wiggle',
