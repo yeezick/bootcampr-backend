@@ -138,7 +138,7 @@ const insertData = async () => {
   const projects = [
     {
       duration: '10',
-      meetingCadence: '1 month',
+      meetingCadence: 1,
       overview: "It's a rad project",
       projectOwner: user1,
       roles: {
@@ -169,7 +169,7 @@ const insertData = async () => {
     },
     {
       duration: '2 months',
-      meetingCadence: 'weekly',
+      meetingCadence: 2,
       overview: 'Less Rad Project',
       projectOwner: user2,
       roles: {
@@ -200,7 +200,7 @@ const insertData = async () => {
     },
     {
       duration: '10',
-      meetingCadence: '1 month',
+      meetingCadence: 3,
       overview: "It's a rad project",
       projectOwner: user1,
       roles: {
@@ -231,7 +231,7 @@ const insertData = async () => {
     },
     {
       duration: '2 months',
-      meetingCadence: 'weekly',
+      meetingCadence: 4,
       overview: 'Less Rad Project',
       projectOwner: user2,
       roles: {
@@ -262,7 +262,7 @@ const insertData = async () => {
     },
     {
       duration: '10',
-      meetingCadence: '1 month',
+      meetingCadence: 5,
       overview: "It's a rad project",
       projectOwner: user1,
       roles: {
