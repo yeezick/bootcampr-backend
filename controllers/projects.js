@@ -50,7 +50,7 @@ export const getUserProjects = async (req, res) => {
     const { userId } = req.params;
     const userProjects = await Project.find({
       where: {
-        project_owner: userId,
+        projectOwner: userId,
       },
     });
     if (userProjects) {
@@ -181,7 +181,7 @@ export const addInterestedUser = async (req, res) => {
 /*
 {
   "projectUpdate": {
-    "interested_applicants": ["61e1dd56f0433b2d40e12cd9"]
+    "interestedApplicants": ["61e1dd56f0433b2d40e12cd9"]
   },
   "userId": "61e1dd56f0433b2d40e12cdb",
   "userUpdate": {
@@ -210,7 +210,7 @@ export const removeInterestedUser = async (req, res) => {
 /*
 {
   "projectUpdate": {
-    "interested_applicants": []
+    "interestedApplicants": []
   },
   "userId": "61e1dd56f0433b2d40e12cdb",
   "userUpdate": {
