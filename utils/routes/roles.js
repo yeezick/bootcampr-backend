@@ -2,7 +2,7 @@
  * Checks if the title for this role type already exists
  * @param {object} project The project object to search
  * @param {string} roleType The type of role the title belongs to: "engineering", "design"
- * @param {*} roleTitle The title of the role to search for.
+ * @param {string} newTitle The title of the role to search for.
  * @returns boolean
  */
 export const roleTitleExists = (project, roleType, newTitle) => {
