@@ -1,24 +1,11 @@
 import mongoose from 'mongoose';
+import { roleSchema } from '../utils/schemas.js';
 const Schema = mongoose.Schema;
 /**
- * TODO:
- * - Concert snake_case properties to camelCase
- *
  * Need to discuss:
  * - options for meeting cadence
  * - is duration necessary? what are the possible options?
- * - how we will handle multiple roles
- * - how we handle applicants to a role
- * -
  */
-const roleSchema = {
-  interestedApplicants: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-  status: { type: String, enum: ['Draft', 'Published'] },
-  title: { type: String },
-  description: { type: String, maxlength: 300 },
-  skills: [{ type: String }],
-  maxHeadcount: { type: Number },
-};
 
 const Project = new Schema(
   {
