@@ -3,6 +3,11 @@ import db from './db/connection.js';
 import express from 'express';
 import logger from 'morgan';
 import cors from 'cors';
+const corsOptions = {
+  origin: '*',
+  credentials: true, //access-control-allow-credentials:true
+  optionSuccessStatus: 200,
+};
 import routes from './routes/index.js';
 import * as io from 'socket.io';
 import { createServer } from 'http';
@@ -11,12 +16,12 @@ import project from './models/project.js';
 const app = express();
 const PORT = process.env.PORT || 8001;
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(logger('dev'));
 app.use(routes);
 const server = createServer(app);
-const socketio = new io.Server(server, db, {
+const socketio = new io.Server(server, {
   cors: {
     origin: '*',
     credentials: true,
