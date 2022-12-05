@@ -16,7 +16,6 @@ exp.setDate(today.getDate() + 30);
 export const getAllUsers = async (req, res) => {
   try {
     const allUser = await User.find({}).populate(['memberOfProjects']);
-    // const allUserWithImage = getAllUSerImage(allUser);
     if (allUser) {
       res.status(200).json(allUser);
     }
