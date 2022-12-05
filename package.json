@@ -30,6 +30,9 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
+    "axios": "^1.2.0",
+    "node-fetch": "^3.3.0",
     "nodemon": "^2.0.15",
     "prettier": "^2.7.1"
   },
