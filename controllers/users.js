@@ -1,5 +1,4 @@
 import User from '../models/user.js';
-import Project from '../models/project.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
@@ -190,5 +189,27 @@ export const updatePassword = async (req, res) => {
   } catch (error) {
     console.error(error.message);
     res.status(400).json({ status: false, message: error.message });
+  }
+};
+
+export const saveNotification = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const notification = await User.findByIdAndUpdate(id, { $push: { notifications: req.body } }, { new: true });
+    res.status(200).send(notification);
+  } catch (error) {
+    console.error(error.message);
+    res.status(400).json({ status: false, message: error.message });
+  }
+};
+
+export const updateNotification = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const notification = await User.findByIdAndUpdate(id, req.body, { new: true });
+    res.status(200).send(notification);
+  } catch (error) {
+    console.log(error.message);
+    return res.status(404).json({ error: error.message });
   }
 };

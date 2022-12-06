@@ -5,7 +5,7 @@ import logger from 'morgan';
 import cors from 'cors';
 const corsOptions = {
   origin: '*',
-  credentials: true, //access-control-allow-credentials:true
+  credentials: true,
   optionSuccessStatus: 200,
 };
 import routes from './routes/index.js';
@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(logger('dev'));
 app.use(routes);
 const server = createServer(app);
-const socketio = new io.Server(server, {
+const socketio = new io.Server(server, db, {
   cors: {
     origin: '*',
     credentials: true,
@@ -45,10 +45,3 @@ socketio.on(
 server.listen(PORT, () => {
   console.log(`Express server application is running on port: ${PORT}\n\n`);
 });
-
-// db.on('connected', () => {
-//   console.log('Connected to MongoDB!');
-//   app.listen(PORT, () => {
-//     console.log(`Express server application is running on port: ${PORT}\n\n`);
-//   });
-// });

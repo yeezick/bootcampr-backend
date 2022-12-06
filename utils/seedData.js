@@ -36,6 +36,13 @@ const insertData = async () => {
     portfolioUrl: 'www.wigglejones.com',
     portfolioProjects: [],
     profilePicture: 'IMAGE',
+    notifications: [
+      {
+        notification: 'New project',
+        message: 'A user has added a project you might be interested in.',
+        read: false,
+      },
+    ],
     role: 'Software Engineer',
     savedProjects: [],
   });
@@ -134,6 +141,21 @@ const insertData = async () => {
     role: 'Software Engineer',
   });
   await user7.save();
+
+  // const notification = [
+  //   {
+  //     user: user1,
+  //     notification: 'New project',
+  //     message: 'A user has added a project you might be interested in.',
+  //     read: false,
+  //   },
+  // ];
+
+  // await User.insertMany(notification);
+  // const allNotifications = await User.find();
+
+  // user1.notification.push(allNotifications[1]);
+  // await user1.save();
 
   const projects = [
     {
