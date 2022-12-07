@@ -1,9 +1,9 @@
-import "dotenv/config.js";
-import bcrypt from "bcrypt";
-import db from "../db/connection.js";
-import Project from "../models/project.js";
-import Tool from "../models/tool.js";
-import User from "../models/user.js";
+import 'dotenv/config.js';
+import bcrypt from 'bcrypt';
+import db from '../db/connection.js';
+import Project from '../models/project.js';
+import Tool from '../models/tool.js';
+import User from '../models/user.js';
 import { generateFakeUsers, generateFakeProject, tools, scrambleArrayOrder } from './seedDataHelpers.js';
 
 // create core user
