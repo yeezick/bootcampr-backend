@@ -4,32 +4,22 @@ import db from "../db/connection.js";
 import Project from "../models/project.js";
 import Tool from "../models/tool.js";
 import User from "../models/user.js";
-import { generateFakeUsers, generateFakeProject, tools } from './seedDataHelpers.js';
-
-/**
- * 1. build user generator - DONE
- * 2. generate an array of 10 SWE users - DONE
- * 3. generate an array of 10 UX users - DONE
- * 4. build project generator - DONE
- * 5. Decide how to automate project generation considering: owner, interested, roles, etc. - DONE
- * 6. Build project / user assigner function - DONE
- * 7. run and test functionality
- */
+import { generateFakeUsers, generateFakeProject, tools, scrambleArrayOrder } from './seedDataHelpers.js';
 
 // create core user
 const coreUser = new User({
+  appliedToProjects: [],
   bio: "Developer PSA: Do not update this user. This user should be immutable and used as a dummy user with pristine data. ",
   declinedProjects: [],
   email: "bootcampr@mail.com",
   firstName: "Boot",
-  appliedToProjects: [],
   lastName: "Campr",
   linkedinUrl: "www.linkedin.com/bootcampr",
   memberOfProjects: [],
   ownerOfProjects: [],
   passwordDigest: await bcrypt.hash("pizza12", 11),
-  portfolioUrl: "www.bootcampr.com",
   portfolioProjects: [],
+  portfolioUrl: "www.bootcampr.com",
   profilePicture: "IMAGE",
   role: "UX Designer",
   savedProjects: []
@@ -38,8 +28,8 @@ await coreUser.save();
 
 // create set of users who will be project owners
 const owners = []
-owners.push(...await generateFakeUsers(5, 'Software Engineer'))
-owners.push(...await generateFakeUsers(5, 'UX Designer'))
+owners.push(...await generateFakeUsers(10, 'Software Engineer'))
+owners.push(...await generateFakeUsers(10, 'UX Designer'))
 
 // create a set of engineers, and a set of designers who will be project 'joiners'
 const engineers = await generateFakeUsers(10, 'Software Engineer')
@@ -99,34 +89,34 @@ await Project.insertMany(projects)
 // get all projects from database
 const allProjects = await Project.find();
 
-// add projects to users arrays
+// add projects to users arrays round robin style for: apply, decline, memberOf and saved
 joiners.forEach((user) => {
-
-  for (let i=0 ; i < projects.length ; i++) {
-    // if project = bootcampr, apply case ? or skip and apply else where?
+  user.appliedToProjects.push(bootcampr)
+  for (let i=1 ; i < allProjects.length ; i++) {
     switch (i%4) {
       case 0:
-        // apply
-        user.appliedToProjects.push(project[i])
+        user.appliedToProjects.push(allProjects[i])
         const role = user.role === 'Software Engineer' ? 'engineering' : 'design'
-        project[i].roles[role].interestedApplicants.push(user)
+        allProjects[i].roles[`${role}`].interestedApplicants.push(user)
         break
       case 1:
-        // decline
-        user.declinedProjects.push(project[i])
+        user.declinedProjects.push(allProjects[i])
         break
       case 2:
-        // member
-        user.memberOfProjects.push(project[i])
+        user.memberOfProjects.push(allProjects[i])
         break
       case 3:
-        // save
-        user.memberOfProjects.push(project[i])
+        user.savedProjects.push(allProjects[i])
         break
     }
   }
-  //scramble project order
-})
+  appliedToProjects = scrambleArrayOrder(appliedToProjects);
+});
+
+let testArray = [0,1,2,3,4,5]
+console.log(testArray);
+testArray = scrambleArrayOrder(testArray)
+console.log(testArray)
 
 const insertData = async () => {
 
