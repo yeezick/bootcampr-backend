@@ -3,7 +3,8 @@ import bcrypt from 'bcrypt';
 import sgMail from '@sendgrid/mail';
 import Project from '../models/project.js';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import crypto from 'crypto';
+import Token from '../models/token.js';
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 
@@ -114,22 +115,34 @@ export const signUp = async (req, res) => {
       passwordDigest: undefined,
     });
 
+    await emailTokenVerification(user, email, firstName, lastName);
+
     res.status(201).json({ user: secureUser, token });
-    sendSignUpEmail(email, firstName, lastName);
   } catch (error) {
     console.error(error.message);
     res.status(400).json({ error: error.message });
   }
 };
 
-const sendSignUpEmail = (email, firstName, lastName) => {
+const emailTokenVerification = async (user, email, firstName, lastName) => {
+  const emailToken = await new Token({
+    userId: user._id,
+    token: crypto.randomBytes(32).toString('hex'),
+  }).save();
+  const url = `http://localhost:3000/users/${user._id}/verify/${emailToken.token}`;
+  sendSignUpEmail(email, url, firstName, lastName);
+};
+
+const sendSignUpEmail = (email, url, firstName, lastName) => {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
   const msg = {
     to: email, // Change to your recipient
     from: 'koffiarielhessou@gmail.com', // Change to your verified sender
-    subject: 'Bootcampr Signup',
-    text: `Welcome to Bootcampr ${(firstName, lastName)}`,
-    html: `<strong> Bootcampr is an awesome project that allows user to add experience </strong>`,
+    subject: 'Verify your email for Bootcampr',
+    text: `Welcome to Bootcampr, ${(firstName, lastName)}`,
+    // html: `<strong> Bootcampr is an awesome project that allows user to add experience </strong>`,
+    html: `Click this link to confirm your email address and complete setup for your candidate account:
+    <br><br>${url}`,
   };
   sgMail
     .send(msg)
@@ -139,6 +152,31 @@ const sendSignUpEmail = (email, firstName, lastName) => {
     .catch((error) => {
       console.error(error);
     });
+};
+
+export const verifyEmailLink = async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req.parmas.id });
+    if (!user) {
+      return res.status(400).send({ msg: 'Invalid link' });
+    }
+
+    const token = await Token.findOne({
+      userId: user._id,
+      token: req.params.token,
+    });
+    if (!token) {
+      return res.status(400).send({ msg: 'Invalid link' });
+    }
+
+    // await User.updateOne({ _id: user._id, verified: true });
+    await token.remove();
+
+    res.status(200).send({ msg: 'Email verified successfully' });
+  } catch (error) {
+    console.log(error.message);
+    res.status(400).json({ status: false, message: error.message });
+  }
 };
 
 export const signIn = async (req, res) => {

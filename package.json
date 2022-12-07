@@ -10,7 +10,7 @@
     "db:seed": "node seed/data.js"
   },
   "repository": {
-    "type": "git",
+    "type": "module",
     "url": "git+https://github.com/yeezick/Bootcamper.git"
   },
   "keywords": [],
@@ -22,7 +22,7 @@
   "homepage": "https://github.com/yeezick/Bootcamper#readme",
   "dependencies": {
     "@sendgrid/mail": "^7.7.0",
-    "bcrypt": "^5.0.1",
+    "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.17.2",
