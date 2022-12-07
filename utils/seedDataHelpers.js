@@ -132,6 +132,19 @@ export const generateFakeProject = (owner) => {
     })
 };
 
+// Fisher-Yates Shuffle
+export const scrambleArrayOrder = (array) => {
+    let currentIndex = array.length, randomIndex;
+
+    while (currentIndex != 0) {
+        randomIndex = randomIndex(currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = 
+            [array[randomIndex], array[currentIndex]];
+    }
+    return array
+};
+
 export const tools = [
     {
         category: "Engineering",
