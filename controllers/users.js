@@ -1,4 +1,6 @@
 import User from '../models/user.js';
+import bcrypt from 'bcrypt';
+import sgMail from '@sendgrid/mail';
 import Project from '../models/project.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
@@ -113,10 +115,30 @@ export const signUp = async (req, res) => {
     });
 
     res.status(201).json({ user: secureUser, token });
+    sendSignUpEmail(email, firstName, lastName);
   } catch (error) {
     console.error(error.message);
     res.status(400).json({ error: error.message });
   }
+};
+
+const sendSignUpEmail = (email, firstName, lastName) => {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  const msg = {
+    to: email, // Change to your recipient
+    from: 'koffiarielhessou@gmail.com', // Change to your verified sender
+    subject: 'Bootcampr Signup',
+    text: `Welcome to Bootcampr ${(firstName, lastName)}`,
+    html: `<strong> Bootcampr is an awesome project that allows user to add experience </strong>`,
+  };
+  sgMail
+    .send(msg)
+    .then(() => {
+      console.log('Email sent');
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 };
 
 export const signIn = async (req, res) => {
