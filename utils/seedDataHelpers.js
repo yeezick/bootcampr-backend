@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import bcrypt from "bcrypt";
+import Project from '../models/project.js';
 import User from "../models/user.js";
 
 export const generateBio = (role) => {
@@ -116,7 +117,7 @@ export const generateFakeProject = (owner) => {
     const statuses = ['Draft', 'Published']
     const technologiesUsed = ["JavaScript","React","HTML","CSS","Rails","Ruby","Figma",]
 
-    return {
+    return new Project({
         duration: durations[randomIndex(durations.length - 1)],
         meetingCadence: Math.floor(Math.random()*6 + 1),
         overview: `A ${faker.word.adjective()} app to make ${faker.word.noun()}s more ${faker.word.adjective()}`,
@@ -128,7 +129,7 @@ export const generateFakeProject = (owner) => {
         status: statuses[randomIndex(statuses.length -1)],
         technologiesUsed: [...technologiesUsed.slice(...randomArraySlice(technologiesUsed.length))],
         title: `${faker.word.adjective()} ${faker.word.adjective()}`,
-    }
+    })
 };
 
 export const tools = [
