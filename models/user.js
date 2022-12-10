@@ -1,12 +1,6 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const notificationSchema = {
-  notification: { type: String },
-  message: { type: String },
-  read: { type: Boolean },
-};
-
 const User = new Schema(
   {
     bio: { type: String, maxlength: 300 },
@@ -22,7 +16,7 @@ const User = new Schema(
     lastName: { type: String, required: true },
     linkedinUrl: { type: String },
     memberOfProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
-    notifications: [notificationSchema],
+    notifications: [{ type: Schema.Types.ObjectId, ref: 'pushNotifications' }],
     ownerOfProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     passwordDigest: { type: String, required: true, select: false },
     portfolioProjects: [{ type: Object }],
@@ -35,3 +29,15 @@ const User = new Schema(
 );
 
 export default mongoose.model('User', User);
+
+// const pushNotifications = new Schema({
+//   user: { type: Schema.Types.ObjectId, ref: 'User' },
+//   notification: { type: String },
+//   message: { type: String },
+//   read: { type: Boolean },
+// });
+
+// const pushNotification = mongoose.model('pushNotifications', pushNotifications);
+// const User = mongoose.model('User', userSchema);
+
+// export { User, pushNotification };

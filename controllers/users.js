@@ -1,4 +1,5 @@
 import User from '../models/user.js';
+import pushNotifications from '../models/notifications.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
@@ -192,24 +193,49 @@ export const updatePassword = async (req, res) => {
   }
 };
 
-export const saveNotification = async (req, res) => {
+export const getNotifications = async (req, res) => {
   try {
-    const { id } = req.params;
-    const notification = await User.findByIdAndUpdate(id, { $push: { notifications: req.body } }, { new: true });
-    res.status(200).send(notification);
+    const notifications = await pushNotifications.find();
+    res.json(notifications);
   } catch (error) {
-    console.error(error.message);
+    console.log(error.message);
     res.status(400).json({ status: false, message: error.message });
   }
 };
 
-export const updateNotification = async (req, res) => {
+export const saveNotification = async (req, res) => {
   try {
-    const { id } = req.params;
-    const notification = await User.findByIdAndUpdate(id, req.body, { new: true });
-    res.status(200).send(notification);
+    const newNotification = new pushNotifications(req.body);
+    await newNotification.save();
+    res.status(201).json(newNotification);
   } catch (error) {
-    console.log(error.message);
-    return res.status(404).json({ error: error.message });
+    console.error(error);
+    res.status(400).json({ status: false, message: error.message });
   }
 };
+
+export const deleteNotification = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedNotification = await pushNotifications.findByIdAndDelete(id);
+    if (deletedNotification) {
+      return res.status(200).send({ deletionStatus: true, message: 'Notification deleted.' });
+    }
+    throw new Error('Notification not found.');
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ deletionStatus: false, error: error.message });
+  }
+};
+
+// export const saveNotification = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const notification = await User.findByIdAndUpdate(id, { $push: { notifications: req.body } }, { new: true });
+//     console.log(notification);
+//     res.status(200).send(notification);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(400).json({ status: false, message: error.message });
+//   }
+// };

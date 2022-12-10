@@ -4,6 +4,7 @@ import db from '../db/connection.js';
 import Project from '../models/project.js';
 import Tool from '../models/tool.js';
 import User from '../models/user.js';
+import pushNotifications from '../models/notifications.js';
 
 /**
  * Whoever refactors this file, please make sure of the following:
@@ -36,13 +37,7 @@ const insertData = async () => {
     portfolioUrl: 'www.wigglejones.com',
     portfolioProjects: [],
     profilePicture: 'IMAGE',
-    notifications: [
-      {
-        notification: 'New project',
-        message: 'A user has added a project you might be interested in.',
-        read: false,
-      },
-    ],
+    notifications: [],
     role: 'Software Engineer',
     savedProjects: [],
   });
@@ -142,20 +137,20 @@ const insertData = async () => {
   });
   await user7.save();
 
-  // const notification = [
-  //   {
-  //     user: user1,
-  //     notification: 'New project',
-  //     message: 'A user has added a project you might be interested in.',
-  //     read: false,
-  //   },
-  // ];
+  const notification = [
+    {
+      user: user1,
+      notification: 'New project',
+      message: 'A user has added a project you might be interested in.',
+      read: false,
+    },
+  ];
 
-  // await User.insertMany(notification);
-  // const allNotifications = await User.find();
+  await pushNotifications.insertMany(notification);
+  const allNotifications = await User.find();
 
-  // user1.notification.push(allNotifications[1]);
-  // await user1.save();
+  user1.notification.push(allNotifications[1]);
+  await user1.save();
 
   const projects = [
     {
