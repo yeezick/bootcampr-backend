@@ -6,10 +6,10 @@ const User = new Schema(
     bio: { type: String, maxlength: 300 },
     declinedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     email: {
-      // match: /.+\@.+\..+/,
+      match: /.+\@.+\..+/,
       type: String,
       required: true,
-      // unique: [true, "E-mail already exists."],
+      unique: [true, "E-mail already exists."],
     },
     firstName: { type: String, required: true },
     interestedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
