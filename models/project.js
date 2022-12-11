@@ -8,26 +8,27 @@ const Schema = mongoose.Schema;
  * - how we handle applicants to a role
  * -
  */
+const roleSchema = {
+  interestedApplicants: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  status: { type: String, enum: ['Draft', 'Published'] },
+  title: { type: String },
+  description: { type: String, maxlength: 300 },
+  skills: [{ type: String }],
+  maxHeadcount: { type: Number },
+};
 
 const Project = new Schema(
   {
     duration: { type: String },
-    meetingCadence: { type: String, required: true },
+    meetingCadence: { type: Number, max: 6, required: true },
     overview: { type: String, required: true },
-    projectOwner: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    roles: [
-      {
-        interestedApplicants: [{ type: Schema.Types.ObjectId, ref: "User" }],
-        status: { type: String, enum: ["Draft", "Published"] },
-        category: { type: String, enum: ["Software Engineer", "UX Designer"] },
-        title: { type: String },
-        description: { type: String, maxlength: 300 },
-        skills: [{ type: String }],
-        desiredHeadcount: { type: Number },
-      },
-    ],
-    status: { type: String, required: true, enum: ["Draft", "Published"] },
-    technologiesUsed: [{ type: String, required: true }],
+    projectOwner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    roles: {
+      engineering: [roleSchema],
+      design: [roleSchema],
+    },
+    status: { type: String, required: true, enum: ['Draft', 'Published'] },
+    tools: [{ type: String, required: true }], //todo: add ability to categorize tools (SWE/UX)
     title: { type: String, required: true, maxlength: 45 },
   },
   { timestamps: true },
