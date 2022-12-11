@@ -25,6 +25,7 @@ const User = new Schema(
     profilePicture: {type: String},
     role: { type: String, enum: ["Software Engineer", "UX Designer"]},
     savedProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+    verified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
