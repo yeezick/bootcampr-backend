@@ -82,6 +82,7 @@ const reSeedData = async () => {
   const projects = owners.map((owner) => {
     const proj = generateFakeProject(owner);
     owner.ownerOfProjects.push(proj._id);
+    owner.memberOfProjects.push(proj._id)
     return proj
   });
 
