@@ -144,12 +144,24 @@ const insertData = async () => {
       message: 'A user has added a project you might be interested in.',
       read: false,
     },
+    {
+      user: user1,
+      notification: 'New project',
+      message: 'A user has added a project you might be interested in.',
+      read: false,
+    },
+    {
+      user: user1,
+      notification: 'New project',
+      message: 'A user has added a project you might be interested in.',
+      read: false,
+    },
   ];
 
   await pushNotifications.insertMany(notification);
   const allNotifications = await User.find();
 
-  user1.notification.push(allNotifications[1]);
+  user1.notifications.push(allNotifications[1], allNotifications[2], allNotifications[0]);
   await user1.save();
 
   const projects = [

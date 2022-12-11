@@ -4,7 +4,6 @@ import sgMail from '@sendgrid/mail';
 import pushNotifications from '../models/notifications.js';
 import Project from '../models/project.js';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 
