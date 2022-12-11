@@ -53,13 +53,10 @@ export const createRole = async (req, res) => {
           [roleType]: [...roles[roleType], newRole],
         };
       } else {
-        updatedRoles = {
-          ...roles,
-          [roleType]: [newRole],
-        };
+        updatedRoles = { ...roles, [roleType]: [newRole] };
       }
     } else {
-      updatedRoles = { [roleType]: [newRole] };
+      updatedRoles = { ...roles, [roleType]: [newRole] };
     }
 
     let updatedProject = { ...project };
