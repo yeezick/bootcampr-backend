@@ -134,13 +134,13 @@ export const generateFakeProject = (owner) => {
 
 // Fisher-Yates Shuffle
 export const scrambleArrayOrder = (array) => {
-    let currentIndex = array.length, randomIndex;
+    let currentIndex = array.length, randIndex;
 
     while (currentIndex != 0) {
-        randomIndex = randomIndex(currentIndex);
+        randIndex = randomIndex(currentIndex);
         currentIndex--;
-        [array[currentIndex], array[randomIndex]] = 
-            [array[randomIndex], array[currentIndex]];
+        [array[currentIndex], array[randIndex]] = 
+            [array[randIndex], array[currentIndex]];
     }
     return array
 };
