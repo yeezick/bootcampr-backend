@@ -1,22 +1,32 @@
-import 'dotenv/config.js';
-import bcrypt from 'bcrypt';
-import db from '../db/connection.js';
-import Project from '../models/project.js';
-import Tool from '../models/tool.js';
-import User from '../models/user.js';
+import "dotenv/config.js";
+import bcrypt from "bcrypt";
+import db from "../db/connection.js";
+import Project from "../models/project.js";
+import Tool from "../models/tool.js";
+import User from "../models/user.js";
+import { 
+  generateFakeUser, 
+  generateFakeUsers, 
+  tools, 
+  generateFakeProject } from './seedDataHelpers.js';
 
 /**
- * Whoever refactors this file, please make sure of the following:
- * - memberOfProjects, ownerOfProjects, etc all make sense
- * - User models / references don't clash
- *    EX: a user is in "interestedApplicant" and "DeclinedProject" of the same project
- *
- * I've only adapted these to fit the new schemas to avoid breaking in execution, I have not checked the logic of this file.
- *
- * Feel free to take initative and organize this file. It needs structure!!
- * If you organize, think about how we can make it easy to update in the future too.
+ * 1. build user generator - DONE
+ * 2. generate an array of 10 SWE users - DONE
+ * 3. generate an array of 10 UX users - DONE
+ * 4. build project generator - DONE
+ * 5. Decide how to automate project generation considering: owner, interested, roles, etc.
+ * 6. Build project / user assigner function
+ * 7. run and test functionality
  */
 
+const engineers = await generateFakeUsers(10, 'Software Engineer')
+const designers = await generateFakeUsers(10, 'UX Designer')
+
+/**
+ * - memberOfProjects, ownerOfProjects, etc all make sense 
+ * - User models / references don't clash
+ *    EX: a user is in "interestedApplicant" and "DeclinedProject" of the same project * 
 
 /**
  * REFACTOR NOTES:
@@ -24,47 +34,30 @@ import User from '../models/user.js';
  *  - create a set of users and save them to db
  *  - create a set of projects, with certain user relations and restrictions, and save them to the db
  *  - add projects to user arrays: interestedProjects, declinedProjects, memberOfProjects, ownerOfProjects, savedProjects
- * 
- * My notes:
- *  - separate concerns: can we batch create users, projects and tools to separate this logic?
- */
+*/
+
+// Note: this is automated so if we change any one thing on schemas, we only need to update the generator and reseed the database
+// One user will be the core user (Bootcampr) (Why?)
+
+const user1 = await generateFakeUser('Software Engineer')
+const project1 = generateFakeProject(user1)
+
+console.log(project1)
 
 const insertData = async () => {
-  //reset database
-
-  await db.dropDatabase();
-
-  const user1 = new User({
-    bio: 'American whole magazine truth stop whose. On traditional measure example sense peace. Would mouth relate own chair. Role together range line. Government first policy daughter.',
-    declinedProjects: [],
-    email: 'lagtestuy@mail.com',
-    firstName: 'Wiggle',
-    interestedProjects: [],
-    lastName: 'Jones',
-    linkedinUrl: 'www.linkedin.com',
-    memberOfProjects: [],
-    ownerOfProjects: [],
-    passwordDigest: await bcrypt.hash('gumballs', 11),
-    portfolioUrl: 'www.wigglejones.com',
-    portfolioProjects: [],
-    profilePicture: 'IMAGE',
-    role: 'Software Engineer',
-    savedProjects: [],
-  });
-  await user1.save();
-
+// Let this be the first user created (could prob adjust data to be more bootcampr-y)
   const user2 = new User({
-    bio: 'Developer PSA: Do not update this user. This user should be immutable and used as a dummy user with pristine date. ',
+    bio: "Developer PSA: Do not update this user. This user should be immutable and used as a dummy user with pristine data. ",
     declinedProjects: [],
-    email: 'laguy@mail.com',
-    firstName: 'Mike',
+    email: "bootcampr@mail.com",
+    firstName: "Boot",
     interestedProjects: [],
-    lastName: 'Hunt',
-    linkedinUrl: 'www.linkedin.com',
+    lastName: "Campr",
+    linkedinUrl: "www.linkedin.com/bootcampr",
     memberOfProjects: [],
     ownerOfProjects: [],
-    passwordDigest: await bcrypt.hash('pizza12', 11),
-    portfolioUrl: 'www.ladesigner.com',
+    passwordDigest: await bcrypt.hash("pizza12", 11),
+    portfolioUrl: "www.bootcampr.com",
     portfolioProjects: [],
     profilePicture: 'IMAGE',
     role: 'UX Designer',
@@ -72,85 +65,54 @@ const insertData = async () => {
   });
   await user2.save();
 
-  const user3 = new User({
-    bio: 'I code for fun',
-    declinedProjects: [],
-    email: 'barbra@mail.com',
-    firstName: 'Barbra',
-    lastName: 'Woo',
-    interestedProjects: [],
-    memberOfProjects: [],
-    passwordDigest: await bcrypt.hash('gumballs', 11),
-    portfolioUrl: 'www.bras.com',
-    portfolioProjects: [],
-    role: 'Software Engineer',
-  });
-  await user3.save();
+  //reset database
 
-  const user4 = new User({
-    bio: 'I like all the colors!',
-    declinedProjects: [],
-    email: 'wondergirl@mail.com',
-    firstName: 'Stephanie',
-    interestedProjects: [],
-    lastName: 'Carter',
-    memberOfProjects: [],
-    passwordDigest: await bcrypt.hash('gumballs', 11),
-    portfolioUrl: 'www.colorsofrainbows.com',
-    portfolioProjects: [],
-    role: 'UX Designer',
-  });
-  await user4.save();
+  await db.dropDatabase();
 
-  const user5 = new User({
-    bio: "I'm an engineer and I like it",
-    declinedProjects: [],
-    email: 'engineer1@mail.com',
-    firstName: 'Dude',
-    interestedProjects: [],
-    lastName: 'Guy',
-    memberOfProjects: [],
-    passwordDigest: await bcrypt.hash('donkeyballs', 11),
-    portfolioUrl: 'www.myportfoliostuff.com',
-    portfolioProjects: [],
-    role: 'Software Engineer',
-  });
-  await user5.save();
+  // Users that are looking to host / own projects
+const usersToOwnProjects = [];
+
+// Users thatt are looking to join projects
+const usersToJoinProjects = [];
+
+  // you can then iterate through each group to assign as owners, and assign as interested / not interested etc.
+  const projects = [];
+
 
   const user6 = new User({
-    bio: 'I like nerd stuff. A lot.',
+    bio: "I like nerd stuff. A lot.",
     declinedProjects: [],
-    email: 'lady@mail.com',
-    firstName: 'Maria',
+    email: "lady@mail.com",
+    firstName: "Maria",
     interestedProjects: [],
-    lastName: 'Lastname',
+    lastName: "Lastname",
     memberOfProjects: [],
-    passwordDigest: await bcrypt.hash('usbdongle', 11),
-    portfolioUrl: 'www.nerds4nerds.com',
+    passwordDigest: await bcrypt.hash("usbdongle", 11),
+    portfolioUrl: "www.nerds4nerds.com",
     portfolioProjects: [],
-    role: 'Software Engineer',
+    role: "Software Engineer",
   });
   await user6.save();
 
   const user7 = new User({
-    bio: ' lets get this bread',
+    bio: " lets get this bread",
     declinedProjects: [],
-    email: 'letsgetthisbread@mail.com',
-    firstName: 'BREAD',
+    email: "letsgetthisbread@mail.com",
+    firstName: "BREAD",
     interestedProjects: [],
-    lastName: 'CHASER',
+    lastName: "CHASER",
     memberOfProjects: [],
-    passwordDigest: await bcrypt.hash('makingMoney', 11),
-    portfolioUrl: 'www.bootCamper.com',
+    passwordDigest: await bcrypt.hash("makingMoney", 11),
+    portfolioUrl: "www.bootCamper.com",
     portfolioProjects: [],
-    role: 'Software Engineer',
+    role: "Software Engineer",
   });
   await user7.save();
 
   const projects = [
     {
-      duration: '10',
-      meeting_cadence: '1 month',
+      duration: "10",
+      meeting_cadence: "1 month",
       overview: "It's a rad project",
       project_owner: user1,
       roles: [
@@ -173,9 +135,9 @@ const insertData = async () => {
           desiredHeadcount: 2,
         }
       ],
-      status: 'Draft',
-      technologies_used: ['VSCode', 'Chrome'],
-      title: 'Extra Radical',
+      status:  "Draft" ,
+      technologies_used: ["VSCode", "Chrome"],
+      title: "Extra Radical",
     },
     {
       duration: "2 months",
@@ -327,39 +289,39 @@ const insertData = async () => {
 
   const tools = [
     {
-      category: 'Engineering',
-      icon: '/assets/icons/javascript.svg',
-      name: 'JavaScript',
+      category: "Engineering",
+      icon: "/assets/icons/javascript.svg",
+      name: "JavaScript",
     },
     {
-      category: 'Engineering',
-      icon: '/assets/icons/react.svg',
-      name: 'React',
+      category: "Engineering",
+      icon: "/assets/icons/react.svg",
+      name: "React",
     },
     {
-      category: 'Engineering',
-      icon: '/assets/icons/html.svg',
-      name: 'HTML',
+      category: "Engineering",
+      icon: "/assets/icons/html.svg",
+      name: "HTML",
     },
     {
-      category: 'Engineering',
-      icon: '/assets/icons/css.png',
-      name: 'CSS',
+      category: "Engineering",
+      icon: "/assets/icons/css.png",
+      name: "CSS",
     },
     {
-      category: 'Engineering',
-      icon: '/assets/icons/rails.png',
-      name: 'Rails',
+      category: "Engineering",
+      icon: "/assets/icons/rails.png",
+      name: "Rails",
     },
     {
-      category: 'Engineering',
-      icon: '/assets/icons/ruby.svg',
-      name: 'Ruby',
+      category: "Engineering",
+      icon: "/assets/icons/ruby.svg",
+      name: "Ruby",
     },
     {
-      category: 'Design',
-      icon: '/assets/icons/figma.svg',
-      name: 'Figma',
+      category: "Design",
+      icon: "/assets/icons/figma.svg",
+      name: "Figma",
     },
   ];
   await Tool.insertMany(tools);
@@ -368,4 +330,4 @@ const insertData = async () => {
   db.close();
 };
 
-insertData();
+// insertData();
