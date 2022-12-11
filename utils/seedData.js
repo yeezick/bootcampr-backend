@@ -144,4 +144,6 @@ const reSeedDatabase = async () => {
 };
 
 reSeedDatabase()
-  .then(() => db.close())
+  .then(() => {
+    setTimeout(() => db.close(), 2000);
+  })
