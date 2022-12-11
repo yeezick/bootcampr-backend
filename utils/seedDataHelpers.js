@@ -13,32 +13,24 @@ export const generateFakeUser = async (role) => {
         last: faker.name.lastName()
     }
     return {
-        firstName: name.first,
-        lastName: name.last,
         bio: generateBio(role),
+        declinedProjects: [],
         email: faker.helpers.unique(faker.internet.email, [name.first, name.last]),
+        firstName: name.first,
+        interestedProjects: [],
+        lastName: name.last,
+        linkedinUrl: `www.linkedin.com/${name.first}-${name.last}`,
+        memberOfProjects: [],
+        ownerOfProjects: [],
         passwordDigest: await bcrypt.hash("gumballs", 11),
+        portfolioProjects: [],
+        portfolioUrl: `www.${name.first}${name.last}.com`,
         profilePicture: faker.image.people(640,480,true),
         role: role,
-        // TODO: replacing interestedProjects - see where on frontend needs to be updated
-        appliedToProjects: [],
-        declinedProjects: [],
-        ownerOfProjects: [],
-        memberOfProjects: [],
         savedProjects: [],
-        portfolioProjects: [],
-        profileLinks: [
-            {
-            name: 'LinkedIn',
-            url: `www.linkedin.com/${name.first}-${name.last}`
-            },
-            {
-            name: 'Portfolio',
-            url: `www.${name.first}${name.last}.com`
-            }
-        ]
+        verified: true
     }
-}
+};
 
 export const generateFakeUsers = async (quantity, role) => {
     const users = []
@@ -81,7 +73,7 @@ export const roles = {
             skills: ['Maze', 'Userlytics', 'GSuite']
         },{
             title: 'Lead Designer',
-            decription: 'evolving designs to optimize user experience, working collaboratively with other designers and engineers, and managing a team of desiners',
+            decription: 'evolving designs to optimize user experience, working collaboratively with other designers and engineers, and managing a team of designers',
             skills: ['Figma', 'Adobe Photoshop', 'Adobe Illustrator']
         },{
             title: 'Market Researcher + Designer',

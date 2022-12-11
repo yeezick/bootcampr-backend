@@ -1,23 +1,27 @@
-import "dotenv/config.js";
+import "dotenv/config.js";import "dotenv/config.js";
 import bcrypt from "bcrypt";
 import db from "../db/connection.js";
 import Project from "../models/project.js";
 import Tool from "../models/tool.js";
 import User from "../models/user.js";
-import { generateFakeUsers, generateFakeProject, tools, scrambleArrayOrder } from './seedDataHelpers.js';
+import { 
+  generateFakeUsers, 
+  generateFakeProject, 
+  tools, 
+  scrambleArrayOrder } from './seedDataHelpers.js';
 
 
-const reSeedData = async () => {
-  // reset database
+const reSeedDatabase = async () => {
+  // reset database completely
   await db.dropDatabase();
 
   // create core user
   const coreUser = new User({
-    appliedToProjects: [],
     bio: "Developer PSA: Do not update this user. This user should be immutable and used as a dummy user with pristine data. ",
     declinedProjects: [],
     email: "bootcampr@mail.com",
     firstName: "Boot",
+    interestedProjects: [],
     lastName: "Campr",
     linkedinUrl: "www.linkedin.com/bootcampr",
     memberOfProjects: [],
@@ -27,7 +31,8 @@ const reSeedData = async () => {
     portfolioUrl: "www.bootcampr.com",
     profilePicture: "IMAGE",
     role: "UX Designer",
-    savedProjects: []
+    savedProjects: [],
+    verified: true
   });
   await coreUser.save();
 
@@ -49,16 +54,16 @@ const reSeedData = async () => {
   const bootcampr = new Project({
     duration: 'Everlasting',
     meetingCadence: 2,
-    overview: 'TODO',
+    overview: 'Our platform enables students and recent graduates of Design and Development Programs to connect in a realistic work environment where they can practice and refine their skills.',
     projectOwner: coreUser,
     roles: {
       design: [
         {
           interestedApplicants: [...designers],
           status: "Published" ,
-          title: 'TODO',
-          description: 'TODO',
-          skills: [],
+          title: 'UX Designer',
+          description: 'Will work on evolving designs collaboratively with other designers and engineers, perform market research and manage a team of designers',
+          skills: ['Figma', 'Adobe Photoshop', 'Adobe Illustrator'],
           desiredHeadcount: 5,
         }
       ],
@@ -66,9 +71,9 @@ const reSeedData = async () => {
         {
           interestedApplicants: [...engineers],
           status: "Published" ,
-          title: 'TODO',
-          description: 'TODO',
-          skills: [],
+          title: 'Full Stack Software Engineer',
+          description: 'An engineer who loves problem solving, is passionate about delivering excellent user-experience, and collaborating with all types of engineers and designers,',
+          skills: ['React', 'Figma', 'SCSS', 'Node.js', 'Express', 'MongoDB'],
           desiredHeadcount: 5,
         }
       ]
@@ -97,13 +102,13 @@ const reSeedData = async () => {
 
   // add projects to users arrays round robin style for: apply, decline, memberOf and saved
   joiners.forEach((user) => {
-    user.appliedToProjects.push(bootcampr)
-    for (let i=1 ; i < allProjects.length ; i++) {
-      switch (i%4) {
+    user.interestedProjects.push(bootcampr)
+    for (let i = 1 ; i < allProjects.length ; i++) {
+      switch ( i % 4 ) {
         case 0:
-          user.appliedToProjects.push(allProjects[i])
+          user.interestedProjects.push(allProjects[i])
           const role = user.role === 'Software Engineer' ? 'engineering' : 'design'
-          allProjects[i].roles[`${role}`].push(user)
+          allProjects[i].roles[role].push(user)
           break
         case 1:
           user.declinedProjects.push(allProjects[i])
@@ -127,4 +132,4 @@ const reSeedData = async () => {
   db.close();
 };
 
-// reSeedData();
+reSeedDatabase();
