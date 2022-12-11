@@ -12,7 +12,8 @@ import {
 
 
 const reSeedDatabase = async () => {
-  // reset database completely
+
+  // reset database
   await db.dropDatabase();
 
   // create core user
@@ -47,8 +48,8 @@ const reSeedDatabase = async () => {
   const joiners = [...engineers, ...designers]
 
   // save users to database:
-  const allUsers = [...owners, ...joiners]
-  await allUsers.forEach(user => user.save())
+  const allNewUsers = [...owners, ...joiners]
+  await allNewUsers.forEach(user => user.save())
 
   // create core project
   const bootcampr = new Project({
@@ -81,7 +82,11 @@ const reSeedDatabase = async () => {
     status: "Published",
     technologiesUsed: ['React', 'Express', 'Figma', 'MongoDB', 'Heroku', 'SCSS'],
     title: 'Bootcampr',
-  })
+  });
+
+  coreUser.ownerOfProjects.push(bootcampr._id);
+  coreUser.memberOfProjects.push(bootcampr._id);
+  await coreUser.save()
 
   // create many projects
   const projects = owners.map((owner) => {
@@ -91,33 +96,41 @@ const reSeedDatabase = async () => {
     return proj
   });
 
+  owners.forEach(async (owner) => await owner.save());
+
   // add core project "bootcampr" to be first in database
   projects.unshift(bootcampr)
 
-  // save (insert) projects in database:
+  // save/insert projects in database
   await Project.insertMany(projects)
 
-  // get all projects from database
+  // get all projects + usersfrom database
   let allProjects = await Project.find();
+  let allUsers = await User.find();
 
-  // add projects to users arrays round robin style for: apply, decline, memberOf and saved
-  joiners.forEach((user) => {
+  // add projects to users arrays round robin style for: interested, declined, memberOf and saved
+  allUsers.forEach((user) => {
+  
+    // all users are interested in bootcampr (duh)
     user.interestedProjects.push(bootcampr)
+
+    if (user.ownerOfProjects.length > 0) return;
+
     for (let i = 1 ; i < allProjects.length ; i++) {
       switch ( i % 4 ) {
         case 0:
-          user.interestedProjects.push(allProjects[i])
+          user.interestedProjects.push(allProjects[i]._id)
           const role = user.role === 'Software Engineer' ? 'engineering' : 'design'
           allProjects[i].roles[role].push(user)
           break
         case 1:
-          user.declinedProjects.push(allProjects[i])
+          user.declinedProjects.push(allProjects[i]._id)
           break
         case 2:
-          user.memberOfProjects.push(allProjects[i])
+          user.memberOfProjects.push(allProjects[i]._id)
           break
         case 3:
-          user.savedProjects.push(allProjects[i])
+          user.savedProjects.push(allProjects[i]._id)
           break
       }
     }
@@ -125,11 +138,10 @@ const reSeedDatabase = async () => {
   });
 
   // save users with newly populated project arrays
-  await allUsers.forEach(user => user.save())
+  await allUsers.forEach(async user => await user.save())
 
   await Tool.insertMany(tools);
-
-  db.close();
 };
 
-reSeedDatabase();
+reSeedDatabase()
+  .then(() => db.close())
