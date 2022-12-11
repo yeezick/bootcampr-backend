@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 /**
  * Need to discuss:
@@ -30,6 +30,6 @@ const Project = new Schema(
     technologiesUsed: [{ type: String, required: true }],
     title: { type: String, required: true, maxlength: 45 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
-export default mongoose.model("Project", Project);
+export default mongoose.model('Project', Project);

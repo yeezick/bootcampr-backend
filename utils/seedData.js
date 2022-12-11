@@ -120,8 +120,205 @@ console.log(testArray)
 
 const insertData = async () => {
 
+<<<<<<< HEAD
   // reset database
   // await db.dropDatabase();
+=======
+  const user5 = new User({
+    bio: "I'm an engineer and I like it",
+    declinedProjects: [],
+    email: 'engineer1@mail.com',
+    firstName: 'Dude',
+    interestedProjects: [],
+    lastName: 'Guy',
+    memberOfProjects: [],
+    passwordDigest: await bcrypt.hash('donkeyballs', 11),
+    portfolioUrl: 'www.myportfoliostuff.com',
+    portfolioProjects: [],
+    role: 'Software Engineer',
+  });
+  await user5.save();
+
+  const user6 = new User({
+    bio: 'I like nerd stuff. A lot.',
+    declinedProjects: [],
+    email: 'lady@mail.com',
+    firstName: 'Maria',
+    interestedProjects: [],
+    lastName: 'Lastname',
+    memberOfProjects: [],
+    passwordDigest: await bcrypt.hash('usbdongle', 11),
+    portfolioUrl: 'www.nerds4nerds.com',
+    portfolioProjects: [],
+    role: 'Software Engineer',
+  });
+  await user6.save();
+
+  const user7 = new User({
+    bio: ' lets get this bread',
+    declinedProjects: [],
+    email: 'letsgetthisbread@mail.com',
+    firstName: 'BREAD',
+    interestedProjects: [],
+    lastName: 'CHASER',
+    memberOfProjects: [],
+    passwordDigest: await bcrypt.hash('makingMoney', 11),
+    portfolioUrl: 'www.bootCamper.com',
+    portfolioProjects: [],
+    role: 'Software Engineer',
+  });
+  await user7.save();
+
+  const projects = [
+    {
+      duration: '10',
+      meetingCadence: '1 month',
+      overview: "It's a rad project",
+      projectOwner: user1,
+      roles: [
+        {
+          interestedApplicants: [user1, user3],
+          status: 'Draft',
+          category: 'Software Engineer',
+          title: 'Software Engineer',
+          description: 'Must be able to code.',
+          skills: ['React', 'JavaScript'],
+          desiredHeadcount: 2,
+        },
+        {
+          interestedApplicants: [user2, user4],
+          status: 'Published',
+          category: 'UX Designer',
+          title: 'UX Designer',
+          description: 'Must be able to UX Design.',
+          skills: ['Figma', 'Chrome'],
+          desiredHeadcount: 2,
+        },
+      ],
+      status: 'Draft',
+      technologiesUsed: ['VSCode', 'Chrome'],
+      title: 'Extra Radical',
+    },
+    {
+      duration: '2 months',
+      meetingCadence: 'weekly',
+      overview: 'Less Rad Project',
+      projectOwner: user2,
+      roles: [
+        {
+          interestedApplicants: [user4, user5],
+          status: 'Draft',
+          category: 'Software Engineer',
+          title: 'Software Engineer',
+          description: 'Must be able to code.',
+          skills: ['React', 'JavaScript'],
+          desiredHeadcount: 2,
+        },
+        {
+          interestedApplicants: [user2, user4],
+          status: 'Published',
+          category: 'UX Designer',
+          title: 'UX Designer',
+          description: 'Must be able to UX Design.',
+          skills: ['Figma', 'Chrome'],
+          desiredHeadcount: 2,
+        },
+      ],
+      status: 'Published',
+      technologiesUsed: ['Figma', 'Chrome'],
+      title: 'Extra Lame',
+    },
+    {
+      duration: '10',
+      meetingCadence: '1 month',
+      overview: "It's a rad project",
+      projectOwner: user1,
+      roles: [
+        {
+          interestedApplicants: [user1, user3],
+          status: 'Draft',
+          category: 'Software Engineer',
+          title: 'Software Engineer',
+          description: 'Must be able to code.',
+          skills: ['React', 'JavaScript'],
+          desiredHeadcount: 2,
+        },
+        {
+          interestedApplicants: [user2, user4],
+          status: 'Published',
+          category: 'UX Designer',
+          title: 'UX Designer',
+          description: 'Must be able to UX Design.',
+          skills: ['Figma', 'Chrome'],
+          desiredHeadcount: 2,
+        },
+      ],
+      status: 'Draft',
+      technologiesUsed: ['VSCode', 'Chrome'],
+      title: 'Extra Radical',
+    },
+    {
+      duration: '2 months',
+      meetingCadence: 'weekly',
+      overview: 'Less Rad Project',
+      projectOwner: user2,
+      roles: [
+        {
+          interestedApplicants: [user4, user5],
+          status: 'Draft',
+          category: 'Software Engineer',
+          title: 'Software Engineer',
+          description: 'Must be able to code.',
+          skills: ['React', 'JavaScript'],
+          desiredHeadcount: 2,
+        },
+        {
+          interestedApplicants: [user2, user4],
+          status: 'Published',
+          category: 'UX Designer',
+          title: 'UX Designer',
+          description: 'Must be able to UX Design.',
+          skills: ['Figma', 'Chrome'],
+          desiredHeadcount: 2,
+        },
+      ],
+      status: 'Published',
+      technologiesUsed: ['Figma', 'Chrome'],
+      title: 'Extra Lame',
+    },
+    {
+      duration: '10',
+      meetingCadence: '1 month',
+      overview: "It's a rad project",
+      projectOwner: user1,
+      roles: [
+        {
+          interestedApplicants: [user1, user3],
+          status: 'Draft',
+          category: 'Software Engineer',
+          title: 'Software Engineer',
+          description: 'Must be able to code.',
+          skills: ['React', 'JavaScript'],
+          desiredHeadcount: 2,
+        },
+        {
+          interestedApplicants: [user2, user4],
+          status: 'Published',
+          category: 'UX Designer',
+          title: 'UX Designer',
+          description: 'Must be able to UX Design.',
+          skills: ['Figma', 'Chrome'],
+          desiredHeadcount: 2,
+        },
+      ],
+      status: 'Draft',
+      technologiesUsed: ['VSCode', 'Chrome'],
+      title: 'Extra Radical',
+    },
+  ];
+  await Project.insertMany(projects);
+  const allProjects = await Project.find();
+>>>>>>> bb3b269 (convert project model properties to camelCase)
 
   // adding allProjects to each user's memberOfProjects array:
   // user1.memberOfProjects.push(allProjects[1], allProjects[2], allProjects[4]);
