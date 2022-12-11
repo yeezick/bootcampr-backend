@@ -4,7 +4,7 @@ const engineerRoleDraftMock = {
   title: 'Software Engineer',
   description: 'Description unauthorized. For access to description, contact the IRS.',
   skills: ['vscode', 'github', 'react'],
-  maxHeadcount: 3,
+  maxHeadCount: 3,
 };
 
 const engineerRolePublishedMock = {
@@ -13,5 +13,5 @@ const engineerRolePublishedMock = {
   title: 'Software Engineer II',
   description: '========EXTRA UNAUTHORIZED========',
   skills: ['vscode', 'github', 'react'],
-  maxHeadcount: 3,
+  maxHeadCount: 3,
 };
