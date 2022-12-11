@@ -1,4 +1,6 @@
 import User from '../models/user.js';
+import bcrypt from 'bcrypt';
+import sgMail from '@sendgrid/mail';
 import Project from '../models/project.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
@@ -113,34 +115,56 @@ export const signUp = async (req, res) => {
     });
 
     res.status(201).json({ user: secureUser, token });
+    sendSignUpEmail(email, firstName, lastName);
   } catch (error) {
     console.error(error.message);
     res.status(400).json({ error: error.message });
   }
 };
 
+const sendSignUpEmail = (email, firstName, lastName) => {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  const msg = {
+    to: email, // Change to your recipient
+    from: 'koffiarielhessou@gmail.com', // Change to your verified sender
+    subject: 'Bootcampr Signup',
+    text: `Welcome to Bootcampr ${(firstName, lastName)}`,
+    html: `<strong> Bootcampr is an awesome project that allows user to add experience </strong>`,
+  };
+  sgMail
+    .send(msg)
+    .then(() => {
+      console.log('Email sent');
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+};
+
 export const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
-    let user = await User.findOne({ email }).select(
-      'about email firstName fun_fact interestedProjects lastName memberOfProjects passwordDigest portfolioProjects portfolioUrl declinedProjects role',
-    ); // to avoid setting `select` to true on the user model, i select all properties here then copy the user object without the passwordDigest below
-    let secureUser = Object.assign({}, user._doc, {
-      passwordDigest: undefined,
-    });
-    if (await bcrypt.compare(password, user.passwordDigest)) {
-      const payload = {
-        userID: user._id,
-        email: user.email,
-        exp: parseInt(exp.getTime() / 1000),
-      };
-      const token = jwt.sign(payload, TOKEN_KEY);
-      res.status(201).json({ user: secureUser, token });
+    let user = await User.findOne({ email }).select('+passwordDigest');
+    if (user) {
+      let secureUser = Object.assign({}, user._doc, {
+        passwordDigest: undefined,
+      });
+      if (await bcrypt.compare(password, user.passwordDigest)) {
+        const payload = {
+          userID: user._id,
+          email: user.email,
+          exp: parseInt(exp.getTime() / 1000),
+        };
+        const token = jwt.sign(payload, TOKEN_KEY);
+        res.status(201).json({ user: secureUser, token });
+      } else {
+        res.status(401).json({ message: 'Invalid email or password' });
+      }
     } else {
-      res.status(401).send('Invalid credentials');
+      res.status(401).json({ message: 'Invalid email or password' });
     }
   } catch (error) {
-    console.log(error.message);
+    console.error(error.message);
     res.status(500).json({ error: error.message });
   }
 };
