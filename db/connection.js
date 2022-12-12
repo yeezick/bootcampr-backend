@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 // set connection location
-// todo: add switch case for different env uri's
 const MONGODB_URI = process.env.MONGODB_URI
 
 mongoose.set("returnOriginal", false); //for findByAndUpdate to return a reference to object at location
