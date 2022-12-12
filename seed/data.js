@@ -353,6 +353,7 @@ const insertData = async () => {
       name: "Figma",
     },
   ];
+
   await Tool.insertMany(tools);
   const allTools = await Tool.find();
 
