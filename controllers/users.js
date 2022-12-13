@@ -158,7 +158,7 @@ export const signIn = async (req, res) => {
         };
         const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
         res.status(201).json({ user: secureUser, bootcamprAuthToken });
-      } 
+      }
     } else {
       res.status(401).json({ message: 'Invalid email or password' });
     }
@@ -170,7 +170,7 @@ export const signIn = async (req, res) => {
 
 export const verify = async (req, res) => {
   try {
-    const bootcamprAuthToken = req.headers.authorization.split(" ")[1];
+    const bootcamprAuthToken = req.headers.authorization.split(' ')[1];
     const payload = jwt.verify(bootcamprAuthToken, TOKEN_KEY);
     if (payload) {
       res.json(payload);
@@ -208,9 +208,7 @@ export const updatePassword = async (req, res) => {
       exp: parseInt(exp.getTime() / 1000),
     };
     const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
-    res
-      .status(201)
-      .json({ status: true, message: "Password Updated", user, bootcamprAuthToken });
+    res.status(201).json({ status: true, message: 'Password Updated', user, bootcamprAuthToken });
   } catch (error) {
     console.error(error.message);
     res.status(400).json({ status: false, message: error.message });
