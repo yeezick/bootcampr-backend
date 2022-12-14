@@ -182,25 +182,27 @@ export const verifyEmailLink = async (req, res) => {
 export const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
-    let user = await User.findOne({ email }).select(
-      'about email firstName fun_fact interestedProjects lastName memberOfProjects passwordDigest portfolioProjects portfolioUrl declinedProjects role',
-    ); // to avoid setting `select` to true on the user model, i select all properties here then copy the user object without the passwordDigest below
-    let secureUser = Object.assign({}, user._doc, {
-      passwordDigest: undefined,
-    });
-    if (await bcrypt.compare(password, user.passwordDigest)) {
-      const payload = {
-        userID: user._id,
-        email: user.email,
-        exp: parseInt(exp.getTime() / 1000),
-      };
-      const token = jwt.sign(payload, TOKEN_KEY);
-      res.status(201).json({ user: secureUser, token });
+    let user = await User.findOne({ email }).select('+passwordDigest');
+    if (user) {
+      let secureUser = Object.assign({}, user._doc, {
+        passwordDigest: undefined,
+      });
+      if (await bcrypt.compare(password, user.passwordDigest)) {
+        const payload = {
+          userID: user._id,
+          email: user.email,
+          exp: parseInt(exp.getTime() / 1000),
+        };
+        const token = jwt.sign(payload, TOKEN_KEY);
+        res.status(201).json({ user: secureUser, token });
+      } else {
+        res.status(401).json({ message: 'Invalid email or password' });
+      }
     } else {
-      res.status(401).send('Invalid credentials');
+      res.status(401).json({ message: 'Invalid email or password' });
     }
   } catch (error) {
-    console.log(error.message);
+    console.error(error.message);
     res.status(500).json({ error: error.message });
   }
 };
