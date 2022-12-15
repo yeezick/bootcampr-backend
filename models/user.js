@@ -1,29 +1,31 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const User = new Schema(
+// const User = new Schema(
+const user = new Schema(
   {
     bio: { type: String, maxlength: 300 },
-    declinedProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+    declinedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     email: {
       match: /.+\@.+\..+/,
       type: String,
       required: true,
-      unique: [true, "E-mail already exists."],
+      unique: [true, 'E-mail already exists.'],
     },
     firstName: { type: String, required: true },
-    interestedProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+    interestedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     lastName: { type: String, required: true },
     linkedinUrl: { type: String },
-    memberOfProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
-    ownerOfProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+    memberOfProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
+    ownerOfProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     passwordDigest: { type: String, required: true, select: false },
     portfolioProjects: [{ type: Object }],
     portfolioUrl: { type: String },
-    profilePicture: {type: String},
+    profilePicture: { type: String },
     role: { type: String },
-    savedProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+    savedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
-export default mongoose.model("User", User);
+
+export default mongoose.model('User', user);

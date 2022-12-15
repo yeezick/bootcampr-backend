@@ -15,7 +15,7 @@ exp.setDate(today.getDate() + 30);
 
 export const getAllUsers = async (req, res) => {
   try {
-    const allUser = await User.find({});
+    const allUser = await User.find({}).populate(['memberOfProjects']);
     if (allUser) {
       res.status(200).json(allUser);
     }
@@ -41,6 +41,7 @@ export const getOneUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
+    deleteImageFromS3Bucket(id);
     const deletedUser = await User.findByIdAndDelete(id);
     if (deletedUser) {
       return res.status(200).send({ deletionStatus: true, message: 'User deleted.' });
@@ -72,7 +73,8 @@ export const updateUserInfo = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findByIdAndUpdate(id, req.body, { new: true });
-    res.status(200).send(user);
+    const updatedUserImg = await updatingImage(id);
+    res.status(200).send(updatedUserImg);
   } catch (error) {
     console.log(error.message);
     return res.status(404).json({ error: error.message });
@@ -95,14 +97,14 @@ export const checkEmail = async (req, res) => {
 };
 
 // Auth
+
 export const signUp = async (req, res) => {
   try {
-    const { email, firstName, lastName, password } = req.body;
+    const { email, firstName, lastName, password, profilePicture } = req.body;
 
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = new User({ email, firstName, lastName, passwordDigest });
+    const user = new User({ email, firstName, lastName, passwordDigest, profilePicture });
     await user.save();
-
     const payload = {
       userID: user._id,
       email: user.email,
@@ -156,7 +158,7 @@ export const signIn = async (req, res) => {
         };
         const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
         res.status(201).json({ user: secureUser, bootcamprAuthToken });
-      } 
+      }
     } else {
       res.status(401).json({ message: 'Invalid email or password' });
     }
@@ -168,7 +170,7 @@ export const signIn = async (req, res) => {
 
 export const verify = async (req, res) => {
   try {
-    const bootcamprAuthToken = req.headers.authorization.split(" ")[1];
+    const bootcamprAuthToken = req.headers.authorization.split(' ')[1];
     const payload = jwt.verify(bootcamprAuthToken, TOKEN_KEY);
     if (payload) {
       res.json(payload);
@@ -182,7 +184,6 @@ export const verify = async (req, res) => {
 export const confirmPassword = async (req, res) => {
   const { email, password } = req.body;
   // is it better to find the user by their email or id?
-  console.log('email', email);
   if (email) {
     let user = await User.findOne({ email }).select('passwordDigest');
     if (await bcrypt.compare(password, user.passwordDigest)) {
@@ -207,9 +208,7 @@ export const updatePassword = async (req, res) => {
       exp: parseInt(exp.getTime() / 1000),
     };
     const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
-    res
-      .status(201)
-      .json({ status: true, message: "Password Updated", user, bootcamprAuthToken });
+    res.status(201).json({ status: true, message: 'Password Updated', user, bootcamprAuthToken });
   } catch (error) {
     console.error(error.message);
     res.status(400).json({ status: false, message: error.message });
