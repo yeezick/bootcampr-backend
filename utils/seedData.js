@@ -137,7 +137,7 @@ const insertData = async () => {
   });
   await user7.save();
 
-  const notification = [
+  const notifications = [
     {
       user: user1,
       notification: 'New project',
@@ -158,7 +158,7 @@ const insertData = async () => {
     },
   ];
 
-  await pushNotifications.insertMany(notification);
+  await pushNotifications.insertMany(notifications);
   const allNotifications = await User.find();
 
   user1.notifications.push(allNotifications[1], allNotifications[2], allNotifications[0]);

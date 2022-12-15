@@ -13,6 +13,7 @@ router.put('/users/:id', controllers.updateUserInfo);
 router.patch('/users/:id', controllers.addPortfolioProject);
 router.delete('/users/:id', controllers.deleteUser);
 router.post('/notifications', controllers.saveNotification);
+router.put('/notifications/:id', controllers.updateStatusNotification);
 router.delete('/notifications/:id', controllers.deleteNotification);
 
 // auth

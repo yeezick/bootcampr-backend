@@ -252,14 +252,13 @@ export const deleteNotification = async (req, res) => {
   }
 };
 
-// export const saveNotification = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const notification = await User.findByIdAndUpdate(id, { $push: { notifications: req.body } }, { new: true });
-//     console.log(notification);
-//     res.status(200).send(notification);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(400).json({ status: false, message: error.message });
-//   }
-// };
+export const updateStatusNotification = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const notification = await pushNotifications.findByIdAndUpdate(id, req.body, { new: true });
+    res.status(200).json(notification);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ status: false, message: error.message });
+  }
+};
