@@ -1,17 +1,23 @@
 import { Router } from 'express';
+import multer from 'multer';
 import * as controllers from '../controllers/users.js';
+import { addImagesToS3Bucket } from '../controllers/addingImage.js';
 // import restrict from '../helpers/restrict.js'
 
+//middleware
+const storage = multer.memoryStorage();
+const uploadImage = multer({ storage: storage });
 const router = Router();
 
 // standard crud
 router.get('/users', controllers.getAllUsers);
 router.get('/users/:id', controllers.getOneUser);
-router.get('/notifications', controllers.getNotifications);
 router.post('/sign-up', controllers.signUp);
 router.put('/users/:id', controllers.updateUserInfo);
+router.get('/notifications', controllers.getNotifications);
 router.patch('/users/:id', controllers.addPortfolioProject);
 router.delete('/users/:id', controllers.deleteUser);
+router.post('/addUserImage', uploadImage.single('image'), addImagesToS3Bucket);
 router.post('/notifications', controllers.saveNotification);
 router.put('/notifications/:id', controllers.updateStatusNotification);
 router.delete('/notifications/:id', controllers.deleteNotification);
