@@ -14,19 +14,10 @@ const reSeedDatabase = async () => {
   // create core user
   const coreUser = new User({
     bio: 'Developer PSA: Do not update this user. This user should be immutable and used as a dummy user with pristine data. ',
-    customProfileLinks: [
-      {
-        customUrlName: 'github',
-        customUrlLink: 'www.github.com/mendo94435345',
-      },
-      {
-        customUrlName: 'twitter',
-        customUrlLink: 'www.twitter.com/dingus',
-      },
-    ],
     declinedProjects: [],
     email: 'bootcampr@mail.com',
     firstName: 'Boot',
+    githubUrl: 'www.github.com/bootcampr',
     interestedProjects: [],
     lastName: 'Campr',
     linkedinUrl: 'www.linkedin.com/bootcampr',
