@@ -1,21 +1,17 @@
 import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const User = new Schema(
+// const User = new Schema(
+const user = new Schema(
   {
     bio: { type: String, maxlength: 300 },
-    customProfileLinks: [
-      {
-        customUrlName: { type: String },
-        customUrlLink: { type: String },
-      },
-    ],
     declinedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     email: {
-      // match: /.+\@.+\..+/,
+      match: /.+\@.+\..+/,
       type: String,
       required: true,
-      // unique: [true, "E-mail already exists."],
+      unique: [true, 'E-mail already exists.'],
     },
     firstName: { type: String, required: true },
     interestedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
