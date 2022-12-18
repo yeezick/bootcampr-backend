@@ -17,7 +17,7 @@ export const generateFakeUser = async (role) => {
     declinedProjects: [],
     email: faker.helpers.unique(faker.internet.email, [name.first, name.last]),
     firstName: name.first,
-    githubLink: `www.github.com/${name.first}-${name.last}`,
+    githubUrl: `www.github.com/${name.first}-${name.last}`,
     interestedProjects: [],
     lastName: name.last,
     linkedinUrl: `www.linkedin.com/${name.first}-${name.last}`,
