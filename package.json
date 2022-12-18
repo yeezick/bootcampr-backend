@@ -21,6 +21,8 @@
   },
   "homepage": "https://github.com/yeezick/Bootcamper#readme",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.216.0",
+    "@aws-sdk/s3-request-presigner": "^3.216.0",
     "@sendgrid/mail": "^7.7.0",
     "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
@@ -28,7 +30,8 @@
     "express": "^4.17.2",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.1.6",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1"
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
