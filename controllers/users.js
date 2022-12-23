@@ -157,6 +157,7 @@ export const signIn = async (req, res) => {
           exp: parseInt(exp.getTime() / 1000),
         };
         const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
+
         res.status(201).json({ user: secureUser, bootcamprAuthToken });
       }
     } else {
