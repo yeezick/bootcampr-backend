@@ -9,7 +9,7 @@ const User = new Schema(
       match: /.+\@.+\..+/,
       type: String,
       required: true,
-      unique: [true, 'E-mail already exists.'],
+      // unique: [true, 'E-mail already exists.'],
     },
     firstName: { type: String, required: true },
     interestedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],

@@ -97,6 +97,20 @@ export const checkEmail = async (req, res) => {
 };
 
 // Auth
+export const newToken = async (user) => {
+  const payload = {
+    userId: user._id,
+    token: crypto.randomUUID(),
+    exp: parseInt(exp.getTime() / 1000),
+  };
+  console.log('USER', user);
+
+  const token = await Token.create(payload);
+  console.log(token, 'eror here?');
+  const tokenjwt = jwt.sign({ userID: user._id, email: user.email, exp: parseInt(exp.getTime() / 1000) }, TOKEN_KEY);
+  return tokenjwt;
+};
+
 export const signUp = async (req, res) => {
   try {
     const { email, firstName, lastName, password } = req.body;
@@ -105,17 +119,13 @@ export const signUp = async (req, res) => {
     const user = new User({ email, firstName, lastName, passwordDigest });
     await user.save();
 
-    const payload = {
-      userID: user._id,
-      email: user.email,
-      exp: parseInt(exp.getTime() / 1000),
-    };
-    const token = jwt.sign(payload, TOKEN_KEY);
+    const token = await newToken(user);
+
     let secureUser = Object.assign({}, user._doc, {
       passwordDigest: undefined,
     });
 
-    await emailTokenVerification(user, email, firstName, lastName);
+    await emailTokenVerification(user, email, firstName, lastName, token);
 
     res.status(201).json({ user: secureUser, token });
   } catch (error) {
@@ -124,43 +134,43 @@ export const signUp = async (req, res) => {
   }
 };
 
-const emailTokenVerification = async (user, email, firstName, lastName) => {
-  const emailToken = await new Token({
-    userId: user._id,
-    token: crypto.randomBytes(32).toString('hex'),
-  }).save();
-  const url = `http://localhost:3000/users/${user._id}/verify/${emailToken.token}`;
+const emailTokenVerification = async (user, email, firstName, lastName, token) => {
+  const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token}`;
   sendSignUpEmail(email, url, firstName, lastName);
 };
 
-const sendSignUpEmail = (email, url, firstName, lastName) => {
+const sendSignUpEmail = (email, url, firstName, lastName, verified = false) => {
+  console.log(email, url, firstName, lastName, verified);
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
   const msg = {
     to: email, // Change to your recipient
-    from: 'koffiarielhessou@gmail.com', // Change to your verified sender
+    from: `${process.env.EMAIL_SENDER}`, // Change to your verified sender
     subject: 'Verify your email for Bootcampr',
-    text: `Welcome to Bootcampr, ${(firstName, lastName)}`,
-    // html: `<strong> Bootcampr is an awesome project that allows user to add experience </strong>`,
-    html: `Click this link to confirm your email address and complete setup for your candidate account:
+    text: `Welcome to Bootcampr, ${firstName} ${lastName}`,
+
+    html: verified
+      ? `pls verified before loging in :
+    <br><br>${url}`
+      : `Click this link to confirm your email address and complete setup for your candidate account:
     <br><br>${url}`,
   };
   sgMail
     .send(msg)
     .then(() => {
-      console.log('Email sent');
+      console.log('Verification email sent successfully');
     })
     .catch((error) => {
+      console.log('Email not sent');
       console.error(error);
     });
 };
 
 export const verifyEmailLink = async (req, res) => {
   try {
-    const user = await User.findOne({ _id: req.parmas.id });
+    const user = await User.findOne({ _id: req.params.id });
     if (!user) {
       return res.status(400).send({ msg: 'Invalid link' });
     }
-
     const token = await Token.findOne({
       userId: user._id,
       token: req.params.token,
@@ -169,13 +179,13 @@ export const verifyEmailLink = async (req, res) => {
       return res.status(400).send({ msg: 'Invalid link' });
     }
 
-    // await User.updateOne({ _id: user._id, verified: true });
+    await User.findByIdAndUpdate({ _id: user._id }, { verified: true }, { new: true });
     await token.remove();
 
-    res.status(200).send({ msg: 'Email verified successfully' });
+    res.status(200).send({ msg: 'Email verified successfully', token: token, user: user });
   } catch (error) {
     console.log(error.message);
-    res.status(400).json({ status: false, message: error.message });
+    res.status(500).json({ status: false, message: error.message });
   }
 };
 
@@ -183,6 +193,10 @@ export const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
     let user = await User.findOne({ email }).select('+passwordDigest');
+    // if (user.verified === false) {
+    //   return await unverifiedEmailUser(user, res);
+    // }
+    console.log('1');
     if (user) {
       let secureUser = Object.assign({}, user._doc, {
         passwordDigest: undefined,
@@ -207,6 +221,22 @@ export const signIn = async (req, res) => {
   }
 };
 
+const unverifiedEmailUser = async (user, res) => {
+  try {
+    console.log('2');
+    const newtoken = await newToken(user);
+    // let newEmailToken = await Token.findOne({ userId: user._id });
+    let newEmailToken = await Token.find({});
+    console.log(newEmailToken);
+
+    const url = `${process.env.BASE_URL}/${user._id}/verify/${newEmailToken.token}`;
+    sendSignUpEmail(user.email, url, user.firstName, user.lastName, true);
+    return res.status(200).json({ msg: 'An Email was sent to your account. Please verify.' });
+  } catch (error) {
+    res.status(400).send({ msg: 'An Email was sent to your account. Please verify i was here.' });
+  }
+};
+
 export const verify = async (req, res) => {
   try {
     const token = req.headers.authorization.split(' ')[1];
@@ -220,10 +250,11 @@ export const verify = async (req, res) => {
   }
 };
 
+// fbc176462c21d9d8eaa9cb0a6937ca17fc151aba8c12998303a066c256a2650c
+
 export const confirmPassword = async (req, res) => {
   const { email, password } = req.body;
   // is it better to find the user by their email or id?
-  console.log('email', email);
   if (email) {
     let user = await User.findOne({ email }).select('passwordDigest');
     if (await bcrypt.compare(password, user.passwordDigest)) {
