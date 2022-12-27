@@ -23,6 +23,7 @@ const reSeedDatabase = async () => {
     lastName: 'Campr',
     linkedinUrl: 'www.linkedin.com/bootcampr',
     memberOfProjects: [],
+    notification: [],
     ownerOfProjects: [],
     passwordDigest: await bcrypt.hash('pizza12', 11),
     portfolioProjects: [],

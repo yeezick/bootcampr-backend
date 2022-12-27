@@ -31,8 +31,13 @@ project.watch().on('change', () => {
 socketio.on(
   'connected',
   (socket) => {
-    var clientIp = socket.request.socket.remoteAddress;
-    console.log(clientIp);
+    console.log(socket.id + 'socket connected');
+    // var clientIp = socket.request.socket.remoteAddress;
+
+    socket.on('disconnect', () => {
+      socket.disconnect();
+      console.log('socket disconnected');
+    });
   },
   console.log('Connected to MongoDB!'),
 );
