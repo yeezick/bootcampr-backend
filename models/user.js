@@ -21,9 +21,10 @@ const user = new Schema(
     passwordDigest: { type: String, required: true, select: false },
     portfolioProjects: [{ type: Object }],
     portfolioUrl: { type: String },
-    profilePicture: { type: String },
-    role: { type: String },
-    savedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
+    profilePicture: {type: String},
+    role: { type: String, enum: ["Software Engineer", "UX Designer"]},
+    savedProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+    verified: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
