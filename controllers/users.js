@@ -4,6 +4,7 @@ import sgMail from '@sendgrid/mail';
 import pushNotifications from '../models/notifications.js';
 import Project from '../models/project.js';
 import jwt from 'jsonwebtoken';
+import { updatingImage } from './addingImage.js';
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 
