@@ -4,7 +4,6 @@ import sgMail from '@sendgrid/mail';
 import pushNotifications from '../models/notifications.js';
 import Project from '../models/project.js';
 import jwt from 'jsonwebtoken';
-import { updatingImage } from './addingImage.js';
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 
@@ -255,6 +254,7 @@ export const deleteNotification = async (req, res) => {
 
 export const updateStatusNotification = async (req, res) => {
   try {
+    console.log(req.params);
     const { id } = req.params;
     const notification = await pushNotifications.findByIdAndUpdate(id, req.body, { new: true });
     res.status(200).json(notification);

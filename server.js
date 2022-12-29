@@ -18,6 +18,7 @@ app.use(routes);
 const server = createServer(app);
 const socketio = new io.Server(server, db, {
   cors: {
+    transports: ['polling'],
     origin: '*',
     credentials: true,
   },
