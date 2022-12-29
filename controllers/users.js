@@ -2,7 +2,6 @@ import User from '../models/user.js';
 import bcrypt from 'bcrypt';
 import sgMail from '@sendgrid/mail';
 import pushNotifications from '../models/notifications.js';
-import Project from '../models/project.js';
 import jwt from 'jsonwebtoken';
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
@@ -160,6 +159,14 @@ export const signIn = async (req, res) => {
         };
         const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
         res.status(201).json({ user: secureUser, bootcamprAuthToken });
+
+        await pushNotifications.create({
+          user: user._id,
+          title: 'login',
+          type: 1,
+          message: `New login at ${new Date()}`,
+          read: false,
+        });
       }
     } else {
       res.status(401).json({ message: 'Invalid email or password' });
