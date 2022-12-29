@@ -14,7 +14,6 @@ router.get('/users', controllers.getAllUsers);
 router.get('/users/:id', controllers.getOneUser);
 router.post('/sign-up', controllers.signUp);
 router.put('/users/:id', controllers.updateUserInfo);
-router.get('/notifications', controllers.getNotifications);
 router.patch('/users/:id', controllers.addPortfolioProject);
 router.delete('/users/:id', controllers.deleteUser);
 router.post('/addUserImage', uploadImage.single('image'), addImagesToS3Bucket);
