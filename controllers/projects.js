@@ -8,6 +8,7 @@
  */
 import Project from '../models/project.js';
 import User from '../models/user.js';
+import pushNotifications from '../models/notifications.js';
 
 //basic CRUD functions:
 export const getAllProjects = async (req, res) => {
@@ -54,6 +55,13 @@ export const getUserProjects = async (req, res) => {
       },
     });
     if (userProjects) {
+      await pushNotifications.create({
+        user: userId,
+        title: 'Projects',
+        type: 1,
+        message: `Projects clicked at ${new Date()}`,
+        read: false,
+      });
       return res.json(userProjects);
     }
     res.status(404).json({ message: 'Project not found.' });
