@@ -17,9 +17,9 @@ router.put('/users/:id', controllers.updateUserInfo);
 router.patch('/users/:id', controllers.addPortfolioProject);
 router.delete('/users/:id', controllers.deleteUser);
 router.post('/addUserImage', uploadImage.single('image'), addImagesToS3Bucket);
-router.post('/notifications', controllers.saveNotification);
-router.put('/notifications/:id', controllers.updateStatusNotification);
-router.delete('/notifications/:id', controllers.deleteNotification);
+// router.post('/notifications', controllers.saveNotification);
+// router.put('/notifications/:id', controllers.updateStatusNotification);
+// router.delete('/notifications/:id', controllers.deleteNotification);
 
 // auth
 router.post('/sign-in', controllers.signIn);

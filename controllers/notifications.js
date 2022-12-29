@@ -1,14 +1,18 @@
 import pushNotifications from '../models/notifications.js';
 
 export const getAllNotifications = async (req, res) => {
-  const { id } = req.body;
-  const filterUsers = pushNotifications.find({ user: id });
-  const total = await filterUsers.countDocuments();
-  const notifications = await pushNotifications.find({ user: id });
-  if (!notifications) {
-    return res.status(400).json({ message: 'Notifications are empty' });
+  try {
+    const { id } = req.body;
+    const filterUsers = pushNotifications.find({ user: id });
+    const total = await filterUsers.countDocuments();
+    const notifications = await pushNotifications.find({ user: id });
+    if (!notifications) {
+      return res.status(400).json({ message: 'Notifications are empty' });
+    }
+    res.json(notifications);
+  } catch (error) {
+    console.log(error);
   }
-  res.json(notifications);
 };
 
 export const markNotificationAsRead = async (req, res) => {

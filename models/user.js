@@ -18,7 +18,7 @@ const user = new Schema(
     lastName: { type: String, required: true },
     linkedinUrl: { type: String },
     memberOfProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
-    notifications: [{ type: Schema.Types.ObjectId, ref: 'pushNotifications' }],
+    // notifications: [{ type: Schema.Types.ObjectId, ref: 'pushNotifications' }],
     ownerOfProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     passwordDigest: { type: String, required: true, select: false },
     portfolioProjects: [{ type: Object }],
