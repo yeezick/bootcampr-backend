@@ -29,31 +29,62 @@ export const saveNotification = async (req, res) => {
 };
 
 export const markNotificationAsRead = async (req, res) => {
-  const { user } = req.body;
-  //   console.log(req.body);
-  const id = user;
+  const { _id } = req.body;
+  const id = _id;
+
   if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
     return res.status(400).json({ message: `You must give a valid id: ${id}` });
   }
-  const updateNotification = await pushNotifications.find({ id }).exec();
-  if (!updateNotification) {
+  const updateNotification = await pushNotifications.findById(id).exec();
+  updateNotification.read = true;
+  const result = await updateNotification.save();
+  if (!result) {
     return res.status(400).json({ message: 'No notifications found' });
   }
-  console.log(updateNotification);
-  updateNotification.read = false;
-  //   await updateNotification.save();
-  res.json(updateNotification);
+
+  res.json({ message: `Notification marked as read` });
 };
 
 export const markAllNotificationsAsRead = async (req, res) => {
   const { user } = req.body;
+
+  if (!user || !user.match(/^[0-9a-fA-F]{24}$/)) {
+    return res.status(400).json({ message: `You must give a valid id: ${user}` });
+  }
+  const notificationsUpdateMany = await pushNotifications.updateMany({ user: user }, { $set: { read: true } });
+  if (!notificationsUpdateMany) {
+    return res.status(400).json({ message: 'Error Marking all notifications as read' });
+  }
+  res.json({ message: `All notifications for user ${user} marked as read` });
+};
+
+export const deleteNotification = async (req, res) => {
+  const { _id } = req.body;
+  const id = _id;
+  if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+    return res.status(400).json({ message: `You must give a valid id: ${id}` });
+  }
+
+  const deleteNotification = await pushNotifications.findById(id).exec();
+  if (!deleteNotification) {
+    return res.status(400).json({ message: `Can't find a notification with id: ${id}` });
+  }
+  const result = await deleteNotification.deleteOne();
+  if (!result) {
+    return res.status(400).json({ message: `Can't delete the notification with id: ${id}` });
+  }
+  res.json({ message: `Notification with id: ${id} deleted with success` });
+};
+
+export const deleteAllNotifications = async (req, res) => {
+  const { user } = req.body;
   const id = user;
   if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
     return res.status(400).json({ message: `You must give a valid id: ${id}` });
   }
-  const notificationsUpdateMany = await pushNotifications.updateMany({ user: id }, { $set: { read: true } });
-  if (!notificationsUpdateMany) {
-    return res.status(400).json({ message: 'Error Marking all notifications as read' });
+  const notificationsDeleteMany = await pushNotifications.deleteMany({ user: id });
+  if (!notificationsDeleteMany) {
+    return res.status(400).json({ message: 'Error Deleting all notifications as read' });
   }
-  res.json({ message: `All notifications for user ${id} marked as read` });
+  res.json({ message: `All notifications for user ${id}marked was deleted` });
 };
