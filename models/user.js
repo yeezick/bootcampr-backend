@@ -18,7 +18,6 @@ const user = new Schema(
     lastName: { type: String, required: true },
     linkedinUrl: { type: String },
     memberOfProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
-    // notifications: [{ type: Schema.Types.ObjectId, ref: 'pushNotifications' }],
     ownerOfProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     passwordDigest: { type: String, required: true, select: false },
     portfolioProjects: [{ type: Object }],
@@ -31,15 +30,3 @@ const user = new Schema(
   { timestamps: true },
 );
 export default mongoose.model('User', user);
-
-// const pushNotifications = new Schema({
-//   user: { type: Schema.Types.ObjectId, ref: 'User' },
-//   notification: { type: String },
-//   message: { type: String },
-//   read: { type: Boolean },
-// });
-
-// const pushNotification = mongoose.model('pushNotifications', pushNotifications);
-// const User = mongoose.model('User', userSchema);
-
-// export { User, pushNotification };

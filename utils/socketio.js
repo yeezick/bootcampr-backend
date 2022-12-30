@@ -3,7 +3,7 @@ import pushNotifications from '../models/notifications.js';
 
 let currentUser = [];
 
-module.exports = function (io) {
+export const notificationSocket = (io) => {
   io.on('connection', (socket) => {
     socket.on('setUserId', async (userId) => {
       if (userId) {
@@ -21,7 +21,7 @@ module.exports = function (io) {
       currentUser[userId]?.emit('notificationsLength', notifications.length || 0);
     });
     socket.on('disconnect', (userId) => {
-      console.log(`User with id ${userId} has disconnected.`);
+      console.log(`User with id ${userId}, has disconnected.`);
       currentUser[userId] = null;
     });
   });

@@ -2,7 +2,6 @@ import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
 import Project from '../models/project.js';
 import User from '../models/user.js';
-import pushNotifications from '../models/notifications.js';
 
 export const generateBio = (role) => {
   return `I'm a ${faker.word.adjective()} ${role}. I'm an avid ${faker.word.noun()} lover and I'm passionate about ${faker.word.noun()}s. I'm ${faker.word.adjective()}, ${faker.word.adjective()}, and ${faker.word.adjective()} and look forward to using my skills to build something great!`;
@@ -23,7 +22,6 @@ export const generateFakeUser = async (role) => {
     lastName: name.last,
     linkedinUrl: `www.linkedin.com/${name.first}-${name.last}`,
     memberOfProjects: [],
-    notifications: [],
     ownerOfProjects: [],
     passwordDigest: await bcrypt.hash('gumballs', 11),
     portfolioProjects: [],
@@ -45,12 +43,6 @@ export const generateFakeUsers = async (quantity, role) => {
 };
 
 export const randomIndex = (length) => Math.floor(Math.random() * length);
-
-export const notifications = {
-  notification: 'Application Received',
-  message: 'A new user has applied to your project',
-  read: false,
-};
 
 export const roles = {
   engineering: [

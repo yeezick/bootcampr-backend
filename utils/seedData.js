@@ -6,7 +6,6 @@ import Project from '../models/project.js';
 import Tool from '../models/tool.js';
 import User from '../models/user.js';
 import { generateFakeUsers, generateFakeProject, tools, scrambleArrayOrder } from './seedDataHelpers.js';
-import pushNotifications from '../models/notifications.js';
 
 const reSeedDatabase = async () => {
   // reset database
@@ -23,7 +22,6 @@ const reSeedDatabase = async () => {
     lastName: 'Campr',
     linkedinUrl: 'www.linkedin.com/bootcampr',
     memberOfProjects: [],
-    notification: [],
     ownerOfProjects: [],
     passwordDigest: await bcrypt.hash('pizza12', 11),
     portfolioProjects: [],
