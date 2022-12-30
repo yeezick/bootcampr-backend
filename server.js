@@ -5,47 +5,52 @@ import logger from 'morgan';
 import cors from 'cors';
 import routes from './routes/index.js';
 import * as io from 'socket.io';
-import { notificationSocket } from './utils/socketio.js';
 import { createServer } from 'http';
-// import project from './models/project.js';
+import pushNotifications from './models/notifications.js';
+import User from './models/user.js';
+import { notificationSocket } from './utils/socketio.js';
 
 const app = express();
 const PORT = process.env.PORT || 8001;
 
 const server = createServer(app);
-const socketio = new io.Server(server, db, {
-  transports: ['polling'],
+const socketio = new io.Server(server, db, notificationSocket, {
   cors: {
+    transports: ['polling'],
     origin: '*',
     credentials: true,
   },
-  notificationSocket,
 });
+
 app.use(cors());
 app.use(express.json());
 app.use(logger('dev'));
 app.use(routes);
 
-// project.watch().on('change', () => {
-//   console.log('New Project Added');
-//   socketio.emit('changes', 'New Project');
-// });
+let currentUser = [];
 
-socketio.on('connected', (socket) => {
-  console.log(socket.id + 'socket connected');
-  socket.on('disconnect', () => {
-    socket.disconnect();
-    console.log('socket disconnected');
+socketio.on('connection', (socket) => {
+  socket.on('setUserId', async (userId) => {
+    if (userId) {
+      const oneUser = await User.findById(userId).lean().exec();
+      if (oneUser) {
+        currentUser[userId] = socket;
+        console.log(`Socket: User with id ${userId} has connected.`);
+      } else {
+        console.log(`No user with id ${userId}`);
+      }
+    }
+    pushNotifications.watch().on('change', async () => {
+      const notifications = await pushNotifications.find({ user: userId, read: false }).lean();
+      currentUser[userId]?.emit('notificationsLength', notifications.length || 0);
+    });
+    socket.off('disconnect', (userId) => {
+      console.log(`User with id ${userId}, has disconnected.`);
+      currentUser[userId] = null;
+    });
   });
 });
 
-// server.listen(PORT, () => {
-//   console.log(`Express server application is running on port: ${PORT}\n\n`);
-// });
-
-db.on('connected', () => {
-  console.log('Connected to MongoDB!');
-  server.listen(PORT, () => {
-    console.log(`Express server application is running on port: ${PORT}\n\n`);
-  });
+server.listen(PORT, () => {
+  console.log(`Express server application is running on port: ${PORT}\n\n`);
 });

@@ -9,7 +9,7 @@ export const getAllNotifications = async (req, res) => {
     if (!notifications) {
       return res.status(400).json({ message: 'Notifications are empty' });
     }
-    res.json({ notifications, totalNotificationCount: total });
+    res.json(notifications);
   } catch (error) {
     console.error(error.message);
     res.status(400).json({ status: false, message: error.message });
@@ -30,6 +30,7 @@ export const saveNotification = async (req, res) => {
 export const markNotificationAsRead = async (req, res) => {
   try {
     const { _id } = req.body;
+    console.log(req.body);
     const updateNotification = await pushNotifications.findById(_id).exec();
     updateNotification.read = true;
     const result = await updateNotification.save();
