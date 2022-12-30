@@ -8,13 +8,12 @@ import * as io from 'socket.io';
 import { createServer } from 'http';
 import pushNotifications from './models/notifications.js';
 import User from './models/user.js';
-import { notificationSocket } from './utils/socketio.js';
 
 const app = express();
 const PORT = process.env.PORT || 8001;
 
 const server = createServer(app);
-const socketio = new io.Server(server, db, notificationSocket, {
+const socketio = new io.Server(server, db, {
   cors: {
     transports: ['polling'],
     origin: '*',
