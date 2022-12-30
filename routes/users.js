@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { verifyEmailLink, resendNewEmailLink } from '../controllers/emailVerification.js';
 import * as controllers from '../controllers/users.js';
 // import restrict from '../helpers/restrict.js'
 
@@ -15,7 +16,8 @@ router.delete('/users/:id', controllers.deleteUser);
 // auth
 router.post('/sign-in', controllers.signIn);
 router.get('/verify', controllers.verify);
-router.get('/:id/verify/:token', controllers.verifyEmailLink);
+router.post('/users/:id/expired-link', resendNewEmailLink);
+router.get('/:id/verify/:token', verifyEmailLink);
 router.post('/email', controllers.checkEmail);
 router.post('/confirm-password/:userID', controllers.confirmPassword);
 router.patch('/update-password/:userID', controllers.updatePassword);

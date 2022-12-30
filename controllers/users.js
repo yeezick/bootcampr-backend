@@ -1,11 +1,7 @@
 import User from '../models/user.js';
 import bcrypt from 'bcrypt';
-import sgMail from '@sendgrid/mail';
-import Project from '../models/project.js';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
-import Token from '../models/token.js';
-
+import { newToken, emailTokenVerification, unverifiedEmailUser } from './emailVerification.js';
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 
 // should token key be generated here or how do we go about identifying the token to store in env?
@@ -97,19 +93,6 @@ export const checkEmail = async (req, res) => {
 };
 
 // Auth
-export const newToken = async (user) => {
-  const payload = {
-    userId: user._id,
-    token: crypto.randomUUID(),
-    exp: parseInt(exp.getTime() / 1000),
-  };
-  console.log('USER', user);
-
-  const token = await Token.create(payload);
-  console.log(token, 'eror here?');
-  const tokenjwt = jwt.sign({ userID: user._id, email: user.email, exp: parseInt(exp.getTime() / 1000) }, TOKEN_KEY);
-  return tokenjwt;
-};
 
 export const signUp = async (req, res) => {
   try {
@@ -118,15 +101,11 @@ export const signUp = async (req, res) => {
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
     const user = new User({ email, firstName, lastName, passwordDigest });
     await user.save();
-
-    const token = await newToken(user);
-
+    const token = newToken(user, true);
     let secureUser = Object.assign({}, user._doc, {
       passwordDigest: undefined,
     });
-
-    await emailTokenVerification(user, email, firstName, lastName, token);
-
+    await emailTokenVerification(user, token);
     res.status(201).json({ user: secureUser, token });
   } catch (error) {
     console.error(error.message);
@@ -134,69 +113,20 @@ export const signUp = async (req, res) => {
   }
 };
 
-const emailTokenVerification = async (user, email, firstName, lastName, token) => {
-  const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token}`;
-  sendSignUpEmail(email, url, firstName, lastName);
-};
-
-const sendSignUpEmail = (email, url, firstName, lastName, verified = false) => {
-  console.log(email, url, firstName, lastName, verified);
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  const msg = {
-    to: email, // Change to your recipient
-    from: `${process.env.EMAIL_SENDER}`, // Change to your verified sender
-    subject: 'Verify your email for Bootcampr',
-    text: `Welcome to Bootcampr, ${firstName} ${lastName}`,
-
-    html: verified
-      ? `pls verified before loging in :
-    <br><br>${url}`
-      : `Click this link to confirm your email address and complete setup for your candidate account:
-    <br><br>${url}`,
-  };
-  sgMail
-    .send(msg)
-    .then(() => {
-      console.log('Verification email sent successfully');
-    })
-    .catch((error) => {
-      console.log('Email not sent');
-      console.error(error);
-    });
-};
-
-export const verifyEmailLink = async (req, res) => {
-  try {
-    const user = await User.findOne({ _id: req.params.id });
-    if (!user) {
-      return res.status(400).send({ msg: 'Invalid link' });
-    }
-    const token = await Token.findOne({
-      userId: user._id,
-      token: req.params.token,
-    });
-    if (!token) {
-      return res.status(400).send({ msg: 'Invalid link' });
-    }
-
-    await User.findByIdAndUpdate({ _id: user._id }, { verified: true }, { new: true });
-    await token.remove();
-
-    res.status(200).send({ msg: 'Email verified successfully', token: token, user: user });
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ status: false, message: error.message });
-  }
-};
-
 export const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
     let user = await User.findOne({ email }).select('+passwordDigest');
-    // if (user.verified === false) {
-    //   return await unverifiedEmailUser(user, res);
-    // }
-    console.log('1');
+
+    if (!user) {
+      return res.status(200).json({
+        invalidCredentials: true,
+        message: `That Bootcampr account doesn't exist. Enter a different account or <a href='/sign-up'>create a new one</a>.`,
+      });
+    }
+    if (!user.verified) {
+      return await unverifiedEmailUser(user, res);
+    }
     if (user) {
       let secureUser = Object.assign({}, user._doc, {
         passwordDigest: undefined,
@@ -210,30 +140,14 @@ export const signIn = async (req, res) => {
         const token = jwt.sign(payload, TOKEN_KEY);
         res.status(201).json({ user: secureUser, token });
       } else {
-        res.status(401).json({ message: 'Invalid email or password' });
+        res.status(401).json({ invalidCredentials: true, message: 'Invalid email or password.' });
       }
     } else {
-      res.status(401).json({ message: 'Invalid email or password' });
+      res.status(401).json({ invalidCredentials: true, message: 'No account exists with this email.' });
     }
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });
-  }
-};
-
-const unverifiedEmailUser = async (user, res) => {
-  try {
-    console.log('2');
-    const newtoken = await newToken(user);
-    // let newEmailToken = await Token.findOne({ userId: user._id });
-    let newEmailToken = await Token.find({});
-    console.log(newEmailToken);
-
-    const url = `${process.env.BASE_URL}/${user._id}/verify/${newEmailToken.token}`;
-    sendSignUpEmail(user.email, url, user.firstName, user.lastName, true);
-    return res.status(200).json({ msg: 'An Email was sent to your account. Please verify.' });
-  } catch (error) {
-    res.status(400).send({ msg: 'An Email was sent to your account. Please verify i was here.' });
   }
 };
 
@@ -249,8 +163,6 @@ export const verify = async (req, res) => {
     res.status(401).send('Not authorized');
   }
 };
-
-// fbc176462c21d9d8eaa9cb0a6937ca17fc151aba8c12998303a066c256a2650c
 
 export const confirmPassword = async (req, res) => {
   const { email, password } = req.body;
