@@ -11,7 +11,7 @@ export const newToken = (user, temp = false) => {
   exp.setDate(today.getDate() + 30);
 
   const tokenjwt = jwt.sign({ userID: user._id, email: user.email }, TOKEN_KEY, {
-    expiresIn: temp ? 1800 : parseInt(exp.getTime() / 1000),
+    expiresIn: temp ? 20 : parseInt(exp.getTime() / 1000),
   });
   return tokenjwt;
 };
@@ -31,7 +31,7 @@ export const sendSignUpEmail = (user, url, verified = false) => {
     text: `Welcome to Bootcampr, ${firstName} ${lastName}`,
 
     html: verified
-      ? `Your account is not verified. Please verify your account before logging in.:
+      ? `Your account is not verified. Please click this link to verify your account before logging in:
     <br><br>${url}`
       : `Click this link to confirm your email address and complete setup for your candidate account:
     <br><br>${url}`,
