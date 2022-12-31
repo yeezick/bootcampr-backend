@@ -41,7 +41,6 @@ socketio.on('connection', (socket) => {
       socket?.emit('notificationsLength', notifications.length || 0);
     });
     socket.on('disconnect', () => {
-      console.log(`User with id ${userId}, has disconnected.`);
       userId = null;
     });
   });
