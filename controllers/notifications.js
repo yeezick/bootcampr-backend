@@ -30,7 +30,6 @@ export const saveNotification = async (req, res) => {
 export const markNotificationAsRead = async (req, res) => {
   try {
     const { _id } = req.body;
-    console.log(req.body);
     const updateNotification = await pushNotifications.findById(_id).exec();
     updateNotification.read = true;
     const result = await updateNotification.save();
@@ -63,6 +62,7 @@ export const markAllNotificationsAsRead = async (req, res) => {
 };
 
 export const deleteNotification = async (req, res) => {
+  console.log(req.body);
   try {
     const { _id } = req.body;
 
@@ -83,6 +83,7 @@ export const deleteNotification = async (req, res) => {
 
 export const deleteAllNotifications = async (req, res) => {
   try {
+    console.log(req.body);
     const { user } = req.body;
 
     if (!user || !user.match(/^[0-9a-fA-F]{24}$/)) {
