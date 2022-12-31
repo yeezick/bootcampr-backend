@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 8001;
 const server = createServer(app);
 const socketio = new io.Server(server, db, {
   cors: {
-    transports: ['polling'],
+    transports: ['websocket'],
     origin: '*',
     credentials: true,
   },
@@ -26,14 +26,11 @@ app.use(express.json());
 app.use(logger('dev'));
 app.use(routes);
 
-let currentUser = [];
-
 socketio.on('connection', (socket) => {
   socket.on('setUserId', async (userId) => {
     if (userId) {
       const oneUser = await User.findById(userId).lean().exec();
       if (oneUser) {
-        currentUser[userId] = socket;
         console.log(`Socket: User with id ${userId} has connected.`);
       } else {
         console.log(`No user with id ${userId}`);
@@ -41,11 +38,11 @@ socketio.on('connection', (socket) => {
     }
     pushNotifications.watch().on('change', async () => {
       const notifications = await pushNotifications.find({ user: userId, read: false }).lean();
-      currentUser[userId]?.emit('notificationsLength', notifications.length || 0);
+      socket?.emit('notificationsLength', notifications.length || 0);
     });
-    socket.off('disconnect', (userId) => {
+    socket.on('disconnect', () => {
       console.log(`User with id ${userId}, has disconnected.`);
-      currentUser[userId] = null;
+      userId = null;
     });
   });
 });

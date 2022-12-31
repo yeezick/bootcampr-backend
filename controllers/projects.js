@@ -59,7 +59,7 @@ export const getUserProjects = async (req, res) => {
         user: userId,
         title: 'Projects',
         type: 1,
-        message: `Projects clicked at ${new Date()}`,
+        message: `This is a test notification that was sent to at ${new Date()}`,
         read: false,
       });
       return res.json(userProjects);

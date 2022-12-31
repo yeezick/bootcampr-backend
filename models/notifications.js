@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const pushNotifications = new Schema(
   {
-    user: { type: mongoose.Types.ObjectId },
+    user: { type: String },
     title: { type: String },
     type: { type: Number },
     message: { type: String },
