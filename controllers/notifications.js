@@ -3,8 +3,6 @@ import pushNotifications from '../models/notifications.js';
 export const getAllNotifications = async (req, res) => {
   try {
     const { user } = req.body;
-    const filterUsers = pushNotifications.find({ userId: user });
-    const total = await filterUsers.countDocuments();
     const notifications = await pushNotifications.find({ userId: user });
     if (!notifications) {
       return res.status(400).json({ message: 'Notifications are empty' });
@@ -45,7 +43,7 @@ export const markNotificationAsRead = async (req, res) => {
 
 export const markAllNotificationsAsRead = async (req, res) => {
   try {
-    const { user } = req.body;
+    const { user } = req.params;
 
     if (!user || !user.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({ status: false, message: `User: ${user} was not found` });
@@ -62,9 +60,8 @@ export const markAllNotificationsAsRead = async (req, res) => {
 };
 
 export const deleteNotification = async (req, res) => {
-  console.log(req.body);
   try {
-    const { _id } = req.body;
+    const { _id } = req.params;
 
     const deleteNotification = await pushNotifications.findById(_id).exec();
     if (!deleteNotification) {
@@ -83,8 +80,7 @@ export const deleteNotification = async (req, res) => {
 
 export const deleteAllNotifications = async (req, res) => {
   try {
-    console.log(req.body);
-    const { user } = req.body;
+    const { user } = req.params;
 
     if (!user || !user.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({ status: false, message: `User: ${user} was not found` });
