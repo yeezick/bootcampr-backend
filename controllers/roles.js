@@ -1,5 +1,6 @@
 import Project from '../models/project.js';
 import User from '../models/user.js';
+import Role from '../models/Role.js';
 import { roleTitleExists, roleTypeExists } from '../utils/routes/roles.js';
 import { respondWithError } from '../utils/routes/any.js';
 
@@ -45,27 +46,31 @@ export const createRole = async (req, res) => {
     // if there are roles in this roleType, spread them out
     // otherwise spread out the other roleTypes and create the new one.
     const { roles } = project;
+    // todo: if newBody is not properly formed, creating the new role would fail. Error handling here would be good.
+    const createdRole = new Role(newRole);
     let updatedRoles;
     if (roleTypeExists(project, roleType)) {
       if (roles[roleType].length > 0) {
         updatedRoles = {
           ...roles,
-          [roleType]: [...roles[roleType], newRole],
+          [roleType]: [...roles[roleType], createdRole],
         };
       } else {
-        updatedRoles = { ...roles, [roleType]: [newRole] };
+        updatedRoles = { ...roles, [roleType]: [createdRole] };
       }
     } else {
-      updatedRoles = { ...roles, [roleType]: [newRole] };
+      updatedRoles = { ...roles, [roleType]: [createdRole] };
     }
-
-    let updatedProject = { ...project };
+    let updatedProject = {};
     updatedProject = {
       ...project,
       roles: { ...updatedRoles },
     };
-
-    updatedProject = await Project.findByIdAndUpdate(projectId, updatedProject, { new: true });
+    console.log('roles\n', updatedRoles);
+    console.log('project\n', updatedProject.roles);
+    updatedProject = await Project.findByIdAndUpdate(projectId, updatedProject, { new: true }).populate({
+      path: 'roles.design',
+    });
     res.status(200).json(updatedProject);
   } catch (error) {
     res.status(500).json({ error: error.message });

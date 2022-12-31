@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { roleSchema } from '../utils/schemas.js';
+import Role from './Role.js';
 const Schema = mongoose.Schema;
 /**
  * Need to discuss:
@@ -14,8 +14,8 @@ const Project = new Schema(
     overview: { type: String, required: true },
     projectOwner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     roles: {
-      engineering: [roleSchema],
-      design: [roleSchema],
+      engineering: [],
+      design: [],
     },
     status: { type: String, required: true, enum: ['Draft', 'Published'] },
     tools: [{ type: String, required: true }], //todo: add ability to categorize tools (SWE/UX)

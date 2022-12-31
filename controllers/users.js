@@ -25,6 +25,16 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+export const getMultipleUsers = async (req, res) => {
+  try {
+    const { userIds } = req.query;
+    console.log('YOOOOO');
+    console.log(userIds);
+  } catch (error) {
+    return res.status(404).json({ message: 'Invalid search queries', error: error.message });
+  }
+};
+
 export const getOneUser = async (req, res) => {
   try {
     const { id } = req.params;
