@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+
 const Schema = mongoose.Schema;
 
 // const User = new Schema(
@@ -13,6 +14,7 @@ const user = new Schema(
       unique: [true, 'E-mail already exists.'],
     },
     firstName: { type: String, required: true },
+    githubUrl: { type: String },
     interestedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     lastName: { type: String, required: true },
     linkedinUrl: { type: String },
@@ -22,10 +24,10 @@ const user = new Schema(
     portfolioProjects: [{ type: Object }],
     portfolioUrl: { type: String },
     profilePicture: { type: String },
-    role: { type: String },
+    role: { type: String, enum: ['Software Engineer', 'UX Designer'] },
     savedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
+    verified: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
-
 export default mongoose.model('User', user);
