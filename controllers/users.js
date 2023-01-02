@@ -73,6 +73,7 @@ export const addPortfolioProject = async (req, res) => {
 export const updateUserInfo = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(req.body);
     const user = await User.findByIdAndUpdate(id, req.body, { new: true });
     const updatedUserImg = await updatingImage(id);
     res.status(200).send(updatedUserImg);
