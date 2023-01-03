@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const pushNotifications = new Schema(
+const PushNotifications = new Schema(
   {
     user: { type: String },
     title: { type: String },
@@ -12,4 +12,4 @@ const pushNotifications = new Schema(
   { timestamps: true },
 );
 
-export default mongoose.model('pushNotifications', pushNotifications);
+export default mongoose.model('PushNotifications', PushNotifications);

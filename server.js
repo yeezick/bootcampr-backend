@@ -6,7 +6,7 @@ import cors from 'cors';
 import routes from './routes/index.js';
 import * as io from 'socket.io';
 import { createServer } from 'http';
-import pushNotifications from './models/notifications.js';
+import PushNotifications from './models/notifications.js';
 import User from './models/user.js';
 
 const app = express();
@@ -36,8 +36,8 @@ socketio.on('connection', (socket) => {
         console.log(`No user with id ${userId}`);
       }
     }
-    pushNotifications.watch().on('change', async () => {
-      const notifications = await pushNotifications.find({ user: userId, read: false }).lean();
+    PushNotifications.watch().on('change', async () => {
+      const notifications = await PushNotifications.find({ user: userId, read: false }).lean();
       socket?.emit('notificationsLength', notifications.length || 0);
     });
     socket.on('disconnect', () => {

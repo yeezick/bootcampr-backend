@@ -1,9 +1,9 @@
-import pushNotifications from '../models/notifications.js';
+import PushNotifications from '../models/notifications.js';
 
 export const getAllNotifications = async (req, res) => {
   try {
     const { user } = req.body;
-    const notifications = await pushNotifications.find({ userId: user });
+    const notifications = await PushNotifications.find({ userId: user });
     if (!notifications) {
       return res.status(400).json({ message: 'Notifications are empty' });
     }
@@ -16,7 +16,7 @@ export const getAllNotifications = async (req, res) => {
 
 export const saveNotification = async (req, res) => {
   try {
-    const newNotification = new pushNotifications(req.body);
+    const newNotification = new PushNotifications(req.body);
     await newNotification.save();
     res.status(201).json(newNotification);
   } catch (error) {
@@ -28,7 +28,7 @@ export const saveNotification = async (req, res) => {
 export const markNotificationAsRead = async (req, res) => {
   try {
     const { _id } = req.body;
-    const updateNotification = await pushNotifications.findById(_id).exec();
+    const updateNotification = await PushNotifications.findById(_id).exec();
     updateNotification.read = true;
     const result = await updateNotification.save();
     if (!result) {
@@ -48,7 +48,7 @@ export const markAllNotificationsAsRead = async (req, res) => {
     if (!user || !user.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({ status: false, message: `User: ${user} was not found` });
     }
-    const notificationsUpdateMany = await pushNotifications.updateMany({ user: user }, { $set: { read: true } });
+    const notificationsUpdateMany = await PushNotifications.updateMany({ user: user }, { $set: { read: true } });
     if (!notificationsUpdateMany) {
       return res.status(400).json({ status: false, message: 'Error marking all notifications as read' });
     }
@@ -63,7 +63,7 @@ export const deleteNotification = async (req, res) => {
   try {
     const { _id } = req.params;
 
-    const deleteNotification = await pushNotifications.findById(_id).exec();
+    const deleteNotification = await PushNotifications.findById(_id).exec();
     if (!deleteNotification) {
       return res.status(400).json({ status: false, message: `Error finding a notification with id: ${_id}` });
     }
@@ -85,7 +85,7 @@ export const deleteAllNotifications = async (req, res) => {
     if (!user || !user.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({ status: false, message: `User: ${user} was not found` });
     }
-    const notificationsDeleteMany = await pushNotifications.deleteMany({ user: user });
+    const notificationsDeleteMany = await PushNotifications.deleteMany({ user: user });
     if (!notificationsDeleteMany) {
       return res.status(400).json({ status: false, message: 'Error Deleting all notifications' });
     }

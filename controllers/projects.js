@@ -8,7 +8,7 @@
  */
 import Project from '../models/project.js';
 import User from '../models/user.js';
-import pushNotifications from '../models/notifications.js';
+import PushNotifications from '../models/notifications.js';
 
 //basic CRUD functions:
 export const getAllProjects = async (req, res) => {
@@ -55,7 +55,7 @@ export const getUserProjects = async (req, res) => {
       },
     });
     if (userProjects) {
-      await pushNotifications.create({
+      await PushNotifications.create({
         user: userId,
         title: 'Projects',
         type: 1,
