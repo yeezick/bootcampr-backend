@@ -27,8 +27,8 @@ export const saveNotification = async (req, res) => {
 
 export const markNotificationAsRead = async (req, res) => {
   try {
-    const { _id } = req.body;
-    const updateNotification = await PushNotifications.findById(_id).exec();
+    const { _id: userId } = req.body;
+    const updateNotification = await PushNotifications.findById(userId).exec();
     updateNotification.read = true;
     const result = await updateNotification.save();
     if (!result) {
@@ -61,15 +61,15 @@ export const markAllNotificationsAsRead = async (req, res) => {
 
 export const deleteNotification = async (req, res) => {
   try {
-    const { _id } = req.params;
+    const { _id: userId } = req.params;
 
-    const deleteNotification = await PushNotifications.findById(_id).exec();
+    const deleteNotification = await PushNotifications.findById(userId).exec();
     if (!deleteNotification) {
-      return res.status(400).json({ status: false, message: `Error finding a notification with id: ${_id}` });
+      return res.status(400).json({ status: false, message: `Error finding a notification with id: ${userId}` });
     }
     const result = await deleteNotification.deleteOne();
     if (!result) {
-      return res.status(400).json({ status: false, message: `Cannot delete notification with id: ${_id}` });
+      return res.status(400).json({ status: false, message: `Cannot delete notification with id: ${userId}` });
     }
     res.json({ status: true, message: 'Notification was successfully deleted' });
   } catch (error) {
