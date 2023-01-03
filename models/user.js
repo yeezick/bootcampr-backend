@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const User = new Schema(
+// const User = new Schema(
+const user = new Schema(
   {
     bio: { type: String, maxlength: 300 },
     declinedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
@@ -12,6 +13,7 @@ const User = new Schema(
       unique: [true, 'E-mail already exists.'],
     },
     firstName: { type: String, required: true },
+    githubUrl: { type: String },
     interestedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     lastName: { type: String, required: true },
     linkedinUrl: { type: String },
@@ -27,4 +29,4 @@ const User = new Schema(
   },
   { timestamps: true },
 );
-export default mongoose.model('User', User);
+export default mongoose.model('User', user);

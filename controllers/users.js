@@ -2,6 +2,8 @@ import User from '../models/user.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { newToken, emailTokenVerification, unverifiedEmailUser } from './emailVerification.js';
+import { updatingImage } from './addingImage.js';
+
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 
 // should token key be generated here or how do we go about identifying the token to store in env?
@@ -13,7 +15,7 @@ exp.setDate(today.getDate() + 30);
 
 export const getAllUsers = async (req, res) => {
   try {
-    const allUser = await User.find({});
+    const allUser = await User.find({}).populate(['memberOfProjects']);
     if (allUser) {
       res.status(200).json(allUser);
     }
@@ -39,6 +41,7 @@ export const getOneUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
+    deleteImageFromS3Bucket(id);
     const deletedUser = await User.findByIdAndDelete(id);
     if (deletedUser) {
       return res.status(200).send({ deletionStatus: true, message: 'User deleted.' });
@@ -69,8 +72,10 @@ export const addPortfolioProject = async (req, res) => {
 export const updateUserInfo = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(req.body);
     const user = await User.findByIdAndUpdate(id, req.body, { new: true });
-    res.status(200).send(user);
+    const updatedUserImg = await updatingImage(id);
+    res.status(200).send(updatedUserImg);
   } catch (error) {
     console.log(error.message);
     return res.status(404).json({ error: error.message });
@@ -81,8 +86,7 @@ export const updateUserInfo = async (req, res) => {
 
 export const signUp = async (req, res) => {
   try {
-    console.log('req body', req.body);
-    const { email, firstName, lastName, password } = req.body;
+    const { email, firstName, lastName, password, profilePicture } = req.body;
 
     const isExistingUser = await duplicateEmail(email);
     console.log('ex', isExistingUser);
@@ -93,7 +97,7 @@ export const signUp = async (req, res) => {
         .json({ invalidCredentials: true, message: 'A Bootcampr account with this email already exists.' });
     }
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = new User({ email, firstName, lastName, passwordDigest });
+    const user = new User({ email, firstName, lastName, passwordDigest, profilePicture });
     await user.save();
     const token = newToken(user, true);
     let secureUser = Object.assign({}, user._doc, {
@@ -162,8 +166,8 @@ export const signIn = async (req, res) => {
 
 export const verify = async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
-    const payload = jwt.verify(token, TOKEN_KEY);
+    const bootcamprAuthToken = req.headers.authorization.split(' ')[1];
+    const payload = jwt.verify(bootcamprAuthToken, TOKEN_KEY);
     if (payload) {
       res.json(payload);
     }
@@ -199,8 +203,8 @@ export const updatePassword = async (req, res) => {
       email: user.email,
       exp: parseInt(exp.getTime() / 1000),
     };
-    const token = jwt.sign(payload, TOKEN_KEY);
-    res.status(201).json({ status: true, message: 'Password Updated', user, token });
+    const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
+    res.status(201).json({ status: true, message: 'Password Updated', user, bootcamprAuthToken });
   } catch (error) {
     console.error(error.message);
     res.status(400).json({ status: false, message: error.message });

@@ -1,8 +1,13 @@
 import { Router } from 'express';
 import { verifyEmailLink, resendNewEmailLink } from '../controllers/emailVerification.js';
 import * as controllers from '../controllers/users.js';
+import multer from 'multer';
+import { addImagesToS3Bucket } from '../controllers/addingImage.js';
 // import restrict from '../helpers/restrict.js'
 
+//middleware
+const storage = multer.memoryStorage();
+const uploadImage = multer({ storage: storage });
 const router = Router();
 
 // standard crud
@@ -12,6 +17,7 @@ router.post('/sign-up', controllers.signUp);
 router.put('/users/:id', controllers.updateUserInfo);
 router.patch('/users/:id', controllers.addPortfolioProject);
 router.delete('/users/:id', controllers.deleteUser);
+router.post('/addUserImage', uploadImage.single('image'), addImagesToS3Bucket);
 
 // auth
 router.post('/sign-in', controllers.signIn);
