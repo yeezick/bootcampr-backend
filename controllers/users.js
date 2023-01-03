@@ -77,27 +77,21 @@ export const updateUserInfo = async (req, res) => {
   }
 };
 
-export const checkEmail = async (req, res) => {
-  try {
-    const user = await User.findOne({ email: req.body.email });
-    if (user) {
-      return res.json({
-        message: 'An account with this email address already exists.',
-      });
-    }
-    return res.status(200).json({ message: false });
-  } catch (error) {
-    console.error({ err: error.message });
-    res.status(500).json({ error: error.message });
-  }
-};
-
 // Auth
 
 export const signUp = async (req, res) => {
   try {
+    console.log('req body', req.body);
     const { email, firstName, lastName, password } = req.body;
 
+    const isExistingUser = await duplicateEmail(email);
+    console.log('ex', isExistingUser);
+
+    if (isExistingUser) {
+      return res
+        .status(299)
+        .json({ invalidCredentials: true, message: 'A Bootcampr account with this email already exists.' });
+    }
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
     const user = new User({ email, firstName, lastName, passwordDigest });
     await user.save();
@@ -105,10 +99,25 @@ export const signUp = async (req, res) => {
     let secureUser = Object.assign({}, user._doc, {
       passwordDigest: undefined,
     });
-    await emailTokenVerification(user, token);
-    res.status(201).json({ user: secureUser, token });
+    emailTokenVerification(user, token);
+    res
+      .status(201)
+      .json({ user: secureUser, token, message: 'A verification email was sent to you.', invalidCredentials: true });
   } catch (error) {
     console.error(error.message);
+    res.status(400).json({ error: error.message });
+  }
+};
+
+export const duplicateEmail = async (email) => {
+  try {
+    const foundUser = await User.findOne({ email: email });
+    if (foundUser) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.log(error);
     res.status(400).json({ error: error.message });
   }
 };
@@ -119,7 +128,7 @@ export const signIn = async (req, res) => {
     let user = await User.findOne({ email }).select('+passwordDigest');
 
     if (!user) {
-      return res.status(200).json({
+      return res.status(299).json({
         invalidCredentials: true,
         message: `That Bootcampr account doesn't exist. Enter a different account or <a href='/sign-up'>create a new one</a>.`,
       });
@@ -140,10 +149,10 @@ export const signIn = async (req, res) => {
         const token = jwt.sign(payload, TOKEN_KEY);
         res.status(201).json({ user: secureUser, token });
       } else {
-        res.status(401).json({ invalidCredentials: true, message: 'Invalid email or password.' });
+        res.status(299).json({ invalidCredentials: true, message: 'Invalid email or password.' });
       }
     } else {
-      res.status(401).json({ invalidCredentials: true, message: 'No account exists with this email.' });
+      res.status(299).json({ invalidCredentials: true, message: 'No account exists with this email.' });
     }
   } catch (error) {
     console.error(error.message);

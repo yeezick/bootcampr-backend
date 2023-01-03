@@ -51,7 +51,7 @@ export const verifyEmailLink = async (req, res) => {
   try {
     const expiredToken = await verifyValidToken(req.params.token, res);
     if (expiredToken) {
-      return res.status(200).json({ msg: 'This url is expired. Please request a new link.', isExpired: true });
+      return res.status(299).json({ msg: 'This url is expired. Please request a new link.', isExpired: true });
     }
     const user = await User.findByIdAndUpdate({ _id: req.params.id }, { verified: true }, { new: true });
 
@@ -82,11 +82,13 @@ export const unverifiedEmailUser = async (user, res) => {
     const newEmailToken = newToken(user, true);
     const url = `${process.env.BASE_URL}/users/${user._id}/verify/${newEmailToken}`;
     sendSignUpEmail(user, url, true);
-    return res
-      .status(200)
-      .json({ invalidCredentials: true, message: 'An Email was sent to your account. Please verify.' });
+    return res.status(299).json({
+      invalidCredentials: true,
+      message: 'An Email was sent to your account. Please verify. The link expires in 30 minutes.',
+    });
   } catch (error) {
-    res.status(400).send({ msg: 'An Email was sent to your account. Please verify.' });
+    console.log(error.message);
+    res.status(400).send({ error: error });
   }
 };
 
@@ -98,6 +100,7 @@ export const resendNewEmailLink = async (req, res) => {
     emailTokenVerification(user, tempToken);
     res.status(200).json({ message: `Hi ${user.firstName}, a new link has been sent to your email. Please verify.` });
   } catch (error) {
+    console.log(error.message);
     res.status(400).send({ error: error });
   }
 };

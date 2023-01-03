@@ -10,7 +10,7 @@
     "db:seed": "node seed/data.js"
   },
   "repository": {
-    "type": "module",
+    "type": "git",
     "url": "git+https://github.com/yeezick/Bootcamper.git"
   },
   "keywords": [],

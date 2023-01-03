@@ -18,7 +18,6 @@ router.post('/sign-in', controllers.signIn);
 router.get('/verify', controllers.verify);
 router.post('/users/:id/expired-link', resendNewEmailLink);
 router.get('/:id/verify/:token', verifyEmailLink);
-router.post('/email', controllers.checkEmail);
 router.post('/confirm-password/:userID', controllers.confirmPassword);
 router.patch('/update-password/:userID', controllers.updatePassword);
 
