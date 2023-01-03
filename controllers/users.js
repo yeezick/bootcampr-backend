@@ -41,7 +41,7 @@ export const getOneUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
-    deleteImageFromS3Bucket(id);
+    // deleteImageFromS3Bucket(id); // Koffi's fix
     const deletedUser = await User.findByIdAndDelete(id);
     if (deletedUser) {
       return res.status(200).send({ deletionStatus: true, message: 'User deleted.' });
@@ -92,9 +92,10 @@ export const signUp = async (req, res) => {
     console.log('ex', isExistingUser);
 
     if (isExistingUser) {
-      return res
-        .status(299)
-        .json({ invalidCredentials: true, message: 'A Bootcampr account with this email already exists.' });
+      return res.status(299).json({
+        invalidCredentials: true,
+        message: `An account with Email ${email} already exists. Please try a different email address to register, or <a href='/sign-in'>sign in</a> to your existing Bootcampr account.`,
+      });
     }
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
     const user = new User({ email, firstName, lastName, passwordDigest, profilePicture });
@@ -104,9 +105,12 @@ export const signUp = async (req, res) => {
       passwordDigest: undefined,
     });
     emailTokenVerification(user, token);
-    res
-      .status(201)
-      .json({ user: secureUser, token, message: 'A verification email was sent to you.', invalidCredentials: true });
+    res.status(201).json({
+      user: secureUser,
+      token,
+      message: `We've sent a verification link to ${user.email}. Please click on the link that has been sent to your email to verify your account and continue the registration process. The link expires in 30 minutes.`,
+      invalidCredentials: true,
+    });
   } catch (error) {
     console.error(error.message);
     res.status(400).json({ error: error.message });

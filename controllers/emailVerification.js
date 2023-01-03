@@ -11,8 +11,8 @@ export const newToken = (user, temp = false) => {
   exp.setDate(today.getDate() + 30);
 
   const tokenjwt = jwt.sign({ userID: user._id, email: user.email }, TOKEN_KEY, {
-    expiresIn: temp ? 20 : parseInt(exp.getTime() / 1000),
-  });
+    expiresIn: temp ? 1800 : parseInt(exp.getTime() / 1000),
+  }); // temp expires in 30 minutes
   return tokenjwt;
 };
 
@@ -84,7 +84,8 @@ export const unverifiedEmailUser = async (user, res) => {
     sendSignUpEmail(user, url, true);
     return res.status(299).json({
       invalidCredentials: true,
-      message: 'An Email was sent to your account. Please verify. The link expires in 30 minutes.',
+      message:
+        'Your email is not verified. A verification link was sent to your email. Please click on the link that has been sent to verify your account. The link expires in 30 minutes.',
     });
   } catch (error) {
     console.log(error.message);
@@ -94,8 +95,8 @@ export const unverifiedEmailUser = async (user, res) => {
 
 export const resendNewEmailLink = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await User.findById({ _id: id });
+    const { id: userId } = req.params;
+    const user = await User.findById(userId);
     const tempToken = newToken(user, true);
     emailTokenVerification(user, tempToken);
     res.status(200).json({ message: `Hi ${user.firstName}, a new link has been sent to your email. Please verify.` });
