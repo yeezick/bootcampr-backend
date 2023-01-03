@@ -1,4 +1,5 @@
 import PushNotifications from '../models/notifications.js';
+const userRegex = /^[0-9a-fA-F]{24}$/;
 
 export const getAllNotifications = async (req, res) => {
   try {
@@ -45,7 +46,7 @@ export const markAllNotificationsAsRead = async (req, res) => {
   try {
     const { user } = req.params;
 
-    if (!user || !user.match(/^[0-9a-fA-F]{24}$/)) {
+    if (!user || !user.match(userRegex)) {
       return res.status(204).json({ status: false, message: `User: ${user} was not found` });
     }
     const notificationsUpdateMany = await PushNotifications.updateMany({ user: user }, { $set: { read: true } });
@@ -82,7 +83,7 @@ export const deleteAllNotifications = async (req, res) => {
   try {
     const { user } = req.params;
 
-    if (!user || !user.match(/^[0-9a-fA-F]{24}$/)) {
+    if (!user || !user.match(userRegex)) {
       return res.status(204).json({ status: false, message: `User: ${user} was not found` });
     }
     const notificationsDeleteMany = await PushNotifications.deleteMany({ user: user });
