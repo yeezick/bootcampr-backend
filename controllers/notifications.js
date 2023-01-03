@@ -5,7 +5,7 @@ export const getAllNotifications = async (req, res) => {
     const { user } = req.body;
     const notifications = await PushNotifications.find({ userId: user });
     if (!notifications) {
-      return res.status(400).json({ message: 'Notifications are empty' });
+      return res.status(204).json({ message: 'Notifications are empty' });
     }
     res.json(notifications);
   } catch (error) {
@@ -32,7 +32,7 @@ export const markNotificationAsRead = async (req, res) => {
     updateNotification.read = true;
     const result = await updateNotification.save();
     if (!result) {
-      return res.status(400).json({ status: false, message: 'No notifications found' });
+      return res.status(204).json({ status: false, message: 'No notifications found' });
     }
     res.json({ status: true, message: `Notification was marked as read` });
   } catch (error) {
@@ -46,7 +46,7 @@ export const markAllNotificationsAsRead = async (req, res) => {
     const { user } = req.params;
 
     if (!user || !user.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ status: false, message: `User: ${user} was not found` });
+      return res.status(204).json({ status: false, message: `User: ${user} was not found` });
     }
     const notificationsUpdateMany = await PushNotifications.updateMany({ user: user }, { $set: { read: true } });
     if (!notificationsUpdateMany) {
@@ -65,7 +65,7 @@ export const deleteNotification = async (req, res) => {
 
     const deleteNotification = await PushNotifications.findById(userId).exec();
     if (!deleteNotification) {
-      return res.status(400).json({ status: false, message: `Error finding a notification with id: ${userId}` });
+      return res.status(204).json({ status: false, message: `Error finding a notification with id: ${userId}` });
     }
     const result = await deleteNotification.deleteOne();
     if (!result) {
@@ -83,7 +83,7 @@ export const deleteAllNotifications = async (req, res) => {
     const { user } = req.params;
 
     if (!user || !user.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({ status: false, message: `User: ${user} was not found` });
+      return res.status(204).json({ status: false, message: `User: ${user} was not found` });
     }
     const notificationsDeleteMany = await PushNotifications.deleteMany({ user: user });
     if (!notificationsDeleteMany) {
