@@ -55,13 +55,6 @@ export const getUserProjects = async (req, res) => {
       },
     });
     if (userProjects) {
-      await PushNotifications.create({
-        user: userId,
-        title: 'Projects',
-        type: 1,
-        message: `This is a test notification that was sent to at ${new Date()}`,
-        read: false,
-      });
       return res.json(userProjects);
     }
     res.status(404).json({ message: 'Project not found.' });
