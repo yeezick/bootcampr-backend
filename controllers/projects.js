@@ -49,9 +49,7 @@ export const getUserProjects = async (req, res) => {
   try {
     const { userId } = req.params;
     const userProjects = await Project.find({
-      where: {
         projectOwner: userId,
-      },
     });
     if (userProjects) {
       return res.json(userProjects);
