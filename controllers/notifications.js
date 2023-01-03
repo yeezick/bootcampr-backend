@@ -29,7 +29,7 @@ export const saveNotification = async (req, res) => {
 export const markNotificationAsRead = async (req, res) => {
   try {
     const { _id: userId } = req.body;
-    const updateNotification = await PushNotifications.findById(userId).exec();
+    const updateNotification = await PushNotifications.findByIdAndUpdate(userId).exec();
     updateNotification.read = true;
     const result = await updateNotification.save();
     if (!result) {
