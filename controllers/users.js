@@ -89,12 +89,11 @@ export const signUp = async (req, res) => {
     const { email, firstName, lastName, password, profilePicture } = req.body;
 
     const isExistingUser = await duplicateEmail(email);
-    console.log('ex', isExistingUser);
 
     if (isExistingUser) {
       return res.status(299).json({
         invalidCredentials: true,
-        message: `An account with Email ${email} already exists. Please try a different email address to register, or <a href='/sign-in'>sign in</a> to your existing Bootcampr account.`,
+        message: `An account with Email ${email} already exists. Please try a different email address to register, or Sign In to your existing Bootcampr account.`,
       });
     }
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
@@ -138,7 +137,7 @@ export const signIn = async (req, res) => {
     if (!user) {
       return res.status(299).json({
         invalidCredentials: true,
-        message: `That Bootcampr account doesn't exist. Enter a different account or <a href='/sign-up'>create a new one</a>.`,
+        message: `That Bootcampr account doesn't exist. Enter a different account or Sign Up to create a new one.`,
       });
     }
     if (!user.verified) {
