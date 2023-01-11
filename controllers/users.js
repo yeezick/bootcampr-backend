@@ -105,8 +105,6 @@ export const signUp = async (req, res) => {
     });
     emailTokenVerification(user, token);
     res.status(201).json({
-      user: secureUser,
-      token,
       message: `We've sent a verification link to ${user.email}. Please click on the link that has been sent to your email to verify your account and continue the registration process. The link expires in 30 minutes.`,
       invalidCredentials: true,
     });
