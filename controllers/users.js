@@ -94,6 +94,7 @@ export const signUp = async (req, res) => {
       return res.status(299).json({
         invalidCredentials: true,
         message: `An account with Email ${email} already exists. Please try a different email address to register, or Sign In to your existing Bootcampr account.`,
+        existingAccount: true,
       });
     }
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
@@ -107,6 +108,7 @@ export const signUp = async (req, res) => {
     res.status(201).json({
       message: `We've sent a verification link to ${user.email}. Please click on the link that has been sent to your email to verify your account and continue the registration process. The link expires in 30 minutes.`,
       invalidCredentials: true,
+      existingAccount: false,
     });
   } catch (error) {
     console.error(error.message);
