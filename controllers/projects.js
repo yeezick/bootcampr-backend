@@ -33,7 +33,7 @@ export const getOneProject = async (req, res) => {
     console.log(error.message);
     res.status(500).json({ error: error.message });
   }
-}; // tested and is good
+};
 
 export const createProject = async (req, res) => {
   try {
@@ -50,7 +50,7 @@ export const getUserProjects = async (req, res) => {
   try {
     const { userId } = req.params;
     const userProjects = await Project.find({
-        projectOwner: userId,
+      projectOwner: userId,
     });
     if (userProjects) {
       return res.json(userProjects);
