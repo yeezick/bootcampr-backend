@@ -50,36 +50,12 @@ const reSeedDatabase = async () => {
   // create core project
   const bootcampr = new Project({
     duration: 'Everlasting',
-    meetingCadence: 2,
+    meeting_cadence: 2,
     overview:
       'Our platform enables students and recent graduates of Design and Development Programs to connect in a realistic work environment where they can practice and refine their skills.',
-    projectOwner: coreUser,
-    roles: {
-      design: [
-        {
-          interestedApplicants: [...designers],
-          status: 'Published',
-          title: 'UX Designer',
-          description:
-            'Will work on evolving designs collaboratively with other designers and engineers, perform market research and manage a team of designers',
-          skills: ['Figma', 'Adobe Photoshop', 'Adobe Illustrator'],
-          desiredHeadcount: 5,
-        },
-      ],
-      engineering: [
-        {
-          interestedApplicants: [...engineers],
-          status: 'Published',
-          title: 'Full Stack Software Engineer',
-          description:
-            'An engineer who loves problem solving, is passionate about delivering excellent user-experience, and collaborating with all types of engineers and designers,',
-          skills: ['React', 'Figma', 'SCSS', 'Node.js', 'Express', 'MongoDB'],
-          desiredHeadcount: 5,
-        },
-      ],
-    },
+    project_owner: coreUser,
     status: 'Published',
-    technologiesUsed: ['React', 'Express', 'Figma', 'MongoDB', 'Heroku', 'SCSS'],
+    technologies_used: ['React', 'Express', 'Figma', 'MongoDB', 'Heroku', 'SCSS'],
     title: 'Bootcampr',
   });
 
@@ -118,8 +94,6 @@ const reSeedDatabase = async () => {
       switch (i % 4) {
         case 0:
           user.interestedProjects.push(allProjects[i]._id);
-          const role = user.role === 'Software Engineer' ? 'engineering' : 'design';
-          allProjects[i].roles[role].push(user);
           break;
         case 1:
           user.declinedProjects.push(allProjects[i]._id);

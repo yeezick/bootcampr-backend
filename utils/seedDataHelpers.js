@@ -44,72 +44,6 @@ export const generateFakeUsers = async (quantity, role) => {
 
 export const randomIndex = (length) => Math.floor(Math.random() * length);
 
-export const roles = {
-  engineering: [
-    {
-      title: 'Testing Engineer',
-      description: 'thorough testing and maintaining high-quality product',
-      skills: ['Jest', 'Node.js', 'Express', 'React'],
-    },
-    {
-      title: 'DevOps Engineer',
-      description: 'cloud computing, database management and network management',
-      skills: ['AWS', 'Node.js', 'Kubernetes', 'Ansible', 'Docker'],
-    },
-    {
-      title: 'Frontend Software Engineer',
-      description: 'problem solving, constantly improving user experience, working collaboratively with designers',
-      skills: ['React', 'Figma', 'SCSS'],
-    },
-    {
-      title: 'Backend Software Engineer',
-      description: 'api development and management, writing clean and scalable code, and problem solving',
-      skills: ['Node.js', 'Express', 'MongoDB'],
-    },
-    {
-      title: 'Full Stack Software Engineer',
-      description:
-        'problem solving, excellent user-experience, collaborating with all types of engineers and designers',
-      skills: ['React', 'Figma', 'SCSS', 'Node.js', 'Express', 'MongoDB'],
-    },
-  ],
-  design: [
-    {
-      title: 'User Experience Researcher',
-      decription: 'leading researching, practicing empathy, and selecting appropriate methods of data collection',
-      skills: ['Maze', 'Userlytics', 'GSuite'],
-    },
-    {
-      title: 'Lead Designer',
-      decription:
-        'evolving designs to optimize user experience, working collaboratively with other designers and engineers, and managing a team of designers',
-      skills: ['Figma', 'Adobe Photoshop', 'Adobe Illustrator'],
-    },
-    {
-      title: 'Market Researcher + Designer',
-      description: 'analyzing market trends, designing with a user in mind and working collaboratively',
-      skills: ['Maze', 'Figma', 'Adobe Creative Cloud'],
-    },
-    {
-      title: 'Designer - Accessibility and Diversity Inclusion',
-      decription:
-        'developing products with all users in mind, advocating for a diverse user set and collaborating with other designers',
-      skills: ['All Together Now', 'Userlytics', 'Gsuite'],
-    },
-  ],
-};
-
-export const generateRole = (roleType) => {
-  return {
-    interestedApplicants: [],
-    status: ['Draft', 'Published'][Math.floor(Math.random() * 2)],
-    title: roleType.title,
-    description: `Looking for a ${roleType.title} who is interested in ${roleType.description}.`,
-    skills: [...roleType.skills],
-    maxHeadcount: Math.floor(Math.random() * 5) + 1,
-  };
-};
-
 export const randomArraySlice = (length) => {
   const startingIndex = Math.floor((Math.random() * length) / 2);
   const endingIndex = Math.floor(Math.random() * length + startingIndex);
@@ -123,15 +57,15 @@ export const generateFakeProject = (owner) => {
 
   return new Project({
     duration: durations[randomIndex(durations.length - 1)],
-    meetingCadence: Math.floor(Math.random() * 6 + 1),
+    meeting_cadence: Math.floor(Math.random() * 6 + 1),
     overview: `A ${faker.word.adjective()} app to make ${faker.word.noun()}s more ${faker.word.adjective()}`,
-    projectOwner: owner,
-    roles: {
-      engineering: [generateRole(roles.engineering[randomIndex(roles.engineering.length)])],
-      design: [generateRole(roles.design[randomIndex(roles.design.length)])],
-    },
+    project_owner: owner,
+    // roles: {
+    //   engineering: [generateRole(roles.engineering[randomIndex(roles.engineering.length)])],
+    //   design: [generateRole(roles.design[randomIndex(roles.design.length)])],
+    // },
     status: statuses[randomIndex(statuses.length - 1)],
-    technologiesUsed: [...technologiesUsed.slice(...randomArraySlice(technologiesUsed.length))],
+    technologies_used: [...technologiesUsed.slice(...randomArraySlice(technologiesUsed.length))],
     title: `${faker.word.adjective()} ${faker.word.adjective()}`,
   });
 };
