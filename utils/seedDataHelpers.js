@@ -60,10 +60,6 @@ export const generateFakeProject = (owner) => {
     meeting_cadence: Math.floor(Math.random() * 6 + 1),
     overview: `A ${faker.word.adjective()} app to make ${faker.word.noun()}s more ${faker.word.adjective()}`,
     project_owner: owner,
-    // roles: {
-    //   engineering: [generateRole(roles.engineering[randomIndex(roles.engineering.length)])],
-    //   design: [generateRole(roles.design[randomIndex(roles.design.length)])],
-    // },
     status: statuses[randomIndex(statuses.length - 1)],
     technologies_used: [...technologiesUsed.slice(...randomArraySlice(technologiesUsed.length))],
     title: `${faker.word.adjective()} ${faker.word.adjective()}`,
