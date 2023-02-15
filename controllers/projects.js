@@ -8,6 +8,7 @@
  */
 import Project from '../models/project.js';
 import User from '../models/user.js';
+import PushNotifications from '../models/notifications.js';
 
 //basic CRUD functions:
 export const getAllProjects = async (req, res) => {
@@ -49,9 +50,7 @@ export const getUserProjects = async (req, res) => {
   try {
     const { userId } = req.params;
     const userProjects = await Project.find({
-      where: {
         projectOwner: userId,
-      },
     });
     if (userProjects) {
       return res.json(userProjects);

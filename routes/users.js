@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import multer from 'multer';
-
 import * as controllers from '../controllers/users.js';
 import { addImagesToS3Bucket } from '../controllers/addingImage.js';
 // import restrict from '../helpers/restrict.js'
