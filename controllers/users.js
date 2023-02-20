@@ -2,6 +2,7 @@ import User from '../models/user.js';
 import bcrypt from 'bcrypt';
 import sgMail from '@sendgrid/mail';
 import jwt from 'jsonwebtoken';
+import { updatingImage } from './addingImage.js';
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 
@@ -71,9 +72,13 @@ export const addPortfolioProject = async (req, res) => {
 export const updateUserInfo = async (req, res) => {
   try {
     const { id } = req.params;
+    const imageWasUpdated = req.body.imageWasUpdated;
     const user = await User.findByIdAndUpdate(id, req.body, { new: true });
-    const updatedUserImg = await updatingImage(id);
-    res.status(200).send(updatedUserImg);
+    if (imageWasUpdated) {
+      const updatedUserImg = await updatingImage(id);
+      return res.status(200).send(updatedUserImg);
+    }
+    res.status(200).send(user);
   } catch (error) {
     console.log(error.message);
     return res.status(404).json({ error: error.message });
