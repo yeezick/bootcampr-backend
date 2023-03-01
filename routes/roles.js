@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import * as controllers from '../controllers/roles.js';
+import { createRole } from '../controllers/roles.js';
 
 const router = Router();
 
 // roles
-router.post('/projects/:projectId/roles', controllers.createRole);
+router.post('/projects/:projectId/roles', createRole);
 
 export default router;

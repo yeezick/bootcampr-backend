@@ -1,8 +1,6 @@
 import User from '../models/user.js';
 import bcrypt from 'bcrypt';
-import sgMail from '@sendgrid/mail';
 import jwt from 'jsonwebtoken';
-import { updatingImage } from './addingImage.js';
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 
@@ -41,7 +39,7 @@ export const getOneUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
-    deleteImageFromS3Bucket(id);
+    // deleteImageFromS3Bucket(id); // Koffi's fix
     const deletedUser = await User.findByIdAndDelete(id);
     if (deletedUser) {
       return res.status(200).send({ deletionStatus: true, message: 'User deleted.' });
@@ -85,71 +83,67 @@ export const updateUserInfo = async (req, res) => {
   }
 };
 
-export const checkEmail = async (req, res) => {
-  try {
-    const user = await User.findOne({ email: req.body.email });
-    if (user) {
-      return res.json({
-        message: 'An account with this email address already exists.',
-      });
-    }
-    return res.status(200).json({ message: false });
-  } catch (error) {
-    console.error({ err: error.message });
-    res.status(500).json({ error: error.message });
-  }
-};
-
 // Auth
 
 export const signUp = async (req, res) => {
   try {
     const { email, firstName, lastName, password, profilePicture } = req.body;
 
+    const isExistingUser = await duplicateEmail(email);
+
+    if (isExistingUser) {
+      return res.status(299).json({
+        invalidCredentials: true,
+        message: `An account with Email ${email} already exists. Please try a different email address to register, or Sign In to your existing Bootcampr account.`,
+        existingAccount: true,
+      });
+    }
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
     const user = new User({ email, firstName, lastName, passwordDigest, profilePicture });
     await user.save();
-    const payload = {
-      userID: user._id,
-      email: user.email,
-      exp: parseInt(exp.getTime() / 1000),
-    };
-    const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
+    const token = newToken(user, true);
     let secureUser = Object.assign({}, user._doc, {
       passwordDigest: undefined,
     });
-
-    res.status(201).json({ user: secureUser, bootcamprAuthToken });
-    sendSignUpEmail(email, firstName, lastName);
+    emailTokenVerification(user, token);
+    res.status(201).json({
+      message: `We've sent a verification link to ${user.email}. Please click on the link that has been sent to your email to verify your account and continue the registration process. The link expires in 30 minutes.`,
+      invalidCredentials: true,
+      existingAccount: false,
+    });
   } catch (error) {
     console.error(error.message);
     res.status(400).json({ error: error.message });
   }
 };
 
-const sendSignUpEmail = (email, firstName, lastName) => {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  const msg = {
-    to: email, // Change to your recipient
-    from: 'koffiarielhessou@gmail.com', // Change to your verified sender
-    subject: 'Bootcampr Signup',
-    text: `Welcome to Bootcampr ${(firstName, lastName)}`,
-    html: `<strong> Bootcampr is an awesome project that allows user to add experience </strong>`,
-  };
-  sgMail
-    .send(msg)
-    .then(() => {
-      console.log('Email sent');
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+export const duplicateEmail = async (email) => {
+  try {
+    const foundUser = await User.findOne({ email: email });
+    if (foundUser) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error.message });
+  }
 };
 
 export const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
     let user = await User.findOne({ email }).select('+passwordDigest');
+
+    if (!user) {
+      return res.status(299).json({
+        invalidCredentials: true,
+        message: `That Bootcampr account doesn't exist. Enter a different account or Sign Up to create a new one.`,
+      });
+    }
+    if (!user.verified) {
+      return await unverifiedEmailUser(user, res);
+    }
     if (user) {
       let secureUser = Object.assign({}, user._doc, {
         passwordDigest: undefined,
@@ -160,12 +154,13 @@ export const signIn = async (req, res) => {
           email: user.email,
           exp: parseInt(exp.getTime() / 1000),
         };
-        const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
-
-        res.status(201).json({ user: secureUser, bootcamprAuthToken });
+        const token = jwt.sign(payload, TOKEN_KEY);
+        res.status(201).json({ user: secureUser, token });
+      } else {
+        res.status(299).json({ invalidCredentials: true, message: 'Invalid email or password.' });
       }
     } else {
-      res.status(401).json({ message: 'Invalid email or password' });
+      res.status(299).json({ invalidCredentials: true, message: 'No account exists with this email.' });
     }
   } catch (error) {
     console.error(error.message);
