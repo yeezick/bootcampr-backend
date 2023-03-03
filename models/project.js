@@ -1,26 +1,16 @@
 import mongoose from 'mongoose';
 import { roleSchema } from '../utils/schemas.js';
 const Schema = mongoose.Schema;
-/**
- * Need to discuss:
- * - options for meeting cadence
- * - is duration necessary? what are the possible options?
- */
 
 const Project = new Schema(
-  {
-    duration: { type: String },
-    meetingCadence: { type: Number, max: 6, required: true },
-    overview: { type: String, required: true },
-    projectOwner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    roles: {
-      engineering: [roleSchema],
-      design: [roleSchema],
-    },
-    status: { type: String, required: true, enum: ['Draft', 'Published'] },
-    tools: [{ type: String, required: true }], //todo: add ability to categorize tools (SWE/UX)
-    title: { type: String, required: true, maxlength: 45 },
-  },
-  { timestamps: true },
+    {
+        overview: { type: String, required: true },
+        members: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+        title: { type: String, required: true, maxlength: 45 },
+        tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
+        meetings: [{ type: Schema.Types.ObjectId, ref: 'Meeting' }],
+        chats: [{ type: Schema.Types.ObjectId, ref: 'Chat' }]
+        },
+    { timestamps: true },
 );
 export default mongoose.model('Project', Project);
