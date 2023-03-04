@@ -12,5 +12,9 @@ router.use('/', projectRoutes);
 router.use('/', toolRoutes);
 router.use('/', roleRoutes);
 router.use('/', notificationRoutes);
+router.use('/', availabilityRoutes);
+router.use('/', chatRoutes);
+router.use('/', meetingRoutes);
+router.use('/', taskRoutes);
 
 export default router;
