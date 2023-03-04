@@ -32,8 +32,12 @@ const User = new Schema(
         verified: { type: Boolean, default: false },
         // additions
         project: { type: Schema.Types.ObjectId, ref: 'Project' },
-        chats: [{ type: Schema.Types.ObjectId, ref: 'Chat' }],
-        meetings: [{ type: Schema.Types.ObjectId, ref: 'Meeting' }],
+        // If there is a singular chat 'room' / 'thread' for a project, then this can just live on the Project, not User
+        // If eventually we allow user to user private chats, can live on user
+        // chats: [{ type: Schema.Types.ObjectId, ref: 'Chat' }],
+        // Since meetings will be attached to a Project, this also doesn't need to live on the User
+        // They'll see meetings on their Project calendar
+        // meetings: [{ type: Schema.Types.ObjectId, ref: 'Meeting' }],
         // we may not actually need to store timezone, we can probably get it dynamically with
         // ... JS .getTimezoneOffset() and store all times in UTC
         // store availability in UTC, handle translation on frontend rendering

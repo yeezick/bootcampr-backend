@@ -212,3 +212,9 @@ export const updatePassword = async (req, res) => {
     res.status(400).json({ status: false, message: error.message });
   }
 };
+
+// Potentinal new User Controllers
+//
+// Assign Project - User
+// Get User Availability
+// Update User Availability
