@@ -12,7 +12,7 @@ const Task = new Schema(
         project: { type: Schema.Types.ObjectId, ref: 'Project' },
         // NOTE: If we allow users to create their own column names, this enum needs adjustment
         status: { type: String, enum: ['to-do', 'in progress', 'blocked', 'completed', 'archived'], default: 'to-do' },
-        type: { type: String, enum: ['bug', 'story', 'spike'] },
+        type: { type: String, enum: ['bug', 'task', 'story'] },
         title: { type: String },
     },
     { timestamps: true }

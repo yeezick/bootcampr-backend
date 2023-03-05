@@ -6,6 +6,7 @@ import toolRoutes from './tools.js';
 import notificationRoutes from './notifications.js';
 const router = Router();
 
+// would it be better to append "/user" or "/chat" etc. to the routes here instead?
 router.get('/', (req, res) => res.send('api root'));
 router.use('/', userRoutes);
 router.use('/', projectRoutes);
