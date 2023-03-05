@@ -1,4 +1,4 @@
-import User from '../models/user.js';
+import User from '../../models/user.js';
 import { updatingImage } from './addingImage.js';
 
 export const getAllUsers = async (req, res) => {
