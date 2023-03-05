@@ -1,16 +1,17 @@
 import { Router } from 'express';
-import userRoutes from './users.js';
-import projectRoutes from './projects.js';
-import roleRoutes from './roles.js';
-import toolRoutes from './tools.js';
-import notificationRoutes from './notifications.js';
+import userRoutes from './user/users.js';
+import notificationRoutes from './user/notifications.js';
+import projectRoutes from './project/projects.js';
+import taskRoutes from './project/tasks.js';
+import availabilityRoutes from './calendar/availability.js';
+import meetingRoutes from './calendar/meetings.js';
+import chatRoutes from './chats.js';
 const router = Router();
 
+// would it be better to append "/user" or "/chat" etc. to the routes here instead?
 router.get('/', (req, res) => res.send('api root'));
 router.use('/', userRoutes);
 router.use('/', projectRoutes);
-router.use('/', toolRoutes);
-router.use('/', roleRoutes);
 router.use('/', notificationRoutes);
 router.use('/', availabilityRoutes);
 router.use('/', chatRoutes);

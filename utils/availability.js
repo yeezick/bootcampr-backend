@@ -1,3 +1,8 @@
+// holy shit girl u were getting in the weeeeeds
+// i'll have more time to dig into this during my onboarding ticket
+// though ideally, we would only store times in which is a user is available vs. not 
+
+
 // Run node availability.js to demo
 
 // Default Availability structure for a single day - used as base for new users
