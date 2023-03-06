@@ -1,6 +1,8 @@
 import User from '../models/user.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { newToken, emailTokenVerification, unverifiedEmailUser } from './emailVerification.js';
+import { updatingImage } from './addingImage.js';
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
 
