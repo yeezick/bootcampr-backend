@@ -1,4 +1,5 @@
-import PushNotifications from '../models/notifications.js';
+import PushNotifications from '../../models/notifications.js';
+
 const userRegex = /^[0-9a-fA-F]{24}$/;
 
 export const getAllNotifications = async (req, res) => {

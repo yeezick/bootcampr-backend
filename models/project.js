@@ -1,26 +1,26 @@
 import mongoose from 'mongoose';
 import { roleSchema } from '../utils/schemas.js';
 const Schema = mongoose.Schema;
-/**
- * Need to discuss:
- * - options for meeting cadence
- * - is duration necessary? what are the possible options?
- */
 
 const Project = new Schema(
-  {
-    duration: { type: String },
-    meetingCadence: { type: Number, max: 6, required: true },
-    overview: { type: String, required: true },
-    projectOwner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    roles: {
-      engineering: [roleSchema],
-      design: [roleSchema],
-    },
-    status: { type: String, required: true, enum: ['Draft', 'Published'] },
-    tools: [{ type: String, required: true }], //todo: add ability to categorize tools (SWE/UX)
-    title: { type: String, required: true, maxlength: 45 },
-  },
-  { timestamps: true },
+    {
+        chats: [{ type: Schema.Types.ObjectId, ref: 'Chat' }],
+        // Add regex or some type check on the date format?
+        goal: { type: String, required: true },
+        meetings: [{ type: Schema.Types.ObjectId, ref: 'Meeting' }],
+        members: {
+          engineers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+          designers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+        },
+        problem: { type: String, required: true },
+        // Since each tasks holds 'status' info, is it really needed here as well?
+        tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
+        timeline: { 
+          startDate: { type: String },
+          endDate: { type: String }
+        },
+        title: { type: String, required: true, maxlength: 45 },
+        },
+    { timestamps: true },
 );
 export default mongoose.model('Project', Project);
