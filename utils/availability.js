@@ -1,118 +1,51 @@
-// Run node availability.js to demo
+import { randomIndex } from "./seedDataHelpers.js"
+import { dateBase, startTimeOptions, defaultSingleDayAvailability } from "./data/availability.js"
+import { mockUsers } from "./mocks/availability.js"
+
 //  - Ideally, we would only store times in which is a user is available vs. not 
 
 // Date.now() = Number representing time passed since a certain date
+// Date.UTC() = 
 
-console.log(Date.UTC(2023, 2, 22, 23, 54, 53, 30, 30))
-console.log(Date())
+// Get current Date and convert into a date object
+const dateArray = Date().split(' ')
+dateArray[6] = dateArray.slice(6,10).join(' ')
+Object.keys(dateBase).forEach(key => date[key] = nowArray.shift())
 
-const date = {
-    weekday: '',
-    month: '',
-    day: '',
-    year: '',
-    time: '',
-    timezoneAdjustment: '',
-    timezoneString: '',
-}
-
-const dateString = Date()
-const nowArray = dateString.split(' ')
-nowArray[6] = nowArray.slice(6,10).join(' ')
-Object.keys(date).forEach(key => date[key] = nowArray.shift())
-
-
-
-// Default Availability structure for a single day - used as base for new users
-// AKA - zero availability to start
-export const defaultSingleDayAvailability = {
-    '12:00 AM': 'no',
-    '12:30 AM': 'no',
-    '1:00 AM': 'no',
-    '1:30 AM': 'no',
-    '2:00 AM': 'no',
-    '2:30 AM': 'no',
-    '3:00 AM': 'no',
-    '3:30 AM': 'no',
-    '4:00 AM': 'no',
-    '4:30 AM': 'no',
-    '5:00 AM': 'no',
-    '5:30 AM': 'no',
-    '6:00 AM': 'no',
-    '6:30 AM': 'no',
-    '7:00 AM': 'no',
-    '7:30 AM': 'no',
-    '8:00 AM': 'no',
-    '8:30 AM': 'no',
-    '9:00 AM': 'no',
-    '9:30 AM': 'no',
-    '10:00 AM': 'no',
-    '10:30 AM': 'no',
-    '11:00 AM': 'no',
-    '11:30 AM': 'no',
-    '12:00 PM': 'no',
-    '12:30 PM': 'no',
-    '1:00 PM': 'no',
-    '1:30 PM': 'no',
-    '2:00 PM': 'no',
-    '2:30 PM': 'no',
-    '3:00 PM': 'no',
-    '3:30 PM': 'no',
-    '4:00 PM': 'no',
-    '4:30 PM': 'no',
-    '5:00 PM': 'no',
-    '5:30 PM': 'no',
-    '6:00 PM': 'no',
-    '6:30 PM': 'no',
-    '7:00 PM': 'no',
-    '7:30 PM': 'no',
-    '8:00 PM': 'no',
-    '8:30 PM': 'no',
-    '9:00 PM': 'no',
-    '9:30 PM': 'no',
-    '10:00 PM': 'no',
-    '10:30 PM': 'no',
-    '11:00 PM': 'no',
-    '11:30 PM': 'no',
-};
-
-// full array of timeslot options
-export const startTimeOptions = Object.keys(defaultSingleDayAvailability)
-
-// For testing and seed data usage
 // returns an availability object for a single day
 export const generateRandomSingleDayAvailability = () => {
     const availability = {}
-    Object.keys(defaultSingleDayAvailability).forEach((timeslot) => {
-        availability[timeslot] = ["yes", "no"][Math.floor(Math.random() * 2)]
+    Object.keys(defaultSingleDayAvailability)
+        .forEach((timeslot) => {
+            availability[timeslot] = ["yes", "no"][randomIndex(2)]
     })
     return availability
 };
 
-// Samples users for testing and demo:
-const users = ['becca', 'logan', 'tommy', 'clara', 'charles'].map((user) => {
-    return {
-        id: user,
-        availability: generateRandomSingleDayAvailability(),
-    
-}});
+console.log(users)
 
-// Function for a single day
-//
-// Takes in an array of member availabilities
+
+/**
+ * Find Common Availability for a Set of Team Members for a Single Day
+ * 
+ * 
+ * 
+ * @param {Array<objects>} membersAvailabilities - final structure tbd, currently demo-mode
+ *  id -> some identifier of user / member
+ *  availability -> the availability object for a user for a single day
+ * @returns {Object} keys = timeslots, values = array of users
+ *  
+ *   {
+ *      '7:00 AM: ['tommy', 'logan', 'clara'],
+ *      '12:30 PM': ['tommy'],
+ *      '5:00 PM': ['becca', 'logan', 'tommy' 'clara'],
+ *   }
+ */
+
 // final structure tbd, but this demo accepts a single member availability as
-// id -> some identifier of user / member
 // availability -> the availability object for a user for a single day
-//
-// RETURNS -> availability object of all times that any number > 0 of members is available
-// ... example:
-// {
-//      '7:00 AM: ['tommy', 'logan', 'clara'],
-//      '12:30 PM': ['tommy'],
-//      '5:00 PM': ['becca', 'logan', 'tommy' 'clara'],
-// }
-//
-// NOTE: we may actually want this to return ALL hours possible, even if no member is available (TBD)
+
+
 const findCommonAvailability = (membersAvailabilities) => {
     const commonAvailability = {}
     // could i also do for const key of ...?
@@ -128,7 +61,6 @@ const findCommonAvailability = (membersAvailabilities) => {
     return commonAvailability
 };
 
-// const commonAvailability = findCommonAvailability([user1, user2, user3, user4, user5])
 const commonAvailability = findCommonAvailability(users)
 
 // Takes in common availability, and a desired number of available members
@@ -152,9 +84,5 @@ Object.keys(bestAvailability).forEach(timeslot => {
     console.log(`At ${timeslot}, the following ${bestAvailability[timeslot].length} members are available: ${bestAvailability[timeslot].join(' ')}`)
 });
 
-// console.log('Checking common availability for 4 team members...')
-// console.log(findBestAvailability(commonAvailability, 4))
 
-// console.log('Checking common availability for 3 team members...')
-// console.log(findBestAvailability(commonAvailability, 3))
 
