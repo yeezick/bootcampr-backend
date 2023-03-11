@@ -1,9 +1,27 @@
-// holy shit girl u were getting in the weeeeeds
-// i'll have more time to dig into this during my onboarding ticket
-// though ideally, we would only store times in which is a user is available vs. not 
-
-
 // Run node availability.js to demo
+//  - Ideally, we would only store times in which is a user is available vs. not 
+
+// Date.now() = Number representing time passed since a certain date
+
+console.log(Date.UTC(2023, 2, 22, 23, 54, 53, 30, 30))
+console.log(Date())
+
+const date = {
+    weekday: '',
+    month: '',
+    day: '',
+    year: '',
+    time: '',
+    timezoneAdjustment: '',
+    timezoneString: '',
+}
+
+const dateString = Date()
+const nowArray = dateString.split(' ')
+nowArray[6] = nowArray.slice(6,10).join(' ')
+Object.keys(date).forEach(key => date[key] = nowArray.shift())
+
+
 
 // Default Availability structure for a single day - used as base for new users
 // AKA - zero availability to start
@@ -63,7 +81,7 @@ export const startTimeOptions = Object.keys(defaultSingleDayAvailability)
 
 // For testing and seed data usage
 // returns an availability object for a single day
-const generateRandomSingleDayAvailability = () => {
+export const generateRandomSingleDayAvailability = () => {
     const availability = {}
     Object.keys(defaultSingleDayAvailability).forEach((timeslot) => {
         availability[timeslot] = ["yes", "no"][Math.floor(Math.random() * 2)]

@@ -46,13 +46,13 @@ const User = new Schema(
     // store availability in UTC, handle translation on frontend rendering
     // store as stringified object, workable with JSON.parse()
     availability: {
-      sunday: { type: String, default: JSON.stringify(defaultSingleDayAvailability) },
-      monday: { type: String, default: JSON.stringify(defaultSingleDayAvailability) },
-      tuesday: { type: String, default: JSON.stringify(defaultSingleDayAvailability) },
-      wednesday: { type: String, default: JSON.stringify(defaultSingleDayAvailability) },
-      thursday: { type: String, default: JSON.stringify(defaultSingleDayAvailability) },
-      friday: { type: String, default: JSON.stringify(defaultSingleDayAvailability) },
-      saturday: { type: String, default: JSON.stringify(defaultSingleDayAvailability) },
+      sunday: { type: String },
+      monday: { type: String },
+      tuesday: { type: String },
+      wednesday: { type: String },
+      thursday: { type: String },
+      friday: { type: String },
+      saturday: { type: String },
     },
   },
   { timestamps: true },
