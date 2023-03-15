@@ -3,7 +3,7 @@ import { updatingImage } from './addingImage.js';
 
 export const getAllUsers = async (req, res) => {
   try {
-    const allUser = await User.find({}).populate(['memberOfProjects']);
+    const allUser = await User.find({});
     if (allUser) {
       res.status(200).json(allUser);
     }
