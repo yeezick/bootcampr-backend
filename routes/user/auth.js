@@ -1,12 +1,6 @@
 import { Router } from 'express';
-import { resendNewEmailLink, verifyEmailLink } from '../controllers/emailVerification.js';
-import {
-  confirmPassword,
-  signIn,
-  signUp,
-  updatePassword,
-  verify,
-} from '../controllers/users.js';
+import { resendNewEmailLink, verifyEmailLink } from '../../controllers/auth/emailVerification.js';
+import { signUp, signIn, verify, confirmPassword, updatePassword } from '../../controllers/auth/auth.js';
 
 //middleware
 const router = Router();
