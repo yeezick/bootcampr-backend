@@ -24,6 +24,7 @@ const User = new Schema(
       linkedinUrl: { type: String },
       portfolioUrl: { type: String },
     },
+    onboarded: { type: Boolean },
     passwordDigest: { type: String, required: true, select: false },
     profilePicture: { type: String },
     role: { type: String, enum: ['Software Engineer', 'UX Designer'] },
