@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
-import Project from '../models/project.js';
-import User from '../models/user.js';
-import { generateRandomSingleDayAvailability } from './availability.js';
+import Project from '../../models/project.js';
+import User from '../../models/user.js';
+import { generateRandomSingleDayAvailability } from '../availability.js';
 
 // Either organize this file by User Utils, Project Utils, etc. 
 // OR design file structure to better seperate concerns

@@ -1,6 +1,6 @@
-import { randomIndex } from "./seedDataHelpers.js"
-import { dateBase, startTimeOptions, defaultSingleDayAvailability } from "./data/availability.js"
-import { mockUsers } from "./mocks/availability.js"
+import { randomIndex } from "./seed/seedDataHelpers.js"
+import { dateBase, startTimeOptions, defaultSingleDayAvailability } from "./data/defaults/availability.js"
+import { mockUsers } from "./data/mocks/availability.js"
 
 //  - Ideally, we would only store times in which is a user is available vs. not 
 
