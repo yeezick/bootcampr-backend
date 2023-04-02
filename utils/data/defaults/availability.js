@@ -27,3 +27,4 @@ export const defaultSingleDayAvailability = {
 
 // full array of timeslot options
 export const startTimeOptions = Object.keys(defaultSingleDayAvailability)
+

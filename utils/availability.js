@@ -1,6 +1,6 @@
-import { randomIndex } from "./seed/seedDataHelpers.js"
+import { randomIndex } from './seed/utils/helpers.js'
 import { dateBase, startTimeOptions, defaultSingleDayAvailability } from "./data/defaults/availability.js"
-import { mockUsers } from "./data/mocks/availability.js"
+// import { mockUsers } from "./data/mocks/availability.js"
 
 //  - Ideally, we would only store times in which is a user is available vs. not 
 
@@ -8,21 +8,31 @@ import { mockUsers } from "./data/mocks/availability.js"
 // Date.UTC() = 
 
 // Get current Date and convert into a date object
-const dateArray = Date().split(' ')
-dateArray[6] = dateArray.slice(6,10).join(' ')
-Object.keys(dateBase).forEach(key => date[key] = nowArray.shift())
+// const dateArray = Date().split(' ')
+// dateArray[6] = dateArray.slice(6,10).join(' ')
+// Object.keys(dateBase).forEach(key => date[key] = nowArray.shift())
 
 // returns an availability object for a single day
 export const generateRandomSingleDayAvailability = () => {
     const availability = {}
     Object.keys(defaultSingleDayAvailability)
         .forEach((timeslot) => {
-            availability[timeslot] = ["yes", "no"][randomIndex(2)]
+            randomIndex(6) === 1 ?
+            availability[timeslot] = "yes"
+            : null
     })
     return availability
 };
 
-console.log(users)
+// console.log(users)
+
+// Samples users for testing and demo:
+export const mockUsers = ['becca', 'logan', 'tommy', 'clara', 'charles'].map((user) => {
+    return {
+        id: user,
+        availability: generateRandomSingleDayAvailability(),
+    }
+});
 
 
 /**
@@ -61,7 +71,7 @@ const findCommonAvailability = (membersAvailabilities) => {
     return commonAvailability
 };
 
-const commonAvailability = findCommonAvailability(users)
+// const commonAvailability = findCommonAvailability(users)
 
 // Takes in common availability, and a desired number of available members
 // For a team of 5 members, 5 would be the ideal number
@@ -78,11 +88,11 @@ const findBestAvailability = (availabilities, numberOfMembers) => {
     return bestTimes
 }
 
-console.log('Checking common availability for 5 team members...')
-const bestAvailability = findBestAvailability(commonAvailability, 5)
-Object.keys(bestAvailability).forEach(timeslot => {
-    console.log(`At ${timeslot}, the following ${bestAvailability[timeslot].length} members are available: ${bestAvailability[timeslot].join(' ')}`)
-});
+// console.log('Checking common availability for 5 team members...')
+// const bestAvailability = findBestAvailability(commonAvailability, 5)
+// Object.keys(bestAvailability).forEach(timeslot => {
+//     console.log(`At ${timeslot}, the following ${bestAvailability[timeslot].length} members are available: ${bestAvailability[timeslot].join(' ')}`)
+// });
 
 
 

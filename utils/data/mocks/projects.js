@@ -18,10 +18,10 @@ export const projectThemes = {
 }
 
 // Can be adapted as needed
-const defaultProject = {
-    title: 'Project Title',
-    goal: 'Project Goal',
-    problem: 'Project Problem',
+export const defaultProject = {
+    title: 'Travel Troubles',
+    goal: 'Design & ship a responsive website. UXD: High-fidelity prototype to hand off to developers. SWE: Deployed full-stack website.',
+    problem: 'How might we connect people with similar travel plans/interests? Consider solo travelers, commuters, road-trippers, etc. who might have common pain points while traveling.',
     startDate: Date.now(),
     duration: 28,
 }
