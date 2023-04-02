@@ -1,22 +1,31 @@
 import 'dotenv/config.js';
 import bcrypt from 'bcrypt';
-import db from '../db/connection.js';
-import Project from '../models/project.js';
-import User from '../models/user.js';
-import { generateRandomSingleDayAvailability } from './availability.js'
+import db from '../../db/connection.js';
+import Project from '../../models/project.js';
+import User from '../../models/user.js';
+import { generateRandomSingleDayAvailability } from '../availability.js'
 import { generateFakeUsers, generateProject } from './seedDataHelpers.js';
-import { projectThemes } from './mocks/projects.js';
+import { projectThemes } from '../data/mocks/projects.js';
 
 const reSeedDatabase = async () => {
-  // reset database
-  // await db.dropDatabase();
+  // Reset Database
+  await db.dropDatabase();
+
+  // Create Users - 25? to mimic soft launch teams
+
+  // 
+
+
+
+
+
 
   // Create 5 Projects of the same Type
   // Default startDate is today (Date....)
   // Default duration is 4 weeks aka 28 days
   const projects = []
 
-  // Redesign this lofic?
+  // Redesign this logic?
   for (let i=0 ; i < 5; i++) {
     projects.push(generateProject({
       ...projectThemes.travel, 
