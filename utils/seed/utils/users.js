@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
-import User from '../../models/user.js';
-import { generateRandomSingleDayAvailability } from '../availability.js';
+import User from '../../../models/user.js'
+import { generateRandomSingleDayAvailability } from '../../availability.js';
 
 /**
  * Generate User Bio
@@ -32,9 +32,9 @@ export const generateFakeUser = async (role) => {
     const name = {
         first: faker.name.firstName(),
         last: faker.name.lastName(),
-        };
+    };
     
-        return {
+    return {
         availability: {
             sunday: JSON.stringify(generateRandomSingleDayAvailability()),
             monday: JSON.stringify(generateRandomSingleDayAvailability()),
@@ -55,7 +55,9 @@ export const generateFakeUser = async (role) => {
         },
         passwordDigest: await bcrypt.hash('gumballs', 11),
         profilePicture: faker.image.people(640, 480, true),
+        project: null,
         role,
+        timezone: 'FAKE',
         verified: true,
     };
 };

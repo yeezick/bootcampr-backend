@@ -1,4 +1,4 @@
-
+import { defaultProject } from '../../data/mocks/projects.js'
 /**
  * Generate Project
  * @param {Object} project custom options including: title, goal, problem, startDate and duration
