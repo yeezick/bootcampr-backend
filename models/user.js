@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { defaultSingleDayAvailability } from '../utils/availability.js';
 const Schema = mongoose.Schema;
 
 // Backend Model Refactor
@@ -10,6 +9,15 @@ const Schema = mongoose.Schema;
 
 const User = new Schema(
   {
+    availability: {
+      sunday: { type: String },
+      monday: { type: String },
+      tuesday: { type: String },
+      wednesday: { type: String },
+      thursday: { type: String },
+      friday: { type: String },
+      saturday: { type: String },
+    },
     bio: { type: String, maxlength: 300 },
     email: {
       match: /.+\@.+\..+/,
@@ -30,6 +38,7 @@ const User = new Schema(
     verified: { type: Boolean, default: false },
     // additions
     project: { type: Schema.Types.ObjectId, ref: 'Project' },
+    timezone: { type: String }
 
     // TODO: Discuss with UX
     // CHAT
@@ -45,15 +54,6 @@ const User = new Schema(
     // ... JS .getTimezoneOffset() and store all times in UTC
     // store availability in UTC, handle translation on frontend rendering
     // store as stringified object, workable with JSON.parse()
-    availability: {
-      sunday: { type: String },
-      monday: { type: String },
-      tuesday: { type: String },
-      wednesday: { type: String },
-      thursday: { type: String },
-      friday: { type: String },
-      saturday: { type: String },
-    },
   },
   { timestamps: true },
 );
