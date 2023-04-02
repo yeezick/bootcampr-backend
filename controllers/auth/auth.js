@@ -86,10 +86,9 @@ export const updateUserInfo = async (req, res) => {
 
 export const signUp = async (req, res) => {
   try {
-    const { email, firstName, lastName, password, profilePicture } = req.body;
+    const { email, firstName, lastName, password } = req.body;
 
     const isExistingUser = await duplicateEmail(email);
-
     if (isExistingUser) {
       return res.status(299).json({
         invalidCredentials: true,
@@ -98,16 +97,14 @@ export const signUp = async (req, res) => {
       });
     }
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = new User({ email, firstName, lastName, passwordDigest, profilePicture });
+    const user = new User({ email, firstName, lastName, passwordDigest, onboarded: false });
     await user.save();
+
     const token = newToken(user, true);
-    let secureUser = Object.assign({}, user._doc, {
-      passwordDigest: undefined,
-    });
-    emailTokenVerification(user, token);
+    await emailTokenVerification(user, token);
     res.status(201).json({
       message: `We've sent a verification link to ${user.email}. Please click on the link that has been sent to your email to verify your account and continue the registration process. The link expires in 30 minutes.`,
-      invalidCredentials: true,
+      invalidCredentials: false,
       existingAccount: false,
     });
   } catch (error) {
