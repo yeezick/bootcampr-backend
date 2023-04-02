@@ -16,3 +16,12 @@ export const projectThemes = {
         problem: 'Your client needs an application that connects people with common interests.'
     }
 }
+
+// Can be adapted as needed
+const defaultProject = {
+    title: 'Project Title',
+    goal: 'Project Goal',
+    problem: 'Project Problem',
+    startDate: Date.now(),
+    duration: 28,
+}
