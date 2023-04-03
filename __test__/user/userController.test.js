@@ -50,9 +50,7 @@ afterEach(async () => {
   await User.deleteMany({});
 });
 
-// Test suite for the "getAllUsers" function
 describe('getAllUsers', () => {
-  // Test if it returns all users
   it('returns all users', async () => {
     const req = {};
     const res = {
@@ -70,7 +68,6 @@ describe('getAllUsers', () => {
     );
   });
 
-  // Test if it returns a 404 error when no users are found
   it('returns a 404 error if no users are found', async () => {
     await User.deleteMany();
     const req = {};
@@ -84,9 +81,7 @@ describe('getAllUsers', () => {
   });
 });
 
-// Test suite for the "getOneUser" function
 describe('getOneUser', () => {
-  // Test if it returns a single user
   it('returns a single user', async () => {
     const users = await User.find();
     const req = { params: { id: users[0]._id } };
@@ -101,7 +96,6 @@ describe('getOneUser', () => {
     );
   });
 
-  // Test if it returns a 404 error when the user is not found
   it('returns a 404 error if the user is not found', async () => {
     const req = { params: { id: new ObjectId() } };
     const res = {
@@ -114,9 +108,7 @@ describe('getOneUser', () => {
   });
 });
 
-// Test suite for the "deleteUser" function
 describe('deleteUser', () => {
-  // Test if it deletes a user
   it('deletes a user', async () => {
     const users = await User.find();
     const req = { params: { id: users[0]._id } };
@@ -131,7 +123,6 @@ describe('deleteUser', () => {
     expect(remainingUsers).toHaveLength(2);
   });
 
-  // Test if it returns a 500 error when an error occurs during the deletion
   it('returns a 500 error if an error occurs', async () => {
     const req = {
       params: { id: new ObjectId() },
@@ -152,7 +143,6 @@ describe('deleteUser', () => {
   });
 });
 
-// Test suite for the "updateUserInfo" function
 describe('updateUserInfo', () => {
   let updateUserInfoMock;
   let updatingImageMock;
@@ -169,7 +159,6 @@ describe('updateUserInfo', () => {
     updatingImageMock.mockRestore();
   });
 
-  // Test if the function updates user info
   it('should update user info', async () => {
     const req = {
       params: { id: 'testUserId' },
@@ -192,7 +181,6 @@ describe('updateUserInfo', () => {
     expect(res.send).toHaveBeenCalledWith(expectedResponse);
   });
 
-  // Test if it returns an error when the user is not found
   it('should return an error if user is not found', async () => {
     const req = {
       params: { id: 'testUserId' },
@@ -211,7 +199,6 @@ describe('updateUserInfo', () => {
     expect(res.json).toHaveBeenCalledWith({ error: 'User not found.' });
   });
 
-  // Test if it returns a 404 error when an error occurs during the update
   it('should return a 404 error if an error occurs', async () => {
     const req = {
       params: { id: 'testUserId' },
