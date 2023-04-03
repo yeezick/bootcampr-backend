@@ -35,12 +35,10 @@ export const generateProject = (project = defaultProject) => {
  * @param {Array} engineers array of User objects
  */
 export const fillProjectWithUsers = async (project, designers, engineers) => {
-// console.log(designers)
-// console.log(project)
-project.members.engineers = getIds(engineers)
-project.members.designers = getIds(designers)
-const users = [...designers, ...engineers]
-users.forEach(async (user) => {
-    user.project = project._id
-})
+    project.members.engineers = getIds(engineers)
+    project.members.designers = getIds(designers)
+    const users = [...designers, ...engineers]
+    users.forEach(async (user) => {
+        user.project = project._id
+    })
 }
