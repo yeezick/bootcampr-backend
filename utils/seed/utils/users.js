@@ -62,7 +62,6 @@ export const generateFakeUser = async (role) => {
     };
 };
 
-
 /**
  * Generate Multiple Fake Users
  * @param {Number} quantity of users to create

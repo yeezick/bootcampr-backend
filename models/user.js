@@ -7,7 +7,6 @@ const Schema = mongoose.Schema;
 //  - Users cannot delete boards, calendars or projects
 //  - Add a route to see team member's availability
 
-// mongoose.set('debug', true)
 const User = new Schema(
   {
     availability: {

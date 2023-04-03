@@ -1,17 +1,7 @@
 import { randomIndex } from './seed/utils/helpers.js'
 import { dateBase, startTimeOptions, defaultSingleDayAvailability } from "./data/defaults/availability.js"
-// import { mockUsers } from "./data/mocks/availability.js"
 
 //  - Ideally, we would only store times in which is a user is available vs. not 
-
-// Date.now() = Number representing time passed since a certain date
-// Date.UTC() = 
-
-// Get current Date and convert into a date object
-// const dateArray = Date().split(' ')
-// dateArray[6] = dateArray.slice(6,10).join(' ')
-// Object.keys(dateBase).forEach(key => date[key] = nowArray.shift())
-
 // returns an availability object for a single day
 export const generateRandomSingleDayAvailability = () => {
     const availability = {}
@@ -24,8 +14,6 @@ export const generateRandomSingleDayAvailability = () => {
     return availability
 };
 
-// console.log(users)
-
 // Samples users for testing and demo:
 export const mockUsers = ['becca', 'logan', 'tommy', 'clara', 'charles'].map((user) => {
     return {
@@ -37,9 +25,7 @@ export const mockUsers = ['becca', 'logan', 'tommy', 'clara', 'charles'].map((us
 
 /**
  * Find Common Availability for a Set of Team Members for a Single Day
- * 
- * 
- * 
+
  * @param {Array<objects>} membersAvailabilities - final structure tbd, currently demo-mode
  *  id -> some identifier of user / member
  *  availability -> the availability object for a user for a single day
