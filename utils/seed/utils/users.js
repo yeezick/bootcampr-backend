@@ -57,7 +57,7 @@ export const generateFakeUser = async (role) => {
         profilePicture: faker.image.people(640, 480, true),
         project: null,
         role,
-        timezone: 'FAKE',
+        timezone: 'TBD',
         verified: true,
     };
 };
@@ -78,3 +78,13 @@ export const generateFakeUsers = async (quantity, role) => {
     }
     return users;
 };
+
+/**
+ * 
+ * @param {Array} users object
+ * @returns Array of User ObjectIds
+ */
+export const getIds = (users) => {
+    const ids = users.map(user => user._id)
+    return ids
+}
