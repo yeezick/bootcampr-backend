@@ -1,4 +1,5 @@
 import { defaultProject } from '../../data/mocks/projects.js'
+import { getIds } from './users.js'
 /**
  * Generate Project
  * @param {Object} project custom options including: title, goal, problem, startDate and duration
@@ -25,4 +26,21 @@ export const generateProject = (project = defaultProject) => {
         },
         title,
     }
+}
+
+/**
+ * Fill a project with users
+ * @param {Object} project object 
+ * @param {Array} designers array of User objects
+ * @param {Array} engineers array of User objects
+ */
+export const fillProjectWithUsers = async (project, designers, engineers) => {
+// console.log(designers)
+// console.log(project)
+project.members.engineers = getIds(engineers)
+project.members.designers = getIds(designers)
+const users = [...designers, ...engineers]
+users.forEach(async (user) => {
+    user.project = project._id
+})
 }
