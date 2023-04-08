@@ -24,12 +24,13 @@ export const emailTokenVerification = async (user, token) => {
 export const sendSignUpEmail = (user, url, verified = false) => {
   const { email, firstName, lastName } = user;
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
   const msg = {
     to: email, // Change to your recipient
     from: `${process.env.EMAIL_SENDER}`, // Change to your verified sender
     subject: 'Verify your email for Bootcampr',
     text: `Welcome to Bootcampr, ${firstName} ${lastName}`,
-
+    // need to double check this ternary reads right
     html: verified
       ? `Your account is not verified. Please click this link to verify your account before logging in:
     <br><br>${url}`
@@ -53,16 +54,17 @@ export const verifyEmailLink = async (req, res) => {
     if (expiredToken) {
       return res.status(299).json({ msg: 'This url is expired. Please request a new link.', isExpired: true });
     }
-    const user = await User.findByIdAndUpdate({ _id: req.params.id }, { verified: true }, { new: true });
 
+    const user = await User.findByIdAndUpdate({ _id: req.params.id }, { verified: true }, { new: true });
     if (!user) {
       return res.status(400).send({ msg: 'Invalid link' });
     }
+
     const userToken = newToken(user);
     res.status(200).send({
       msg: `Hi, ${user.firstName}! Your email has been successfully verified. Please Sign In to finish setting up your account.`,
       user: user,
-      bootCamprNewToken: userToken,
+      bootcamprNewToken: userToken,
     });
   } catch (error) {
     console.log(error.message);
