@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import User from '../../models/user.js';
 import PrivateChat from '../../models/chat/privateChat.js';
 import GroupChat from '../../models/chat/groupChat.js';
