@@ -88,10 +88,10 @@ export const getAllPrivateMessages = async (req, res) => {
       _id: privateChatId,
     })
       .select('messages.text messages.sender messages.timestamp messages.status')
-      .populate({ path: 'messages.sender', select: 'email' })
+      .populate({ path: 'messages.sender', select: 'email profilePicture' })
       .populate({
         path: 'media',
-        populate: { path: 'sender', select: 'email' },
+        populate: { path: 'sender', select: 'email profilePicture' },
         select: 'fileName fileType fileUrl status createdAt',
       });
 
