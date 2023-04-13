@@ -124,20 +124,20 @@ export const getAllChatThreads = async (req, res) => {
       .select('_id participants lastActive')
       .populate({
         path: 'participants',
-        select: 'email firstName lastName profilePhoto',
+        select: 'email firstName lastName profilePicture',
       })
       .populate({
         path: 'messages',
         populate: {
           path: 'sender',
-          select: 'email firstName lastName profilePhoto',
+          select: 'email firstName lastName profilePicture',
         },
       })
       .populate({
         path: 'media',
         populate: {
           path: 'sender',
-          select: 'email firstName lastName profilePhoto',
+          select: 'email firstName lastName profilePicture',
         },
       });
 
@@ -156,25 +156,25 @@ export const getAllChatThreads = async (req, res) => {
 
     // Fetch all group threads
     const groupThreads = await GroupChat.find({
-      participants: { $elemMatch: { $eq: mongoose.Types.ObjectId(userId) } },
+      participant: { $elemMatch: { $eq: mongoose.Types.ObjectId(userId) } },
     })
       .select('_id participants lastActive groupName groupPhoto')
       .populate({
         path: 'participants.participant',
-        select: 'email firstName lastName profilePhoto',
+        select: 'email firstName lastName profilePicture',
       })
       .populate({
         path: 'messages',
         populate: {
           path: 'sender',
-          select: 'email firstName lastName profilePhoto',
+          select: 'email firstName lastName profilePicture',
         },
       })
       .populate({
         path: 'media',
         populate: {
           path: 'sender',
-          select: 'email firstName lastName profilePhoto',
+          select: 'email firstName lastName profilePicture',
         },
       });
 
