@@ -37,7 +37,16 @@ export const getOneProject = async (req, res) => {
 
 export const createProject = async (req, res) => {
   try {
-    const newProject = new Project(req.body);
+    const newProject = new Project({
+      ...req.body,
+      projectTracker: {
+        'To Do': [],
+        'In progress': [],
+        'Under Review': [],
+        Completed: [],
+      },
+    });
+    console.log(newProject);
     await newProject.save();
     res.status(201).json(newProject);
   } catch (error) {
@@ -50,7 +59,7 @@ export const getUserProjects = async (req, res) => {
   try {
     const { userId } = req.params;
     const userProjects = await Project.find({
-        projectOwner: userId,
+      projectOwner: userId,
     });
     if (userProjects) {
       return res.json(userProjects);

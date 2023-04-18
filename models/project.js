@@ -20,6 +20,12 @@ const Project = new Schema(
     status: { type: String, required: true, enum: ['Draft', 'Published'] },
     tools: [{ type: String, required: true }], //todo: add ability to categorize tools (SWE/UX)
     title: { type: String, required: true, maxlength: 45 },
+    projectTracker: {
+      'To Do': [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
+      'In progress': [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
+      'Under Review': [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
+      Completed: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
+    },
   },
   { timestamps: true },
 );
