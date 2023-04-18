@@ -10,6 +10,80 @@ const today = new Date();
 const exp = new Date(today);
 exp.setDate(today.getDate() + 30);
 
+export const getAllUsers = async (req, res) => {
+  try {
+    const allUser = await User.find({}).populate(['memberOfProjects']);
+    if (allUser) {
+      res.status(200).json(allUser);
+    }
+  } catch (error) {
+    console.log(error.message);
+    return res.status(404).json({ message: 'All User not found.', error: error.message });
+  }
+};
+
+export const getOneUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).populate(['memberOfProjects']);
+    if (user) {
+      return res.status(200).json(user);
+    }
+  } catch (error) {
+    console.error(error.message);
+    return res.status(404).json({ message: 'User not found.', error: error.message });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // deleteImageFromS3Bucket(id); // Koffi's fix
+    const deletedUser = await User.findByIdAndDelete(id);
+    if (deletedUser) {
+      return res.status(200).send({ deletionStatus: true, message: 'User deleted.' });
+    }
+    throw new Error('User not found.');
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ deletionStatus: false, error: error.message });
+  }
+};
+
+export const addPortfolioProject = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findByIdAndUpdate(id, { $push: { portfolioProjects: req.body } }, { new: true });
+    // i believe this can be handled better by throwing an error rather than responding with a 404
+    if (user) {
+      return res.status(200).send(user);
+    } else {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+  } catch (error) {
+    console.log(error.message);
+    return res.status(404).json({ message: 'User not found.', error: error.message });
+  }
+};
+
+export const updateUserInfo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const imageWasUpdated = req.body.imageWasUpdated;
+    const user = await User.findByIdAndUpdate(id, req.body, { new: true });
+    if (imageWasUpdated) {
+      const updatedUserImg = await updatingImage(id);
+      return res.status(200).send(updatedUserImg);
+    }
+    res.status(200).send(user);
+  } catch (error) {
+    console.log(error.message);
+    return res.status(404).json({ error: error.message });
+  }
+};
+
+// Auth
+
 export const signUp = async (req, res) => {
   try {
     const { email, firstName, lastName, password, profilePicture } = req.body;
