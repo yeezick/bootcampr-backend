@@ -5,6 +5,7 @@ const Ticket = new Schema(
     description: { type: String },
     assignees: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
     image: { type: String },
+    ProjectId: { type: String },
   },
   { timestamps: true },
 );
