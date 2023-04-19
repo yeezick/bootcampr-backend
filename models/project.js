@@ -21,9 +21,9 @@ const Project = new Schema(
     tools: [{ type: String, required: true }], //todo: add ability to categorize tools (SWE/UX)
     title: { type: String, required: true, maxlength: 45 },
     projectTracker: {
-      'To Do': [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
-      'In progress': [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
-      'Under Review': [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
+      ToDo: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
+      InProgress: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
+      UnderReview: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
       Completed: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
     },
   },

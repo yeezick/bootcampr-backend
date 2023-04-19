@@ -4,6 +4,7 @@ import projectRoutes from './projects.js';
 import roleRoutes from './roles.js';
 import toolRoutes from './tools.js';
 import notificationRoutes from './notifications.js';
+import ticketsRoutes from './tickets.js';
 const router = Router();
 
 router.get('/', (req, res) => res.send('api root'));
@@ -12,5 +13,6 @@ router.use('/', projectRoutes);
 router.use('/', toolRoutes);
 router.use('/', roleRoutes);
 router.use('/', notificationRoutes);
+router.use('/', ticketsRoutes);
 
 export default router;
