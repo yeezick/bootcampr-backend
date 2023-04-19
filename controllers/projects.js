@@ -14,6 +14,7 @@ import PushNotifications from '../models/notifications.js';
 export const getAllProjects = async (req, res) => {
   try {
     const projects = await Project.find();
+    console.log(projects);
     res.json(projects);
   } catch (error) {
     console.log(error.message);
@@ -24,7 +25,15 @@ export const getAllProjects = async (req, res) => {
 export const getOneProject = async (req, res) => {
   try {
     const { id } = req.params;
-    const project = await Project.findById(id);
+    const project = await Project.findOne({ _id: id })
+      .populate([
+        { path: 'projectTracker.ToDo', select: '-projectTracker' },
+        { path: 'projectTracker.InProgress', select: '-projectTracker' },
+        { path: 'projectTracker.UnderReview', select: '-projectTracker' },
+        { path: 'projectTracker.Completed', select: '-projectTracker' },
+      ])
+      .exec();
+    console.log(project);
     if (project) {
       return res.json(project);
     }
@@ -33,21 +42,21 @@ export const getOneProject = async (req, res) => {
     console.log(error.message);
     res.status(500).json({ error: error.message });
   }
-}; // tested and is good
+};
 
 export const createProject = async (req, res) => {
   try {
-    const newProject = new Project({
+    const newProject = await new Project({
       ...req.body,
       projectTracker: {
-        'To Do': [],
-        'In progress': [],
-        'Under Review': [],
+        ToDo: [],
+        InProgress: [],
+        UnderReview: [],
         Completed: [],
       },
     });
-    console.log(newProject);
     await newProject.save();
+    console.log(newProject);
     res.status(201).json(newProject);
   } catch (error) {
     console.log(error.message);

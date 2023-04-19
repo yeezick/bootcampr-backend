@@ -7,6 +7,9 @@ import taskRoutes from './project/tasks.js';
 import availabilityRoutes from './calendar/availability.js';
 import meetingRoutes from './calendar/meetings.js';
 import chatRoutes from './chats.js';
+import roleRoutes from './roles.js';
+import toolRoutes from './tools.js';
+import ticketsRoutes from './tickets.js';
 const router = Router();
 
 // would it be better to append "/user" or "/chat" etc. to the routes here instead?
@@ -19,5 +22,6 @@ router.use('/', availabilityRoutes);
 router.use('/', chatRoutes);
 router.use('/', meetingRoutes);
 router.use('/', taskRoutes);
+router.use('/', ticketsRoutes);
 
 export default router;
