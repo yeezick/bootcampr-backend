@@ -3,30 +3,25 @@ import { roleSchema } from '../utils/schemas.js';
 const Schema = mongoose.Schema;
 
 const Project = new Schema(
-    {
-        chats: [{ type: Schema.Types.ObjectId, ref: 'Chat' }],
-        // Add regex or some type check on the date format?
-        goal: { type: String, required: true },
-        meetings: [{ type: Schema.Types.ObjectId, ref: 'Meeting' }],
-        members: {
-          engineers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-          designers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-        },
-        problem: { type: String, required: true },
-        // Since each tasks holds 'status' info, is it really needed here as well?
-        tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
-        timeline: { 
-          startDate: { type: String },
-          endDate: { type: String }
-        },
-        title: { type: String, required: true, maxlength: 45 },
-        projectTracker: {
-          ToDo: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
-          InProgress: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
-          UnderReview: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
-          Completed: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
-        },
-        },
-    { timestamps: true },
+  {
+    duration: { type: String },
+    meetingCadence: { type: Number, max: 6, required: true },
+    overview: { type: String, required: true },
+    projectOwner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    roles: {
+      engineering: [roleSchema],
+      design: [roleSchema],
+    },
+    status: { type: String, required: true, enum: ['Draft', 'Published'] },
+    tools: [{ type: String, required: true }], //todo: add ability to categorize tools (SWE/UX)
+    title: { type: String, required: true, maxlength: 45 },
+    projectTracker: {
+      toDo: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
+      inProgress: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
+      underReview: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
+      completed: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
+    },
+  },
+  { timestamps: true },
 );
 export default mongoose.model('Project', Project);
