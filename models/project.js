@@ -21,10 +21,10 @@ const Project = new Schema(
     tools: [{ type: String, required: true }], //todo: add ability to categorize tools (SWE/UX)
     title: { type: String, required: true, maxlength: 45 },
     projectTracker: {
-      ToDo: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
-      InProgress: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
-      UnderReview: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
-      Completed: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
+      toDo: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
+      inProgress: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
+      underReview: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
+      completed: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
     },
   },
   { timestamps: true },

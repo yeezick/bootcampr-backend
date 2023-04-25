@@ -27,13 +27,12 @@ export const getOneProject = async (req, res) => {
     const { id } = req.params;
     const project = await Project.findOne({ _id: id })
       .populate([
-        { path: 'projectTracker.ToDo', select: '-projectTracker' },
-        { path: 'projectTracker.InProgress', select: '-projectTracker' },
-        { path: 'projectTracker.UnderReview', select: '-projectTracker' },
-        { path: 'projectTracker.Completed', select: '-projectTracker' },
+        { path: 'projectTracker.toDo', select: '-projectTracker' },
+        { path: 'projectTracker.inProgress', select: '-projectTracker' },
+        { path: 'projectTracker.underReview', select: '-projectTracker' },
+        { path: 'projectTracker.completed', select: '-projectTracker' },
       ])
       .exec();
-    console.log(project);
     if (project) {
       return res.json(project);
     }
@@ -49,14 +48,13 @@ export const createProject = async (req, res) => {
     const newProject = await new Project({
       ...req.body,
       projectTracker: {
-        ToDo: [],
-        InProgress: [],
-        UnderReview: [],
-        Completed: [],
+        toDo: [],
+        inProgress: [],
+        underReview: [],
+        completed: [],
       },
     });
     await newProject.save();
-    console.log(newProject);
     res.status(201).json(newProject);
   } catch (error) {
     console.log(error.message);

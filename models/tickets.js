@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const Ticket = new Schema(
   {
     title: { type: String },
-    status: { type: String, enum: ['To Do', 'In Progress', 'Under Review', 'Completed'] },
+    status: { type: String, enum: ['toDo', 'inProgress', 'underReview', 'completed'] },
     description: { type: String },
     assignees: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     image: { type: String },
@@ -12,4 +12,5 @@ const Ticket = new Schema(
   },
   { timestamps: true },
 );
+
 export default mongoose.model('Ticket', Ticket);
