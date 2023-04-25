@@ -1,5 +1,6 @@
 import Ticket from '../models/tickets.js';
 import Project from '../models/project.js';
+import { Router } from 'express';
 
 export const createTicket = async (req, res) => {
   try {
@@ -16,8 +17,17 @@ export const createTicket = async (req, res) => {
     res.status(500).send('Error creating ticket.');
   }
 };
+
 export const ticketStatusHasNotChanged = async (req, res) => {
-  const project = Project.findById(req.body.ProjectId);
+  try {
+    console.log(req.body);
+
+    const ticket = await Ticket.findByIdAndUpdate(req.body.ticketId, req.body);
+    res.status(200).send(ticket);
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ message: 'Error updating ticket status.', error: err.message });
+  }
 };
 
 export const ticketStatusChanged = async (req, res) => {
