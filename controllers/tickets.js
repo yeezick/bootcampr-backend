@@ -4,7 +4,6 @@ import Project from '../models/project.js';
 export const createTicket = async (req, res) => {
   try {
     const newTicket = new Ticket(req.body);
-    console.log(newTicket);
     await newTicket.save();
     const saveTicketToProject = await Project.findById(req.body.projectId);
     const statusString = req.body.status;
@@ -18,8 +17,6 @@ export const createTicket = async (req, res) => {
   }
 };
 export const ticketStatusHasNotChanged = async (req, res) => {
-  console.log('hello');
-
   const project = Project.findById(req.body.ProjectId);
 };
 
