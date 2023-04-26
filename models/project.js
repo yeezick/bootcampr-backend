@@ -19,14 +19,15 @@ const Project = new Schema(
       startDate: { type: String },
       endDate: { type: String },
     },
-    title: { type: String, required: true, maxlength: 45 },
+    title: { type: String, required: true, maxLength: 45 },
     projectTracker: {
-      toDo: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
-      inProgress: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
-      underReview: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
-      completed: [{ type: Schema.Types.ObjectId, ref: 'Ticket', required: true }],
+      toDo: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
+      inProgress: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
+      underReview: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
+      completed: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
     },
   },
   { timestamps: true },
 );
+
 export default mongoose.model('Project', Project);
