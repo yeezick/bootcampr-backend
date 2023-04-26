@@ -24,7 +24,16 @@ export const getAllProjects = async (req, res) => {
 export const getOneProject = async (req, res) => {
   try {
     const { id } = req.params;
-    const project = await Project.findById(id);
+    console.log('hello');
+    const project = await Project.findOne({ _id: id })
+      .populate([
+        { path: 'projectTracker.toDo', select: '-projectTracker' },
+        { path: 'projectTracker.inProgress', select: '-projectTracker' },
+        { path: 'projectTracker.underReview', select: '-projectTracker' },
+        { path: 'projectTracker.completed', select: '-projectTracker' },
+      ])
+      .exec();
+
     if (project) {
       return res.json(project);
     }
@@ -91,9 +100,9 @@ export const updateUserAndProject = async (req, res) => {
 };
 
 // Potential Project new controllers
-  // Add members to project (similar to updateUserAndProject?)
-  // Add Task to Project
-  // Delete Task from Project (or better to 'archive' and just update the task status?)
-  // Add Meeting Id to Project
-  // Delete Meeting from Project (better to delete or archive?)
-  // Add Chat Id to Project
+// Add members to project (similar to updateUserAndProject?)
+// Add Task to Project
+// Delete Task from Project (or better to 'archive' and just update the task status?)
+// Add Meeting Id to Project
+// Delete Meeting from Project (better to delete or archive?)
+// Add Chat Id to Project
