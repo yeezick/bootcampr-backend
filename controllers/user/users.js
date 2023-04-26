@@ -199,6 +199,7 @@ export const getAllChatThreads = async (req, res) => {
 
     combinedThreads.length === 0
       ? res.status(404).json({
+          combinedThreads,
           message: `No conversation threads found for user with ID ${userId}.`,
         })
       : res.status(200).json({
