@@ -4,6 +4,7 @@ import {
   ticketStatusChanged,
   ticketStatusHasNotChanged,
   ticketDraggedToNewSection,
+  deleteTicket,
 } from '../controllers/tickets.js';
 
 const router = Router();
@@ -13,5 +14,6 @@ router.post('/createTicket', createTicket);
 router.put('/ticketStatusChanged', ticketStatusChanged);
 router.put('/ticketStatusHasNotChanged', ticketStatusHasNotChanged);
 router.put('/ticketDraggedToNewSection', ticketDraggedToNewSection);
+router.post('/deleteTicket', deleteTicket);
 
 export default router;
