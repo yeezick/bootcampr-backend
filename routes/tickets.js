@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { createTicket, ticketStatusChanged, ticketStatusHasNotChanged } from '../controllers/tickets.js';
+import {
+  createTicket,
+  ticketStatusChanged,
+  ticketStatusHasNotChanged,
+  ticketDraggedToNewSection,
+} from '../controllers/tickets.js';
 
 const router = Router();
 
@@ -7,5 +12,6 @@ const router = Router();
 router.post('/createTicket', createTicket);
 router.put('/ticketStatusChanged', ticketStatusChanged);
 router.put('/ticketStatusHasNotChanged', ticketStatusHasNotChanged);
+router.put('/ticketDraggedToNewSection', ticketDraggedToNewSection);
 
 export default router;

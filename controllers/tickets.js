@@ -32,6 +32,28 @@ export const ticketStatusHasNotChanged = async (req, res) => {
 
 export const ticketStatusChanged = async (req, res) => {
   try {
+    const { link, newStatus, oldStatus, ticketId, projectId, description, date } = req.body;
+    console.log(req.body);
+    await Ticket.findByIdAndUpdate(ticketId, {
+      status: newStatus,
+      description: description,
+      link: link,
+      date: date,
+    });
+
+    await Project.findByIdAndUpdate(projectId, {
+      $pull: { [`projectTracker.${oldStatus}`]: ticketId },
+      $push: { [`projectTracker.${newStatus}`]: ticketId },
+    });
+
+    res.sendStatus(200);
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ message: 'Error updating ticket status.', error: err.message });
+  }
+};
+export const ticketDraggedToNewSection = async (req, res) => {
+  try {
     const { newStatus, oldStatus, ticketID, projectId } = req.body;
     await Ticket.findByIdAndUpdate(ticketID, { status: newStatus });
     await Project.findByIdAndUpdate(projectId, {
@@ -45,7 +67,6 @@ export const ticketStatusChanged = async (req, res) => {
     res.status(400).json({ message: 'Error updating ticket status.', error: err.message });
   }
 };
-
 const updateProject = async (req, res) => {
   const project = Project.findById(req.body.ProjectId);
 };
