@@ -1,11 +1,24 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-// const User = new Schema(
-const user = new Schema(
+// Backend Model Refactor
+// NOTES:
+// TODO: clean up backend routes (and anywhere else affected)
+//  - Users cannot delete boards, calendars or projects
+//  - Add a route to see team member's availability
+
+const User = new Schema(
   {
+    availability: {
+      sunday: { type: String },
+      monday: { type: String },
+      tuesday: { type: String },
+      wednesday: { type: String },
+      thursday: { type: String },
+      friday: { type: String },
+      saturday: { type: String },
+    },
     bio: { type: String, maxlength: 300 },
-    declinedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     email: {
       match: /.+\@.+\..+/,
       type: String,
@@ -13,20 +26,30 @@ const user = new Schema(
       unique: [true, 'E-mail already exists.'],
     },
     firstName: { type: String, required: true },
-    githubUrl: { type: String },
-    interestedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     lastName: { type: String, required: true },
-    linkedinUrl: { type: String },
-    memberOfProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
-    ownerOfProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
+    links: {
+      githubUrl: { type: String },
+      linkedinUrl: { type: String },
+      portfolioUrl: { type: String },
+    },
+    onboarded: { type: Boolean },
     passwordDigest: { type: String, required: true, select: false },
-    portfolioProjects: [{ type: Object }],
-    portfolioUrl: { type: String },
     profilePicture: { type: String },
+    project: { type: Schema.Types.ObjectId, ref: 'Project' },
     role: { type: String, enum: ['Software Engineer', 'UX Designer'] },
-    savedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
+    timezone: { type: String },
     verified: { type: Boolean, default: false },
+
+    // CALENDAR
+    // They'll see meetings on their Project calendar
+    // meetings: [{ type: Schema.Types.ObjectId, ref: 'Meeting' }],
+    // we may not actually need to store timezone, we can probably get it dynamically with
+    /// *** we should still store a user's timezone on their user object
+    // ... JS .getTimezoneOffset() and store all times in UTC
+    // store availability in UTC, handle translation on frontend rendering
+    // store as stringified object, workable with JSON.parse()
   },
   { timestamps: true },
 );
-export default mongoose.model('User', user);
+
+export default mongoose.model('User', User);
