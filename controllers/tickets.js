@@ -20,7 +20,6 @@ export const createTicket = async (req, res) => {
 
 export const ticketStatusHasNotChanged = async (req, res) => {
   try {
-    console.log(req.body);
     const { link, description, date, assignees, title } = req.body;
     const ticket = await Ticket.findByIdAndUpdate(
       req.body.ticketId,
@@ -33,7 +32,7 @@ export const ticketStatusHasNotChanged = async (req, res) => {
       },
       { new: true },
     );
-    console.log(ticket);
+
     res.status(200).send(ticket);
   } catch (err) {
     console.log(err);
@@ -44,7 +43,7 @@ export const ticketStatusHasNotChanged = async (req, res) => {
 export const ticketStatusChanged = async (req, res) => {
   try {
     const { link, newStatus, oldStatus, ticketId, projectId, description, date, assignees } = req.body;
-    console.log(req.body);
+
     await Ticket.findByIdAndUpdate(ticketId, {
       status: newStatus,
       description: description,
@@ -83,7 +82,6 @@ export const ticketDraggedToNewSection = async (req, res) => {
 
 export const deleteTicket = async (req, res) => {
   try {
-    console.log(req.body);
     const { ticketsStatus, ticketId, projectId } = req.body;
 
     await Ticket.findOneAndRemove({ _id: ticketId });
