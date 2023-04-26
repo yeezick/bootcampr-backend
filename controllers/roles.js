@@ -1,5 +1,5 @@
+/** Leaving this file only as an example for future controllers */
 import Project from '../models/project.js';
-import User from '../models/user.js';
 import { roleTitleExists, roleTypeExists } from '../utils/routes/roles.js';
 import { respondWithError } from '../utils/routes/any.js';
 

@@ -1,6 +1,5 @@
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import User from '../models/user.js';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import User from '../../models/user.js';
 
 // AWS S3 REQUIRED ENV VARIABLES
 const bucketName = process.env.BUCKET_NAME;
