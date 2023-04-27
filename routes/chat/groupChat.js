@@ -5,9 +5,9 @@ import {
   deleteGChat,
   deleteGroupChatThread,
   deleteMessage,
-  getAllGChats,
   getAllGroupChatsByUserId,
   getAllGroupMessages,
+  getAllUsersGroupChats,
   getGroupChatByChatId,
   leaveGroupChat,
   updateGroupChatInfo,
@@ -15,7 +15,7 @@ import {
 import { createMediaMessage, getChatMediaByFileType, getMediaByChatId } from '../../controllers/chat/media.js';
 const router = Router();
 
-router.get('/groupChats', getAllGChats);
+router.get('/groupChats', getAllUsersGroupChats);
 router.post('/:userId/groupChats', createGroupChat);
 router.post('/:userId/groupChats/:groupChatId', createGroupChatMessage);
 router.get('/:userId/groupChats', getAllGroupChatsByUserId);

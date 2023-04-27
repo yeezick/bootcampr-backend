@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const media = new Schema(
+const Media = new Schema(
   {
     sender: { type: mongoose.Types.ObjectId, ref: 'User', required: true },
     privateChatId: {
@@ -42,4 +42,4 @@ const media = new Schema(
   },
 );
 
-export default mongoose.model('Media', media);
+export default mongoose.model('Media', Media);

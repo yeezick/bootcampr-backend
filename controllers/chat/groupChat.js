@@ -215,7 +215,7 @@ export const leaveGroupChat = async (req, res) => {
   }
 };
 
-export const getAllGChats = async (req, res) => {
+export const getAllUsersGroupChats = async (req, res) => {
   try {
     const allGChats = await GroupChat.find({})
       .populate({ path: 'participants.participant', select: 'email' })
