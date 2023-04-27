@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const groupChat = new Schema(
+const GroupChat = new Schema(
   {
     groupName: { type: String, required: true },
     groupDescription: { type: String, default: 'Group' },
@@ -41,11 +41,11 @@ const groupChat = new Schema(
   { timestamps: true },
 );
 
-groupChat.pre('save', function (next) {
+GroupChat.pre('save', function (next) {
   this.lastActive = new Date();
   next();
 });
 
-groupChat.index({ groupName: 1, 'participants._id': 1 }, { unique: true });
+GroupChat.index({ groupName: 1, 'participants._id': 1 }, { unique: true });
 
-export default mongoose.model('GroupChat', groupChat);
+export default mongoose.model('GroupChat', GroupChat);

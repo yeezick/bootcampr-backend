@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const privateChat = new Schema(
+const PrivateChat = new Schema(
   {
     participants: [
       {
@@ -34,7 +34,7 @@ const privateChat = new Schema(
   { timestamps: true },
 );
 
-privateChat.pre('save', function (next) {
+PrivateChat.pre('save', function (next) {
   if (this.participants.length !== 2) {
     const error = new Error('A private chat must have exactly 2 participants.');
     next(error);
@@ -44,6 +44,6 @@ privateChat.pre('save', function (next) {
   }
 });
 
-privateChat.index({ participants: 1 });
+PrivateChat.index({ participants: 1 });
 
-export default mongoose.model('PrivateChat', privateChat);
+export default mongoose.model('PrivateChat', PrivateChat);

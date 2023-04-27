@@ -72,7 +72,6 @@ export const getMediaByChatId = async (req, res) => {
 
     if (groupChatId) {
       const mediaMessages = await Media.find({ groupChatId });
-      console.log('GROUP CHAT MEDIA:', mediaMessages);
       mediaMessages.length === 0
         ? res.status(404).json({
             message: `No media messages found for group chat with ID ${groupChatId}.`,
