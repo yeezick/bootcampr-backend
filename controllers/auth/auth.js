@@ -83,6 +83,20 @@ export const updateUserInfo = async (req, res) => {
 };
 
 // Auth
+const defaultDayAvailability = {
+  available: false,
+  availability: [['9:00 AM', '5:00 PM']]
+}
+
+const defaultUserAvailability = {
+  SUN: JSON.stringify(defaultDayAvailability),
+  MON: JSON.stringify(defaultDayAvailability),  
+  TUE: JSON.stringify(defaultDayAvailability),
+  WED: JSON.stringify(defaultDayAvailability),
+  THU: JSON.stringify(defaultDayAvailability),
+  FRI: JSON.stringify(defaultDayAvailability),
+  SAT: JSON.stringify(defaultDayAvailability)
+}
 
 export const signUp = async (req, res) => {
   try {
@@ -97,7 +111,10 @@ export const signUp = async (req, res) => {
       });
     }
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = new User({ email, firstName, lastName, passwordDigest, onboarded: false });
+    const availability = defaultUserAvailability
+    const user = new User({ availability, email, firstName, lastName, passwordDigest, onboarded: false });
+    console.log(user)
+    console.log(defaultUserAvailability)
     await user.save();
 
     const token = newToken(user, true);
