@@ -4,14 +4,13 @@ import { dateBase, startTimeOptions, defaultSingleDayAvailability } from "./data
 //  - Ideally, we would only store times in which is a user is available vs. not 
 // returns an availability object for a single day
 export const generateRandomSingleDayAvailability = () => {
-    const availability = {}
-    Object.keys(defaultSingleDayAvailability)
-        .forEach((timeslot) => {
-            randomIndex(6) === 1 ?
-            availability[timeslot] = "yes"
-            : null
+    const availability = []
+    defaultSingleDayAvailability
+        .forEach((timeslot, idx) => {
+            randomIndex(6) === 1 &&
+            availability.push([timeslot, defaultSingleDayAvailability[idx+1]])
     })
-    return availability
+    return JSON.stringify(availability)
 };
 
 // Samples users for testing and demo:
