@@ -7,36 +7,38 @@ const Schema = mongoose.Schema;
 //  - Users cannot delete boards, calendars or projects
 //  - Add a route to see team member's availability
 
+
+
 const User = new Schema(
   {
     availability: {
       SUN: { 
         available: { type: Boolean },
-        availability: { type: String},
+        availability: [[String]],
       },
       MON: { 
         available: { type: Boolean },
-        availability: { type: String},
+        availability: [[String]],
       },
       TUE: { 
         available: { type: Boolean },
-        availability: { type: String},
+        availability: [[String]],
       },
       WED: { 
         available: { type: Boolean },
-        availability: { type: String},
+        availability: [[String]],
       },
       THU: { 
         available: { type: Boolean },
-        availability: { type: String},
+        availability: [[String]],
       },
       FRI: { 
         available: { type: Boolean },
-        availability: { type: String},
+        availability: [[String]],
       },
       SAT: { 
         available: { type: Boolean },
-        availability: { type: String},
+        availability: [[String]],
       }
     },
     bio: { type: String, maxlength: 300 },
