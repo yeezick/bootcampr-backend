@@ -10,7 +10,7 @@ export const generateRandomSingleDayAvailability = () => {
             randomIndex(6) === 1 &&
             availability.push([timeslot, defaultSingleDayAvailability[idx+1]])
     })
-    return JSON.stringify(availability)
+    return availability
 };
 
 // Samples users for testing and demo:
