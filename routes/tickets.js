@@ -2,7 +2,7 @@ import { Router } from 'express';
 import {
   createTicket,
   ticketStatusChanged,
-  ticketStatusHasNotChanged,
+  updateTicketInformationAndStatus,
   ticketDraggedToNewSection,
   deleteTicket,
 } from '../controllers/tickets.js';
@@ -12,7 +12,7 @@ const router = Router();
 // roles
 router.post('/createTicket', createTicket);
 router.put('/ticketStatusChanged', ticketStatusChanged);
-router.put('/ticketStatusHasNotChanged', ticketStatusHasNotChanged);
+router.put('/ticketStatusHasNotChanged', updateTicketInformationAndStatus);
 router.put('/ticketDraggedToNewSection', ticketDraggedToNewSection);
 router.post('/deleteTicket', deleteTicket);
 
