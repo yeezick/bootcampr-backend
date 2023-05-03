@@ -14,7 +14,6 @@ import PushNotifications from '../models/notifications.js';
 export const getAllProjects = async (req, res) => {
   try {
     const projects = await Project.find();
-    console.log(projects);
     res.json(projects);
   } catch (error) {
     console.log(error.message);
@@ -25,7 +24,7 @@ export const getAllProjects = async (req, res) => {
 export const getOneProject = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('hello');
+
     const project = await Project.findOne({ _id: id })
       .populate([
         { path: 'projectTracker.toDo', select: '-projectTracker' },
@@ -62,7 +61,7 @@ export const createProject = async (req, res) => {
     console.log(error.message);
     res.status(500).json({ error: error.message });
   }
-}; // works, requires userID
+};
 
 export const getUserProjects = async (req, res) => {
   try {

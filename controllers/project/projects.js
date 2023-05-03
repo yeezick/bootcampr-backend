@@ -24,7 +24,6 @@ export const getAllProjects = async (req, res) => {
 export const getOneProject = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('hello');
     const project = await Project.findOne({ _id: id })
       .populate([
         { path: 'projectTracker.toDo', select: '-projectTracker' },

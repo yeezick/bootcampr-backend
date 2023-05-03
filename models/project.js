@@ -14,7 +14,6 @@ const Project = new Schema(
     },
     problem: { type: String, required: true },
     // Since each tasks holds 'status' info, is it really needed here as well?
-    tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
     timeline: {
       startDate: { type: String },
       endDate: { type: String },
