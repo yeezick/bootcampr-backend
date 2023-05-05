@@ -1,7 +1,14 @@
 import { Router } from 'express';
 import multer from 'multer';
+import { getMediaByUserId } from '../../controllers/chat/media.js';
 import { addImagesToS3Bucket } from '../../controllers/user/addingImage.js';
-import { deleteUser, getAllUsers, getOneUser, updateUserInfo } from '../../controllers/user/users.js';
+import {
+  deleteUser,
+  getAllChatThreads,
+  getAllUsers,
+  getOneUser,
+  updateUserInfo,
+} from '../../controllers/user/users.js';
 
 //middleware
 const storage = multer.memoryStorage();
@@ -13,5 +20,9 @@ router.get('/users/:id', getOneUser);
 router.put('/users/:id', updateUserInfo);
 router.delete('/users/:id', deleteUser);
 router.post('/addUserImage', uploadImage.single('image'), addImagesToS3Bucket);
+
+// Chat Threads
+router.get('/users/:userId/messages', getAllChatThreads);
+router.get('/users/:userId/media', getMediaByUserId);
 
 export default router;
