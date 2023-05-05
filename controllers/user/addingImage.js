@@ -17,13 +17,17 @@ const s3 = new S3Client({
 
 // adding the image to the S3 bucket from AWS
 export const addImagesToS3Bucket = async (req, res) => {
+  console.log("testing here");
   try {
+    console.log(req.file);
     const params = {
       Bucket: bucketName,
       Key: req.body.userId,
       Body: req.file.buffer,
       ContentType: req.file.mimetype,
+
     };
+    // return
     const addingImageToAWSBucket = new PutObjectCommand(params);
     await s3.send(addingImageToAWSBucket);
     await addImageToUserSchema(req.body.userId);
@@ -37,9 +41,13 @@ export const addImagesToS3Bucket = async (req, res) => {
 export const addImageToUserSchema = async (userId) => {
   try {
     const user = await User.findById(userId);
-    user.profilePicture = `https://bootcampruserimage.s3.amazonaws.com/${userId}`;
-    user.save();
-  } catch (error) {
+    if (user) {
+      user.profilePicture = `https://bootcampruserimage.s3.amazonaws.com/${userId}`;
+      user.save();
+    } else {
+      console.error(`User not found with userId: ${userId}`)
+    }
+  } catch (error) {rs
     console.error(error);
   }
 };
