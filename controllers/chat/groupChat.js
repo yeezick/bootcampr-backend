@@ -1,10 +1,16 @@
 import mongoose from 'mongoose';
 import GroupChat from '../../models/chat/groupChat.js';
 
-export const createGroupChat = async (req, res) => {
+export const createGroupChatRoom = async (req, res) => {
   try {
     const { userId } = req.params;
     let { groupName, groupDescription, groupPhoto, participants } = req.body;
+
+    participants = participants.map((participantId) => ({
+      participant: mongoose.Types.ObjectId(participantId),
+      isAdmin: false,
+    }));
+
     const newGroupChat = new GroupChat({
       groupName,
       groupDescription,

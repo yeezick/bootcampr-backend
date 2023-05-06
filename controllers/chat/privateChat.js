@@ -2,7 +2,46 @@ import mongoose from 'mongoose';
 import PrivateChat from '../../models/chat/privateChat.js';
 import User from '../../models/user.js';
 
-export const createMessage = async (req, res) => {
+export const createPrivateChatRoom = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    let { email } = req.body;
+    const existingUser = await User.findOne({ email }).select('_id');
+
+    if (!existingUser) {
+      return res.status(404).json({
+        message: `User not found. The email address ${email} doesn't belong to any registered Chatty user. You can invite them to join Chatty and add them as a contact.`,
+      });
+    }
+    const { _id: recipientId } = existingUser;
+
+    const existingMessageThread = await PrivateChat.findOne({
+      $and: [{ participants: { $elemMatch: { $eq: userId } } }, { participants: { $elemMatch: { $eq: recipientId } } }],
+    });
+
+    if (!existingMessageThread) {
+      const newPrivateThread = new PrivateChat({
+        participants: [mongoose.Types.ObjectId(userId), mongoose.Types.ObjectId(recipientId)],
+        messages: [],
+      });
+      await newPrivateThread.save();
+      return res.status(201).json({
+        chatRoom: newPrivateThread,
+        message: `Successfully created new private chat room between users with ID ${userId} and ${recipientId}.`,
+      });
+    }
+
+    return res.status(200).json({
+      chatRoom: existingMessageThread,
+      message: `Chat room between users with ID ${userId} and ${recipientId} aready exists.`,
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const createPrivateChatMessage = async (req, res) => {
   try {
     const { userId } = req.params;
     let { text, email } = req.body;
@@ -24,7 +63,7 @@ export const createMessage = async (req, res) => {
         participants: [mongoose.Types.ObjectId(userId), mongoose.Types.ObjectId(recipientId)],
         messages: [
           {
-            text: text,
+            text: text || '',
             sender: mongoose.Types.ObjectId(userId),
           },
         ],
