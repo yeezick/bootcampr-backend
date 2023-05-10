@@ -17,9 +17,7 @@ const s3 = new S3Client({
 
 // adding the image to the S3 bucket from AWS
 export const addImagesToS3Bucket = async (req, res) => {
-  console.log("testing here");
   try {
-    console.log(req.file);
     const params = {
       Bucket: bucketName,
       Key: req.body.userId,
@@ -27,7 +25,7 @@ export const addImagesToS3Bucket = async (req, res) => {
       ContentType: req.file.mimetype,
 
     };
-    // return
+
     const addingImageToAWSBucket = new PutObjectCommand(params);
     await s3.send(addingImageToAWSBucket);
     await addImageToUserSchema(req.body.userId);
