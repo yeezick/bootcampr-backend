@@ -113,8 +113,6 @@ export const signUp = async (req, res) => {
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
     const availability = defaultUserAvailability
     const user = new User({ availability, email, firstName, lastName, passwordDigest, onboarded: false });
-    console.log(user)
-    console.log(defaultUserAvailability)
     await user.save();
 
     const token = newToken(user, true);

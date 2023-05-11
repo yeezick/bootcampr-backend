@@ -25,22 +25,18 @@ export const sendSignUpEmail = (user, url, verified = false) => {
   const { email, firstName, lastName } = user;
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-  const body = `Welcome to Bootcampr, ${firstName} ${lastName}`
-
   const msg = {
     to: email, // Change to your recipient
     from: `${process.env.EMAIL_SENDER}`, // Change to your verified sender
     subject: 'Verify your email for Bootcampr',
-    text: body,
+    text: `Welcome to Bootcampr, ${firstName} ${lastName}`,
     // need to double check this ternary reads right
     html: verified
       ? `Your account is not verified. Please click this link to verify your account before logging in:
-    <br></br><br></br><a href="${url}">${url}</a><br></br><strong>${body}</strong>`
+      <br><br>${url}`
       : `Click this link to confirm your email address and complete setup for your candidate account:
-    <br></br><br></br><a href="${url}">${url}</a><br></br><strong>${body}</strong>`,
+      <br><br>${url}`,
   };
-  console.log(msg)
-  console.log(url)
   
   sgMail
     .send(msg)
