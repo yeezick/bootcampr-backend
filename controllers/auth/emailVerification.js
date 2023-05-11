@@ -33,11 +33,10 @@ export const sendSignUpEmail = (user, url, verified = false) => {
     // need to double check this ternary reads right
     html: verified
       ? `Your account is not verified. Please click this link to verify your account before logging in:
-      <br><br>${url}`
+    <br><br>${url}`
       : `Click this link to confirm your email address and complete setup for your candidate account:
-      <br><br>${url}`,
+    <br><br>${url}`,
   };
-  
   sgMail
     .send(msg)
     .then(() => {

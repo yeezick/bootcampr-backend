@@ -8,9 +8,7 @@ export const dateBase = {
     timezoneString: '',
 };
 
-// Default Availability structure for a single day - used as base for new users
-// AKA - zero availability to start
-export const defaultSingleDayAvailability = [
+export const startTimeOptions = [
     '6:00 AM' ,    '6:30 AM' ,    '7:00 AM' ,    '7:30 AM' ,
     '8:00 AM' ,    '8:30 AM' ,    '9:00 AM' ,    '9:30 AM' ,
     '10:00 AM' ,   '10:30 AM' ,   '11:00 AM' ,   '11:30 AM' ,
@@ -21,7 +19,4 @@ export const defaultSingleDayAvailability = [
     '8:00 PM' ,    '8:30 PM' ,    '9:00 PM' ,    '9:30 PM' ,
     '10:00 PM' ,   '10:30 PM' ,   '11:00 PM' ,   '11:30 PM' ,
 ];
-
-// full array of timeslot options
-export const startTimeOptions = Object.keys(defaultSingleDayAvailability)
 
