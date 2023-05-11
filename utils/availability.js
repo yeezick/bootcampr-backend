@@ -1,8 +1,7 @@
 import { randomIndex } from './seed/utils/helpers.js'
 import { startTimeOptions } from "./data/defaults/availability.js"
 
-//  - Ideally, we would only store times in which is a user is available vs. not 
-// returns an availability object for a single day
+// Returns an availability array for a single day
 export const generateRandomSingleDayAvailability = () => {
     const availability = []
     startTimeOptions
