@@ -1,14 +1,14 @@
 import { randomIndex } from './seed/utils/helpers.js'
-import { dateBase, startTimeOptions, defaultSingleDayAvailability } from "./data/defaults/availability.js"
+import { startTimeOptions } from "./data/defaults/availability.js"
 
 //  - Ideally, we would only store times in which is a user is available vs. not 
 // returns an availability object for a single day
 export const generateRandomSingleDayAvailability = () => {
     const availability = []
-    defaultSingleDayAvailability
+    startTimeOptions
         .forEach((timeslot, idx) => {
             randomIndex(6) === 1 &&
-            availability.push([timeslot, defaultSingleDayAvailability[idx+1]])
+            availability.push([timeslot, startTimeOptions[idx+1]])
     })
     return availability
 };
@@ -40,11 +40,9 @@ export const mockUsers = ['becca', 'logan', 'tommy', 'clara', 'charles'].map((us
 // final structure tbd, but this demo accepts a single member availability as
 // availability -> the availability object for a user for a single day
 
-
 const findCommonAvailability = (membersAvailabilities) => {
     const commonAvailability = {}
-    // could i also do for const key of ...?
-    Object.keys(defaultSingleDayAvailability).forEach((timeslot) => {
+    startTimeOptions.forEach((timeslot) => {
         membersAvailabilities.forEach((member) => {
             if (member.availability[timeslot] === 'yes') {
                 commonAvailability[timeslot] 
