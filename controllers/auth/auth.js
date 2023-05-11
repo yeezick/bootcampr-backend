@@ -86,17 +86,17 @@ export const updateUserInfo = async (req, res) => {
 const defaultDayAvailability = {
   available: false,
   availability: []
-}
+};
 
 const defaultUserAvailability = {
-  SUN: JSON.stringify(defaultDayAvailability),
-  MON: JSON.stringify(defaultDayAvailability),  
-  TUE: JSON.stringify(defaultDayAvailability),
-  WED: JSON.stringify(defaultDayAvailability),
-  THU: JSON.stringify(defaultDayAvailability),
-  FRI: JSON.stringify(defaultDayAvailability),
-  SAT: JSON.stringify(defaultDayAvailability)
-}
+  SUN: defaultDayAvailability,
+  MON: defaultDayAvailability,  
+  TUE: defaultDayAvailability,
+  WED: defaultDayAvailability,
+  THU: defaultDayAvailability,
+  FRI: defaultDayAvailability,
+  SAT: defaultDayAvailability
+};
 
 export const signUp = async (req, res) => {
   try {
