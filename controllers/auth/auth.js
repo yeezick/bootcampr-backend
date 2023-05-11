@@ -85,7 +85,7 @@ export const updateUserInfo = async (req, res) => {
 // Auth
 const defaultDayAvailability = {
   available: false,
-  availability: [['9:00 AM', '5:00 PM']]
+  availability: []
 }
 
 const defaultUserAvailability = {
