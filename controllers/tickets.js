@@ -1,6 +1,5 @@
 import Ticket from '../models/tickets.js';
 import Project from '../models/project.js';
-import { Router } from 'express';
 
 export const createTicket = async (req, res) => {
   try {
@@ -20,9 +19,9 @@ export const createTicket = async (req, res) => {
 
 export const updateTicketInformationAndStatus = async (req, res) => {
   try {
-    const { link, description, date, assignees, title } = req.body;
+    const { link, newStatus, oldStatus, ticketId, projectId, description, date, assignees, title } = req.body;
     const ticket = await Ticket.findByIdAndUpdate(
-      req.body.ticketId,
+      ticketId,
       {
         description: description,
         link: link,
@@ -32,7 +31,9 @@ export const updateTicketInformationAndStatus = async (req, res) => {
       },
       { new: true },
     );
-
+    if (newStatus && oldStatus) {
+      await updateTicketStatus({ oldStatus, newStatus, ticketId, projectId });
+    }
     res.status(200).send(ticket);
   } catch (err) {
     console.log(err);
@@ -40,44 +41,11 @@ export const updateTicketInformationAndStatus = async (req, res) => {
   }
 };
 
-export const ticketStatusChanged = async (req, res) => {
-  try {
-    const { link, newStatus, oldStatus, ticketId, projectId, description, date, assignees } = req.body;
-
-    await Ticket.findByIdAndUpdate(ticketId, {
-      status: newStatus,
-      description: description,
-      link: link,
-      date: date,
-      assignees: assignees,
-    });
-
-    await Project.findByIdAndUpdate(projectId, {
-      $pull: { [`projectTracker.${oldStatus}`]: ticketId },
-      $push: { [`projectTracker.${newStatus}`]: ticketId },
-    });
-
-    res.sendStatus(200);
-  } catch (err) {
-    console.log(err);
-    res.status(400).json({ message: 'Error updating ticket status.', error: err.message });
-  }
-};
-export const ticketDraggedToNewSection = async (req, res) => {
-  try {
-    const { newStatus, oldStatus, ticketId, projectId } = req.body;
-
-    await Ticket.findByIdAndUpdate(ticketId, { status: newStatus });
-    await Project.findByIdAndUpdate(projectId, {
-      $pull: { [`projectTracker.${oldStatus}`]: ticketId },
-      $push: { [`projectTracker.${newStatus}`]: ticketId },
-    });
-
-    res.sendStatus(200);
-  } catch (err) {
-    console.log(err);
-    res.status(400).json({ message: 'Error updating ticket status.', error: err.message });
-  }
+const updateTicketStatus = async ({ oldStatus, newStatus, ticketId, projectId }) => {
+  await Project.findByIdAndUpdate(projectId, {
+    $pull: { [`projectTracker.${oldStatus}`]: ticketId },
+    $push: { [`projectTracker.${newStatus}`]: ticketId },
+  });
 };
 
 export const deleteTicket = async (req, res) => {
