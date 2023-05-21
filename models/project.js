@@ -5,6 +5,7 @@ const Schema = mongoose.Schema;
 const Project = new Schema(
   {
     chats: [{ type: Schema.Types.ObjectId, ref: 'Chat' }],
+    calendarId: { type: String },
     // Add regex or some type check on the date format?
     goal: { type: String, required: true },
     meetings: [{ type: Schema.Types.ObjectId, ref: 'Meeting' }],

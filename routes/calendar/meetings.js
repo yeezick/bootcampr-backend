@@ -12,9 +12,10 @@ const router = Router();
 // GET all upcoming meetings for a project, 'x' number of days
 // GET all meetings for a project in 'x' - 'y' date range
 
-router.get('/calendar/createEvent', controllers.createEvent);
-router.get('/calendar/fetchEvent/:calendarId/:eventId', controllers.fetchEvent);
-router.get('/calendar/fetchCalendar/:calendarId', controllers.fetchCalendar);
+router.get('/calendar/:calendarId/createEvent', controllers.createEvent);
+router.get('/calendar/:calendarId/fetchEvent/:eventId', controllers.fetchEvent);
+router.get('/calendar/:calendarId/fetchCalendar', controllers.fetchCalendar);
 router.post('/calendar/createCalendar/:projectId', controllers.createCalendar);
+router.get('/calendar/deleteAll', controllers.deleteAllCalendars);
 
 export default router;

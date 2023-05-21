@@ -1,6 +1,4 @@
 // Potential New Controllers for Meetings
-//
-// Create New Event
 // Update Single User Attendence
 // Update Duration
 // Update Start time
@@ -8,20 +6,23 @@
 // Get All Project Meetings for 'x' number of days
 
 import { google } from 'googleapis';
+import { formatCalendarId } from '../../utils/helperFunctions.js';
 
+/** So far I've learned that there are usage limits to this API.
+ * One being that only 60 calendars can be created within an hour
+ * Afterward, every request results in an exponential backoff rate
+ * */
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.CALENDAR_CREDS),
   scopes: ['https://www.googleapis.com/auth/calendar'],
 });
 const calendar = google.calendar({ version: 'v3', auth });
 
-// Should be passed into every request
-const calendarId = '1ef27fb5c5f9399ead2e229f02b84fe8d17c2abda0fdecd3c32caa6c60a315e2@group.calendar.google.com';
-
 export const createEvent = async (req, res) => {
   try {
+    const { calendarId } = req.params;
     const event = await calendar.events.insert({
-      calendarId,
+      calendarId: formatCalendarId(calendarId),
       resource: {
         summary: '111111111',
         description: 'eventData.description',
@@ -36,7 +37,7 @@ export const createEvent = async (req, res) => {
       },
     });
 
-    console.log('Event created:', event.data.summary);
+    console.log('Event created:', event.data);
     res.status(200).send(event);
   } catch (error) {
     console.error('Error creating event:', error);
@@ -47,7 +48,10 @@ export const createEvent = async (req, res) => {
 export const fetchEvent = async (req, res) => {
   try {
     const { calendarId, eventId } = req.params;
-    const event = await calendar.events.get({ calendarId, eventId });
+    const event = await calendar.events.get({
+      calendarid: formatCalendarId(calendarId),
+      eventId,
+    });
     console.log('Event fetched:', event.data);
     res.status(200).send(event);
   } catch (error) {
@@ -58,9 +62,9 @@ export const fetchEvent = async (req, res) => {
 
 export const fetchCalendar = async (req, res) => {
   try {
-    // const { calendarId } = req.params;
+    const { calendarId } = req.params;
     const allEvents = await calendar.events.list({
-      calendarId,
+      calendarId: formatCalendarId(calendarId),
       maxResults: 10,
       singleEvents: true, // returns instances of recurring events, not the recurring event themselves, might need to be adapted
       orderBy: 'startTime',
@@ -74,14 +78,17 @@ export const fetchCalendar = async (req, res) => {
   }
 };
 
-// create calendar
-
+/**
+ * Used to create a calendar for a new project.
+ * @param {:param} projectId solely used to add the projectId to the summary
+ * @body {summary: string, description: string, timeZone: 'America/New_York'}
+ */
 export const createCalendar = async (req, res) => {
   try {
     const { projectId } = req.params;
     // get calendar data from req.body
     const calendarData = {
-      summary: `${projectId}-${math.random() * 10}`,
+      summary: `Main calendar for ${projectId}`,
       description: 'A calendar for important events',
       timeZone: 'America/New_York',
     };
@@ -94,10 +101,30 @@ export const createCalendar = async (req, res) => {
       },
     });
 
-    console.log('Calendar created:', newCalendar.data.summary);
+    console.log('Calendar created:', newCalendar.data);
     res.status(200).send(newCalendar.data);
   } catch (error) {
     console.error('Error creating calendar:', error);
-    res.status(500).send('Error creating calendar');
+    res.status(400).send('Error creating calendar');
+  }
+};
+
+/**
+ * Used to delete all calendars when re-seeding DB
+ */
+export const deleteAllCalendars = async (req, res) => {
+  try {
+    const response = await calendar.calendarList.list();
+    const calendars = response.data.items;
+
+    for (const calendarCurr of calendars) {
+      await calendar.calendarList.delete({ calendarId: calendarCurr.id });
+      console.log(`Deleted calendar with ID: ${calendarCurr.id}`);
+    }
+
+    return res.status(200).send('All calendars deleted');
+  } catch (error) {
+    console.error('Error deleting calendars:', error);
+    return res.status(400).send('Error deleting all calendars', error);
   }
 };
