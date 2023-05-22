@@ -20,6 +20,7 @@ export const createGroupChatRoom = async (req, res) => {
     });
     await newGroupChat.save();
     res.status(201).json({
+      newRoomId: newGroupChat._id,
       message: `Group chat created successfully by user with ID ${userId}.`,
     });
   } catch (error) {
@@ -54,7 +55,7 @@ export const getAllGroupChatsByUserId = async (req, res) => {
     const groupChatThreads = await GroupChat.find({
       'participants.participant': userId,
     })
-      .populate({ path: 'participants.participant', select: 'email' })
+      .populate({ path: 'participants.participant', select: 'email profilePicture' })
       .populate({ path: 'creator', select: 'email' })
       .populate({ path: 'messages.sender', select: 'email' });
 
@@ -77,14 +78,15 @@ export const getGroupChatByChatId = async (req, res) => {
   try {
     const { groupChatId } = req.params;
     const groupChatThread = await GroupChat.findOne({ _id: groupChatId })
-      .populate({ path: 'participants.participant', select: 'email' })
+      .populate({ path: 'participants.participant', select: 'email profilePicture firstName lastName' })
       .populate({ path: 'creator', select: 'email' })
       .populate({
         path: 'media',
         select: 'status fileName fileType fileUrl',
         populate: { path: 'sender', select: 'email' },
       })
-      .populate({ path: 'messages.sender', select: 'email' });
+      .populate({ path: 'messages.sender', select: 'email' })
+      .select('-messages');
 
     !groupChatThread
       ? res.status(404).json({ message: `No group chat found with ID ${groupChatId}.` })

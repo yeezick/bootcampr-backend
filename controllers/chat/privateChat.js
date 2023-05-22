@@ -43,36 +43,10 @@ export const createPrivateChatRoom = async (req, res) => {
 
 export const createPrivateChatMessage = async (req, res) => {
   try {
-    const { userId } = req.params;
-    let { text, email } = req.body;
-    const existingUser = await User.findOne({ email }).select('_id');
+    const { userId, privateChatId } = req.params;
+    let { text } = req.body;
 
-    if (!existingUser) {
-      return res.status(404).json({
-        message: `User not found. The email address ${email} doesn't belong to any registered Chatty user. You can invite them to join Chatty and add them as a contact.`,
-      });
-    }
-    const { _id: recipientId } = existingUser;
-
-    const existingMessageThread = await PrivateChat.findOne({
-      $and: [{ participants: { $elemMatch: { $eq: userId } } }, { participants: { $elemMatch: { $eq: recipientId } } }],
-    });
-
-    if (!existingMessageThread) {
-      const newPrivateThread = new PrivateChat({
-        participants: [mongoose.Types.ObjectId(userId), mongoose.Types.ObjectId(recipientId)],
-        messages: [
-          {
-            text: text || '',
-            sender: mongoose.Types.ObjectId(userId),
-          },
-        ],
-      });
-      await newPrivateThread.save();
-      return res.status(201).json({
-        message: `New private message thread started between users with ID ${userId} and ${recipientId} successfully.`,
-      });
-    }
+    const existingMessageThread = await PrivateChat.findOne({ _id: privateChatId });
 
     existingMessageThread['messages'].push({
       text: text,
@@ -80,7 +54,7 @@ export const createPrivateChatMessage = async (req, res) => {
     });
     await existingMessageThread.save();
     res.status(201).json({
-      message: `Successfully sent message from user with ID ${userId} to user ${recipientId}.`,
+      message: `Successfully sent message from user with ID ${userId} to private chat ${privateChatId}.`,
     });
   } catch (error) {
     console.error(error.message);
@@ -126,7 +100,7 @@ export const getAllPrivateMessages = async (req, res) => {
     const messageThread = await PrivateChat.find({
       _id: privateChatId,
     })
-      .select('messages.text messages.sender messages.timestamp messages.status')
+      .select('participants messages.text messages.sender messages.timestamp messages.status')
       .populate({ path: 'messages.sender', select: 'email profilePicture' })
       .populate({
         path: 'media',
@@ -143,9 +117,12 @@ export const getAllPrivateMessages = async (req, res) => {
 
     combinedMessages.length === 0
       ? res.status(404).json({
+          participants: messageThread[0].participants,
+          combinedMessages,
           message: `Private messages thread with ID ${privateChatId} not found.`,
         })
       : res.status(200).json({
+          participants: messageThread[0].participants,
           combinedMessages,
           message: `Successfully retrieved all messages for user with ID ${userId} in message thread ${privateChatId}.`,
         });

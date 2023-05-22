@@ -90,10 +90,27 @@ export const updateUserAndProject = async (req, res) => {
   }
 };
 
+export const getProjectByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const existingProject = await Project.find({
+      $or: [{ 'members.engineers': userId }, { 'members.designers': userId }],
+    });
+
+    if (existingProject.length === 0) {
+      return res.status(404).json({ message: `User with ID ${userId} is currently not assigned to any project.` });
+    }
+    res.status(200).json({ existingProject, message: `Successfully retrieved project for user with ID ${userId}.` });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Potential Project new controllers
-  // Add members to project (similar to updateUserAndProject?)
-  // Add Task to Project
-  // Delete Task from Project (or better to 'archive' and just update the task status?)
-  // Add Meeting Id to Project
-  // Delete Meeting from Project (better to delete or archive?)
-  // Add Chat Id to Project
+// Add members to project (similar to updateUserAndProject?)
+// Add Task to Project
+// Delete Task from Project (or better to 'archive' and just update the task status?)
+// Add Meeting Id to Project
+// Delete Meeting from Project (better to delete or archive?)
+// Add Chat Id to Project
