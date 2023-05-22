@@ -98,7 +98,9 @@ export const getProjectByUserId = async (req, res) => {
     });
 
     if (existingProject.length === 0) {
-      return res.status(404).json({ message: `User with ID ${userId} is currently not assigned to any project.` });
+      return res
+        .status(404)
+        .json({ existingProject, message: `User with ID ${userId} is currently not assigned to any project.` });
     }
     res.status(200).json({ existingProject, message: `Successfully retrieved project for user with ID ${userId}.` });
   } catch (error) {
