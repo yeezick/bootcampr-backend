@@ -10,13 +10,34 @@ const Schema = mongoose.Schema;
 const User = new Schema(
   {
     availability: {
-      sunday: { type: String },
-      monday: { type: String },
-      tuesday: { type: String },
-      wednesday: { type: String },
-      thursday: { type: String },
-      friday: { type: String },
-      saturday: { type: String },
+      SUN: { 
+        available: { type: Boolean },
+        availability: [[String]],
+      },
+      MON: { 
+        available: { type: Boolean },
+        availability: [[String]],
+      },
+      TUE: { 
+        available: { type: Boolean },
+        availability: [[String]],
+      },
+      WED: { 
+        available: { type: Boolean },
+        availability: [[String]],
+      },
+      THU: { 
+        available: { type: Boolean },
+        availability: [[String]],
+      },
+      FRI: { 
+        available: { type: Boolean },
+        availability: [[String]],
+      },
+      SAT: { 
+        available: { type: Boolean },
+        availability: [[String]],
+      }
     },
     bio: { type: String, maxlength: 300 },
     email: {
