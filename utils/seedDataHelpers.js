@@ -26,7 +26,7 @@ export const generateFakeUser = async (role) => {
     passwordDigest: await bcrypt.hash('gumballs', 11),
     portfolioProjects: [],
     portfolioUrl: `www.${name.first}${name.last}.com`,
-    profilePicture: "",
+    profilePicture: faker.image.people(640, 480, true),
     role: role,
     savedProjects: [],
     verified: true,
