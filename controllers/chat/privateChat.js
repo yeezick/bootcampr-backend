@@ -51,6 +51,7 @@ export const createPrivateChatMessage = async (req, res) => {
     existingMessageThread['messages'].push({
       text: text,
       sender: mongoose.Types.ObjectId(userId),
+      readBy: [{ user: mongoose.Types.ObjectId(userId) }],
     });
     await existingMessageThread.save();
     res.status(201).json({
@@ -144,6 +145,36 @@ export const deleteMessageThread = async (req, res) => {
       : res.status(200).json({
           message: `Successfully deleted private message thread with ID ${privateChatId}.`,
         });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const updatePrivateMessageReadStatus = async (req, res) => {
+  try {
+    const { userId, privateChatId } = req.params;
+
+    // Fetch private chat and obtain last message
+    const privateChat = await PrivateChat.findById(privateChatId);
+
+    const combinedMessages = privateChat.messages?.concat(privateChat.media) || [];
+    combinedMessages.sort((a, b) => new Date(b.createdAt || b.timestamp) - new Date(a.createdAt || a.timestamp));
+
+    const lastMessage = combinedMessages[0];
+
+    const userRead = lastMessage.readBy.findIndex((userObj) => userObj.user._id.toString() === userId);
+
+    // Add user to readBy array of last message
+    if (userRead === -1) {
+      lastMessage.readBy.push({ user: mongoose.Types.ObjectId(userId) });
+      await privateChat.save();
+      return res.status(201).json({
+        message: `User with ID ${userId} successfully read the last message in private chat ${privateChatId}.`,
+      });
+    }
+
+    res.status(201).json({ message: `Last message in private chat ${privateChatId} already read by user ${userId}.` });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });

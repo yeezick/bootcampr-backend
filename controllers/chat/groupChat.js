@@ -38,6 +38,7 @@ export const createGroupChatMessage = async (req, res) => {
     existingGroupChat['messages'].push({
       text: text,
       sender: mongoose.Types.ObjectId(userId),
+      readBy: [{ user: mongoose.Types.ObjectId(userId) }],
     });
     await existingGroupChat.save();
     res.status(201).json({
@@ -263,6 +264,37 @@ export const deleteMessage = async (req, res) => {
       { new: true },
     );
     res.status(200).json({ message: `Successfully deleted message with ID ${messageId}.` });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const updateGroupMessageReadStatus = async (req, res) => {
+  try {
+    const { userId, groupChatId } = req.params;
+
+    // Fetch group chat and obtain last message
+    const groupChat = await GroupChat.findById(groupChatId);
+    console.log('group chat', groupChat);
+
+    const combinedMessages = groupChat.messages?.concat(groupChat.media) || [];
+    combinedMessages.sort((a, b) => new Date(b.createdAt || b.timestamp) - new Date(a.createdAt || a.timestamp));
+
+    const lastMessage = combinedMessages[0];
+
+    const userRead = lastMessage.readBy.findIndex((userObj) => userObj.user._id.toString() === userId);
+
+    // Add user to readBy array of last message
+    if (userRead === -1) {
+      lastMessage.readBy.push({ user: mongoose.Types.ObjectId(userId) });
+      await groupChat.save();
+      return res
+        .status(201)
+        .json({ message: `User with ID ${userId} successfully read the last message in group chat ${groupChatId}.` });
+    }
+
+    res.status(201).json({ message: `Last message in group chat ${groupChatId} already read by user ${userId}.` });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });

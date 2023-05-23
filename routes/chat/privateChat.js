@@ -6,6 +6,7 @@ import {
   deleteMessageThread,
   getAllMessageThreads,
   getAllPrivateMessages,
+  updatePrivateMessageReadStatus,
 } from '../../controllers/chat/privateChat.js';
 const router = Router();
 
@@ -14,6 +15,7 @@ router.post('/:userId/privateChats/:privateChatId', createPrivateChatMessage);
 router.get('/:userId/privateChats', getAllMessageThreads);
 router.get('/:userId/privateChats/:privateChatId', getAllPrivateMessages);
 router.delete('/:userId/privateChats/:privateChatId', deleteMessageThread);
+router.put('/users/:userId/privateChats/:privateChatId/lastMessage', updatePrivateMessageReadStatus);
 
 // Media Messages
 router.post('/:userId/privateChats/:privateChatId/media', createMediaMessage);

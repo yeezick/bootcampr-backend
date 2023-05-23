@@ -95,7 +95,9 @@ export const getProjectByUserId = async (req, res) => {
     const { userId } = req.params;
     const existingProject = await Project.find({
       $or: [{ 'members.engineers': userId }, { 'members.designers': userId }],
-    });
+    })
+      .populate({ path: 'members.engineers', select: 'firstName lastName email role profilePicture' })
+      .populate({ path: 'members.designers', select: 'firstName lastName email role profilePicture' });
 
     if (existingProject.length === 0) {
       return res
