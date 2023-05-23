@@ -5,7 +5,7 @@ import { addImagesToS3Bucket, deleteImageFromS3Bucket } from '../../controllers/
 import { deleteUser, getAllUsers, getOneUser, updateUserInfo } from '../../controllers/user/users.js';
 =======
 import { getMediaByUserId } from '../../controllers/chat/media.js';
-import { addImagesToS3Bucket } from '../../controllers/user/addingImage.js';
+import { addImagesToS3Bucket, deleteImageFromS3Bucket  } from '../../controllers/user/addingImage.js';
 import {
   deleteUser,
   getAllChatThreads,
