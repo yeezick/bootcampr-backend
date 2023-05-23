@@ -45,7 +45,7 @@ export const addImageToUserSchema = async (userId) => {
     } else {
       console.error(`User not found with userId: ${userId}`)
     }
-  } catch (error) {rs
+  } catch (error) {
     console.error(error);
   }
 };
@@ -64,15 +64,24 @@ export const updatingImage = async (userId) => {
 };
 
 // if user decides to Delete there account The image from the s3Bucket and will also delete it
-export const deleteImageFromS3Bucket = async (id) => {
+export const deleteImageFromS3Bucket = async (req, res) => {
+  const { id } = req.params;
+
   try {
     const user = await User.findById(id);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
     const params = {
       Bucket: bucketName,
-      Key: user._id,
+      Key: user._id.toString(),
     };
     const deleteImage = new DeleteObjectCommand(params);
     await s3.send(deleteImage);
+    user.profilePicture = null;
+    await user.save();
+    res.status(200).json({ success: 'image delete successfully' });
   } catch (error) {
     console.error(error);
   }
