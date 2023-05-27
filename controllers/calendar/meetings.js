@@ -37,7 +37,6 @@ export const createEvent = async (req, res) => {
       },
     });
 
-    console.log('Event created:', event.data);
     res.status(200).send(event);
   } catch (error) {
     console.error('Error creating event:', error);
@@ -52,7 +51,6 @@ export const fetchEvent = async (req, res) => {
       calendarid: formatCalendarId(calendarId),
       eventId,
     });
-    console.log('Event fetched:', event.data);
     res.status(200).send(event);
   } catch (error) {
     console.error('Error fetching event:', error);
@@ -65,12 +63,10 @@ export const fetchCalendar = async (req, res) => {
     const { calendarId } = req.params;
     const allEvents = await calendar.events.list({
       calendarId: formatCalendarId(calendarId),
-      maxResults: 10,
       singleEvents: true, // returns instances of recurring events, not the recurring event themselves, might need to be adapted
       orderBy: 'startTime',
     });
 
-    console.log('Event fetched:', allEvents);
     res.status(200).send(allEvents);
   } catch (error) {
     console.error('Error fetching event:', error);
@@ -86,8 +82,6 @@ export const fetchCalendar = async (req, res) => {
 export const createCalendar = async (req, res) => {
   try {
     const { projectId } = req.params;
-    // get calendar data from req.body
-    console.log('req.body', req.body);
     const calendarData = {
       summary: `Main calendar for ${projectId}`,
       description: `Team calendar for ${projectId}`,
@@ -98,7 +92,6 @@ export const createCalendar = async (req, res) => {
       requestBody: calendarData,
     });
 
-    console.log('Calendar created:', newCalendar.data);
     res.status(200).send(newCalendar.data);
   } catch (error) {
     console.error('Error creating calendar:', error);
