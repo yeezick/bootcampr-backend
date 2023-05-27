@@ -8,6 +8,13 @@ import * as io from 'socket.io';
 import { createServer } from 'http';
 import PushNotifications from './models/notifications.js';
 import User from './models/user.js';
+import { google } from 'googleapis';
+
+export const auth = new google.auth.GoogleAuth({
+  credentials: JSON.parse(process.env.CALENDAR_CREDS),
+  scopes: ['https://www.googleapis.com/auth/calendar'],
+});
+export const calendar = google.calendar({ version: 'v3', auth });
 
 const app = express();
 const PORT = process.env.PORT || 8001;

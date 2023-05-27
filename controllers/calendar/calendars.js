@@ -1,3 +1,5 @@
+import { auth, calendar } from '../../server.js';
+
 export const fetchCalendar = async (req, res) => {
   try {
     const { calendarId } = req.params;

@@ -9,7 +9,7 @@ const router = Router();
 // UPDATE start time
 // UPDATE duration
 
-router.get('/calendar/:calendarId/createEvent', controllers.createEvent);
+router.post('/calendar/:calendarId/createEvent', controllers.createEvent);
 router.get('/calendar/:calendarId/fetchEvent/:eventId', controllers.fetchEvent);
 
 export default router;
