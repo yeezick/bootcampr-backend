@@ -5,18 +5,13 @@
 // Get All Project Meetings
 // Get All Project Meetings for 'x' number of days
 
-import { google } from 'googleapis';
 import { formatCalendarId } from '../../utils/helperFunctions.js';
+import { auth, calendar } from '../../server.js';
 
 /**
  * There are usage limits to this API. (https://developers.google.com/calendar/api/guides/quota)
  * Ex: only 60 calendars can be created within an hour
  * */
-const auth = new google.auth.GoogleAuth({
-  credentials: JSON.parse(process.env.CALENDAR_CREDS),
-  scopes: ['https://www.googleapis.com/auth/calendar'],
-});
-const calendar = google.calendar({ version: 'v3', auth });
 
 // Todo: update to use information sent by frontend instead of hardcoded obj
 export const createEvent = async (req, res) => {
