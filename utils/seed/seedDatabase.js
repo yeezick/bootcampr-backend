@@ -26,10 +26,10 @@ const reSeedDatabase = async () => {
   // Fill a single project with users
   await fillProjectWithUsers(projects[0], designers.slice(0, 2), engineers.slice(0, 3));
   await projects.forEach(async (project) => {
-    console.log('projectId', project);
     const newCalendarId = await addCalendarToProject(project._id);
     console.log('newCalendar', newCalendarId);
-    // project.calendarId = newCalendarId;
+    project.calendarId = newCalendarId;
+    console.log('projectWithID', project);
     project.save();
   });
   await users.forEach((user) => user.save());

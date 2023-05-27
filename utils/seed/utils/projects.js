@@ -51,7 +51,11 @@ export const fillProjectWithUsers = async (project, designers, engineers) => {
  */
 export const addCalendarToProject = async (projectId) => {
   try {
-    const response = await axios.post(`http://localhost:8001/calendar/createCalendar/${projectId}`);
+    const response = await axios.post(`http://localhost:8001/calendar/createCalendar/${projectId}`, {
+      summary: `Main calendar for ${projectId}`,
+      description: `Team calendar for ${projectId}`,
+      timeZone: 'America/New_York', // set to universal tz
+    });
     console.log('=====', response);
     return response.data.id.split('@')[0];
   } catch (error) {

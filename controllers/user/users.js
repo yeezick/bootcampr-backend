@@ -29,7 +29,7 @@ export const getAllUsers = async (req, res) => {
     }
   } catch (error) {
     console.log(error.message);
-    return res.status(500).json({
+    res.status(500).json({
       message: 'Error occurred while fetching users.',
       error: error.message,
     });

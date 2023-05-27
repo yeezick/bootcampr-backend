@@ -27,11 +27,11 @@ export const createEvent = async (req, res) => {
         summary: '111111111',
         description: 'eventData.description',
         start: {
-          dateTime: '2023-05-20T16:00:00Z',
+          dateTime: '2023-05-27T16:00:00Z',
           timeZone: 'America/New_York',
         },
         end: {
-          dateTime: '2023-05-20T17:00:00Z',
+          dateTime: '2023-05-27T17:00:00Z',
           timeZone: 'America/New_York',
         },
       },
@@ -87,18 +87,15 @@ export const createCalendar = async (req, res) => {
   try {
     const { projectId } = req.params;
     // get calendar data from req.body
+    console.log('req.body', req.body);
     const calendarData = {
       summary: `Main calendar for ${projectId}`,
-      description: 'A calendar for important events',
-      timeZone: 'America/New_York',
+      description: `Team calendar for ${projectId}`,
+      timeZone: 'America/New_York', // set to universal tz
     };
 
     const newCalendar = await calendar.calendars.insert({
-      requestBody: {
-        summary: calendarData.summary,
-        description: calendarData.description,
-        timeZone: calendarData.timeZone,
-      },
+      requestBody: calendarData,
     });
 
     console.log('Calendar created:', newCalendar.data);
@@ -122,9 +119,9 @@ export const deleteAllCalendars = async (req, res) => {
       console.log(`Deleted calendar with ID: ${calendarCurr.id}`);
     }
 
-    return res.status(200).send('All calendars deleted');
+    res.status(200).send('All calendars deleted');
   } catch (error) {
     console.error('Error deleting calendars:', error);
-    return res.status(400).send('Error deleting all calendars', error);
+    res.status(400).send('Error deleting all calendars', error);
   }
 };
