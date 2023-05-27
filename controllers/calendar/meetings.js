@@ -8,9 +8,9 @@
 import { google } from 'googleapis';
 import { formatCalendarId } from '../../utils/helperFunctions.js';
 
-/** So far I've learned that there are usage limits to this API.
- * One being that only 60 calendars can be created within an hour
- * Afterward, every request results in an exponential backoff rate
+/**
+ * There are usage limits to this API. (https://developers.google.com/calendar/api/guides/quota)
+ * Ex: only 60 calendars can be created within an hour
  * */
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.CALENDAR_CREDS),
@@ -18,6 +18,7 @@ const auth = new google.auth.GoogleAuth({
 });
 const calendar = google.calendar({ version: 'v3', auth });
 
+// Todo: update to use information sent by frontend instead of hardcoded obj
 export const createEvent = async (req, res) => {
   try {
     const { calendarId } = req.params;
