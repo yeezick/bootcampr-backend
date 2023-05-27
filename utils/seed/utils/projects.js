@@ -56,7 +56,6 @@ export const addCalendarToProject = async (projectId) => {
       description: `Team calendar for ${projectId}`,
       timeZone: 'America/New_York', // set to universal tz
     });
-    console.log('=====', response);
     return response.data.id.split('@')[0];
   } catch (error) {
     console.log('Error creating a project for this team', error);
