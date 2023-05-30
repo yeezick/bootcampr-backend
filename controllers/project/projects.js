@@ -26,10 +26,10 @@ export const getOneProject = async (req, res) => {
     const { id } = req.params;
     const project = await Project.findOne({ _id: id })
       .populate([
-        { path: 'projectTracker.toDo', select: '-projectTracker' },
-        { path: 'projectTracker.inProgress', select: '-projectTracker' },
-        { path: 'projectTracker.underReview', select: '-projectTracker' },
-        { path: 'projectTracker.completed', select: '-projectTracker' },
+        { path: 'projectTracker.toDo', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
+        { path: 'projectTracker.inProgress', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
+        { path: 'projectTracker.underReview', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
+        { path: 'projectTracker.completed', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
       ])
       .exec();
 
