@@ -276,7 +276,6 @@ export const updateGroupMessageReadStatus = async (req, res) => {
 
     // Fetch group chat and obtain last message
     const groupChat = await GroupChat.findById(groupChatId);
-    console.log('group chat', groupChat);
 
     const combinedMessages = groupChat.messages?.concat(groupChat.media) || [];
     combinedMessages.sort((a, b) => new Date(b.createdAt || b.timestamp) - new Date(a.createdAt || a.timestamp));

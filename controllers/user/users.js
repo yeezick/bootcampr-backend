@@ -156,7 +156,7 @@ export const getAllChatThreads = async (req, res) => {
 
     // Fetch all group threads
     const groupThreads = await GroupChat.find({
-      participant: { $elemMatch: { $eq: mongoose.Types.ObjectId(userId) } },
+      'participants.participant': mongoose.Types.ObjectId(userId),
     })
       .select('_id participants lastActive groupName groupPhoto')
       .populate({

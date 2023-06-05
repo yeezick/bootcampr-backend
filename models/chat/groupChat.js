@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const GroupChat = new Schema(
   {
-    groupName: { type: String, default: 'Group Chat' },
+    groupName: { type: String },
     groupDescription: { type: String, default: 'Group' },
     groupPhoto: {
       type: String,
