@@ -24,10 +24,15 @@ export const emailTokenVerification = async (user, token) => {
 };
 
 export const sendSignUpEmail = (user, url, verified = false) => {
+  // TODO: Host final bootcampr logo (email version) and replace URL
+  const bootcamprLogoURL = 'https://images.unsplash.com/photo-1682687982502-1529b3b33f85?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDN8RnpvM3p1T0hONnd8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60'
   const { email, firstName, lastName } = user;
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
   console.log(url)
-  const body = `Hey ${firstName},<br>Thank you for sigining up to be a beta Bootcampr!
+  const body = `
+    <img src=${bootcamprLogoURL} />
+    <br><br>Hey ${firstName},
+    <br><br>Thank you for sigining up to be a beta Bootcampr!
     <br><br>We'll send you an email outlining the next steps when we're ready to start the beta test.
     <br><br>In the meantime, please <a href="${url}">confirm your email address</a> to log in.
     <br><br>After you log in, there will be a short onbording process.
@@ -123,7 +128,7 @@ export const resendNewEmailLink = async (req, res) => {
 export const verifyUniqueEmail = async (req,res) => {
   try {
     // check if user exists
-    const email = req.params.email
+    const email = req.params.email.toLowerCase()
     const user = await User.findOne({ email })
   
     // validate email format
