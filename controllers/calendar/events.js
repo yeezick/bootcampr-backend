@@ -1,3 +1,7 @@
+import { formatCalendarId } from '../../utils/helperFunctions.js';
+import { calendar } from '../../server.js';
+import sgMail from '@sendgrid/mail';
+
 // Potential New Controllers for Meetings
 // Update Single User Attendence
 // Update Duration
@@ -5,35 +9,12 @@
 // Get All Project Meetings
 // Get All Project Meetings for 'x' number of days
 
-import { formatCalendarId } from '../../utils/helperFunctions.js';
-import { auth, calendar } from '../../server.js';
-
-/**
- * There are usage limits to this API. (https://developers.google.com/calendar/api/guides/quota)
- * Ex: only 60 calendars can be created within an hour
- * */
-
-// Todo: update to use information sent by frontend instead of hardcoded obj
 export const createEvent = async (req, res) => {
   try {
     const { calendarId } = req.params;
-    // destructured from body
-    const eventData = {
-      calendarId: formatCalendarId(calendarId),
-      resource: {
-        summary: '111111111',
-        description: 'eventData.description',
-        start: {
-          dateTime: '2023-05-27T16:00:00Z',
-          timeZone: 'America/New_York',
-        },
-        end: {
-          dateTime: '2023-05-27T17:00:00Z',
-          timeZone: 'America/New_York',
-        },
-      },
-    };
-    const event = await calendar.events.insert(eventData);
+    console.log('reqbod', req.body);
+    // Sample event below
+    const event = await calendar.events.insert(req.body);
 
     res.status(200).send(event);
   } catch (error) {
@@ -46,7 +27,7 @@ export const fetchEvent = async (req, res) => {
   try {
     const { calendarId, eventId } = req.params;
     const event = await calendar.events.get({
-      calendarid: formatCalendarId(calendarId),
+      calendarId: formatCalendarId(calendarId),
       eventId,
     });
     res.status(200).send(event);
@@ -55,3 +36,75 @@ export const fetchEvent = async (req, res) => {
     res.status(400).send(error);
   }
 };
+
+/*
+const sampleNewEvent = {
+    "calendarId": "gieggl7g0egdgdtptosvin5bno@group.calendar.google.com",
+    "resource": {
+        "description": "description",
+        "summary": "1",
+        "start": {
+            "dateTime": "2023-05-29T16:00:00Z",
+            "timeZone": "America/New_York"
+        },
+        "end": {
+            "dateTime": "2023-05-29T17:00:00Z",
+            "timeZone": "America/New_York"
+        },
+        "attendees": [
+            {
+                "email": "bootcamprcalendar@gmail.com"
+            }
+        ]
+    },
+    "sendUpdates": "all"
+};
+*/
+
+/* Attempt at using SG to send emails -> not functional nor pretty
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const iCalContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//My Calendar//EN
+BEGIN:VEVENT
+UID:${event.data.id}
+SUMMARY:${req.body.eventName}
+DTSTART:${req.body.eventStartTime}
+DTEND:${req.body.eventEndTime}
+LOCATION:
+DESCRIPTION:
+ORGANIZER:MAILTO:${'erickmanriqpro@gmail.com'}
+ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT;CUTYPE=INDIVIDUAL;CN=${
+  req.body.attendees[0].email
+}:mailto:${req.body.attendees[0].email}
+END:VEVENT
+END:VCALENDAR`;
+
+const base64Content = Buffer.from(iCalContent).toString('base64');
+
+const msg = {
+  to: req.body.attendees[0].email, // Change to your recipient
+  from: `${process.env.EMAIL_SENDER}`, // Change to your verified sender
+  subject: 'New event',
+  text: `${req.body.description}`,
+  // need to double check this ternary reads right
+  attachments: [
+    {
+      content: base64Content,
+      filename: 'invitation.ics',
+      type: 'text/calendar',
+      disposition: 'attachment',
+    },
+  ],
+};
+console.log('msg', msg);
+sgMail
+  .send(msg)
+  .then(() => {
+    console.log('Verification email sent successfully');
+  })
+  .catch((error) => {
+    console.log('Email not sent');
+    console.error(error.response.body);
+  });
+  */

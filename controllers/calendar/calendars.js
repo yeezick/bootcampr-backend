@@ -1,4 +1,10 @@
-import { auth, calendar } from '../../server.js';
+import { calendar } from '../../server.js';
+import { formatCalendarId } from '../../utils/helperFunctions.js';
+
+/**
+ * There are usage limits to this API. (https://developers.google.com/calendar/api/guides/quota)
+ * Ex: only 60 calendars can be created within an hour
+ * */
 
 export const fetchCalendar = async (req, res) => {
   try {
@@ -8,6 +14,17 @@ export const fetchCalendar = async (req, res) => {
       singleEvents: true, // returns instances of recurring events, not the recurring event themselves, might need to be adapted
       orderBy: 'startTime',
     });
+
+    res.status(200).send(allEvents);
+  } catch (error) {
+    console.error('Error fetching event:', error);
+    res.status(400).send(error);
+  }
+};
+
+export const fetchAllCalendars = async (req, res) => {
+  try {
+    const allEvents = await calendar.calendarList.list();
 
     res.status(200).send(allEvents);
   } catch (error) {
@@ -32,6 +49,22 @@ export const createCalendar = async (req, res) => {
 
     const newCalendar = await calendar.calendars.insert({
       requestBody: calendarData,
+    });
+    console.log('newcal', newCalendar);
+
+    // Set ACLs to grant access to invitees
+    const rule = {
+      role: 'reader',
+      scope: {
+        type: 'user', // Can be 'user', 'group', 'domain', etc. depending on the type of scope
+        value: 'bootcamprcalendar@gmail.com', // Specify the email address of the invitee
+      },
+    };
+
+    // Should map through all the members of a project
+    await calendar.acl.insert({
+      calendarId: newCalendar.data.id,
+      resource: rule,
     });
 
     res.status(200).send(newCalendar.data);
@@ -58,5 +91,29 @@ export const deleteAllCalendars = async (req, res) => {
   } catch (error) {
     console.error('Error deleting calendars:', error);
     res.status(400).send('Error deleting all calendars', error);
+  }
+};
+
+// WIP
+export const addMemberToCalendar = async (req, res) => {
+  try {
+    const { calendarId, userEmail } = req.params;
+    const rule = {
+      role: 'none',
+      scope: {
+        type: 'user',
+        value: userEmail,
+      },
+    };
+
+    await calendar.acl.insert({
+      calendarId: formatCalendarId(calendarId),
+      resource: rule,
+    });
+
+    res.status(200).send(`Success adding ${userEmail} to calendar: ${calendarId}`);
+  } catch (error) {
+    console.error('Error adding user to calendar:', error);
+    res.status(400).send('Error adding user to calendar.');
   }
 };
