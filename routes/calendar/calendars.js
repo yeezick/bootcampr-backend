@@ -9,6 +9,7 @@ const router = Router();
 // GET all meetings for a project in 'x' - 'y' date range
 
 router.get('/calendar/:calendarId/fetchCalendar', controllers.fetchCalendar);
+router.get('/calendar/fetchAllCalendars', controllers.fetchAllCalendars);
 router.post('/calendar/createCalendar/:projectId', controllers.createCalendar);
 router.delete('/calendar/deleteAllCalendars', controllers.deleteAllCalendars);
 

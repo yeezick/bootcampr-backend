@@ -8,7 +8,7 @@ import axios from 'axios';
 const reSeedDatabase = async () => {
   // Remove all data from database
   await db.dropDatabase();
-  await axios.get(`http://localhost:8001/calendar/deleteAll`);
+  await axios.delete(`http://localhost:8001/calendar/deleteAllCalendars`);
 
   // Generate set of Users
   const designers = await generateFakeUsers(10, 'UX Designer');
@@ -17,16 +17,16 @@ const reSeedDatabase = async () => {
 
   // Generate x number of Projects
   const projects = [];
-  const numOfProjects = 2; // set to only 2 to avoid hitting calendar quotas
-  for (let i = 0; i < numOfProjects; i++) {
-    projects.push(new Project(await generateProject()));
-  }
+  const numOfProjects = 1; // set to only 2 to avoid hitting calendar quotas
+  // for (let i = 0; i < numOfProjects; i++) {
+  projects.push(new Project(await generateProject()));
+  // }
 
   // Fill a single project with users
   await fillProjectWithUsers(projects[0], designers.slice(0, 2), engineers.slice(0, 3));
 
   for (const project of projects) {
-    project.calendarId = addCalendarToProject(project._id);
+    project.calendarId = await addCalendarToProject(project._id);
     await project.save();
   }
 
