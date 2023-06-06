@@ -7,8 +7,6 @@ import taskRoutes from './project/tasks.js';
 import availabilityRoutes from './calendar/availability.js';
 import meetingRoutes from './calendar/meetings.js';
 import chatRoutes from './chats.js';
-import roleRoutes from './roles.js';
-import toolRoutes from './tools.js';
 import ticketsRoutes from './tickets.js';
 import privateChatRoutes from './chat/privateChat.js';
 import groupChatRoutes from './chat/groupChat.js';

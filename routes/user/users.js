@@ -1,9 +1,5 @@
 import { Router } from 'express';
 import multer from 'multer';
-<<<<<<< HEAD
-import { addImagesToS3Bucket, deleteImageFromS3Bucket } from '../../controllers/user/addingImage.js';
-import { deleteUser, getAllUsers, getOneUser, updateUserInfo } from '../../controllers/user/users.js';
-=======
 import { getMediaByUserId } from '../../controllers/chat/media.js';
 import { addImagesToS3Bucket, deleteImageFromS3Bucket  } from '../../controllers/user/addingImage.js';
 import {
@@ -13,7 +9,6 @@ import {
   getOneUser,
   updateUserInfo,
 } from '../../controllers/user/users.js';
->>>>>>> 5cd2ff3 (integrate chat routes and controllers)
 
 //middleware
 const storage = multer.memoryStorage();
