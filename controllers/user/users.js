@@ -20,6 +20,7 @@ import { updatingImage } from './addingImage.js';
 
 // BACKEND TEST SUITE CODE
 export const getAllUsers = async (req, res) => {
+  console.log('getting all users')
   try {
     const allUser = await User.find().select('-passwordDigest');
     if (allUser && allUser.length > 0) {
