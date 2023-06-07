@@ -49,6 +49,7 @@ export const signUp = async (req, res) => {
       existingAccount: false,
     });
   } catch (error) {
+    console.log(error)
     console.error(error.message);
     res.status(400).json({ error: error.message });
   }
