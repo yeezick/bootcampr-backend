@@ -2,10 +2,10 @@ import mongoose from 'mongoose';
 import PrivateChat from '../../models/chat/privateChat.js';
 import User from '../../models/user.js';
 
-export const createMessage = async (req, res) => {
+export const createPrivateChatRoom = async (req, res) => {
   try {
     const { userId } = req.params;
-    let { text, email } = req.body;
+    let { email } = req.body;
     const existingUser = await User.findOne({ email }).select('_id');
 
     if (!existingUser) {
@@ -22,26 +22,40 @@ export const createMessage = async (req, res) => {
     if (!existingMessageThread) {
       const newPrivateThread = new PrivateChat({
         participants: [mongoose.Types.ObjectId(userId), mongoose.Types.ObjectId(recipientId)],
-        messages: [
-          {
-            text: text,
-            sender: mongoose.Types.ObjectId(userId),
-          },
-        ],
+        messages: [],
       });
       await newPrivateThread.save();
       return res.status(201).json({
-        message: `New private message thread started between users with ID ${userId} and ${recipientId} successfully.`,
+        chatRoom: newPrivateThread,
+        message: `Successfully created new private chat room between users with ID ${userId} and ${recipientId}.`,
       });
     }
+
+    return res.status(200).json({
+      chatRoom: existingMessageThread,
+      message: `Chat room between users with ID ${userId} and ${recipientId} aready exists.`,
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const createPrivateChatMessage = async (req, res) => {
+  try {
+    const { userId, privateChatId } = req.params;
+    let { text } = req.body;
+
+    const existingMessageThread = await PrivateChat.findOne({ _id: privateChatId });
 
     existingMessageThread['messages'].push({
       text: text,
       sender: mongoose.Types.ObjectId(userId),
+      readBy: [{ user: mongoose.Types.ObjectId(userId) }],
     });
     await existingMessageThread.save();
     res.status(201).json({
-      message: `Successfully sent message from user with ID ${userId} to user ${recipientId}.`,
+      message: `Successfully sent message from user with ID ${userId} to private chat ${privateChatId}.`,
     });
   } catch (error) {
     console.error(error.message);
@@ -87,7 +101,7 @@ export const getAllPrivateMessages = async (req, res) => {
     const messageThread = await PrivateChat.find({
       _id: privateChatId,
     })
-      .select('messages.text messages.sender messages.timestamp messages.status')
+      .select('participants messages.text messages.sender messages.timestamp messages.status')
       .populate({ path: 'messages.sender', select: 'email profilePicture' })
       .populate({
         path: 'media',
@@ -104,9 +118,12 @@ export const getAllPrivateMessages = async (req, res) => {
 
     combinedMessages.length === 0
       ? res.status(404).json({
+          participants: messageThread[0].participants,
+          combinedMessages,
           message: `Private messages thread with ID ${privateChatId} not found.`,
         })
       : res.status(200).json({
+          participants: messageThread[0].participants,
           combinedMessages,
           message: `Successfully retrieved all messages for user with ID ${userId} in message thread ${privateChatId}.`,
         });
@@ -128,6 +145,36 @@ export const deleteMessageThread = async (req, res) => {
       : res.status(200).json({
           message: `Successfully deleted private message thread with ID ${privateChatId}.`,
         });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const updatePrivateMessageReadStatus = async (req, res) => {
+  try {
+    const { userId, privateChatId } = req.params;
+
+    // Fetch private chat and obtain last message
+    const privateChat = await PrivateChat.findById(privateChatId);
+
+    const combinedMessages = privateChat.messages?.concat(privateChat.media) || [];
+    combinedMessages.sort((a, b) => new Date(b.createdAt || b.timestamp) - new Date(a.createdAt || a.timestamp));
+
+    const lastMessage = combinedMessages[0];
+
+    const userRead = lastMessage.readBy.findIndex((userObj) => userObj.user._id.toString() === userId);
+
+    // Add user to readBy array of last message
+    if (userRead === -1) {
+      lastMessage.readBy.push({ user: mongoose.Types.ObjectId(userId) });
+      await privateChat.save();
+      return res.status(201).json({
+        message: `User with ID ${userId} successfully read the last message in private chat ${privateChatId}.`,
+      });
+    }
+
+    res.status(201).json({ message: `Last message in private chat ${privateChatId} already read by user ${userId}.` });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });

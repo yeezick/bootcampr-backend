@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import {
-  createGroupChat,
   createGroupChatMessage,
+  createGroupChatRoom,
   deleteGChat,
   deleteGroupChatThread,
   deleteMessage,
@@ -11,12 +11,13 @@ import {
   getGroupChatByChatId,
   leaveGroupChat,
   updateGroupChatInfo,
+  updateGroupMessageReadStatus,
 } from '../../controllers/chat/groupChat.js';
 import { createMediaMessage, getChatMediaByFileType, getMediaByChatId } from '../../controllers/chat/media.js';
 const router = Router();
 
 router.get('/groupChats', getAllUsersGroupChats);
-router.post('/:userId/groupChats', createGroupChat);
+router.post('/:userId/groupChats', createGroupChatRoom);
 router.post('/:userId/groupChats/:groupChatId', createGroupChatMessage);
 router.get('/:userId/groupChats', getAllGroupChatsByUserId);
 router.get('/:userId/groupChats/:groupChatId', getAllGroupMessages);
@@ -26,6 +27,7 @@ router.delete('/:userId/groupChats/:groupChatId', deleteGroupChatThread);
 router.put('/:userId/:groupChatId', leaveGroupChat);
 router.delete('/groupChats/:chatId', deleteGChat);
 router.delete('/groupChats/:groupChatId/messages', deleteMessage);
+router.put('/users/:userId/groupChats/:groupChatId/lastMessage', updateGroupMessageReadStatus);
 
 // Media Messages
 router.post('/:userId/groupChats/:groupChatId/media', createMediaMessage);
