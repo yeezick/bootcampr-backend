@@ -1,13 +1,15 @@
 import { Router } from 'express';
+
+import notificationRoutes from './user/notifications.js';
+import ticketsRoutes from './tickets.js';
 import authRoutes from './user/auth.js';
 import userRoutes from './user/users.js';
-import notificationRoutes from './user/notifications.js';
+
 import projectRoutes from './project/projects.js';
 import taskRoutes from './project/tasks.js';
 import availabilityRoutes from './calendar/availability.js';
 import meetingRoutes from './calendar/meetings.js';
 import chatRoutes from './chats.js';
-import ticketsRoutes from './tickets.js';
 import privateChatRoutes from './chat/privateChat.js';
 import groupChatRoutes from './chat/groupChat.js';
 import mediaRoutes from './chat/media.js';
@@ -19,6 +21,7 @@ router.use('/', authRoutes);
 router.use('/', userRoutes);
 router.use('/', projectRoutes);
 router.use('/', notificationRoutes);
+router.use('/', ticketsRoutes);
 router.use('/', availabilityRoutes);
 router.use('/', chatRoutes);
 router.use('/', privateChatRoutes);

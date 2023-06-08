@@ -4,17 +4,21 @@ const Schema = mongoose.Schema;
 
 const Project = new Schema(
   {
-    duration: { type: String },
-    meetingCadence: { type: Number, max: 6, required: true },
-    overview: { type: String, required: true },
-    projectOwner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    roles: {
-      engineering: [roleSchema],
-      design: [roleSchema],
+    chats: [{ type: Schema.Types.ObjectId, ref: 'Chat' }],
+    // Add regex or some type check on the date format?
+    goal: { type: String, required: true },
+    meetings: [{ type: Schema.Types.ObjectId, ref: 'Meeting' }],
+    members: {
+      engineers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+      designers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     },
-    status: { type: String, required: true, enum: ['Draft', 'Published'] },
-    tools: [{ type: String, required: true }], //todo: add ability to categorize tools (SWE/UX)
-    title: { type: String, required: true, maxlength: 45 },
+    problem: { type: String, required: true },
+    // Since each tasks holds 'status' info, is it really needed here as well?
+    timeline: {
+      startDate: { type: String },
+      endDate: { type: String },
+    },
+    title: { type: String, required: true, maxLength: 45 },
     projectTracker: {
       toDo: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
       inProgress: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],

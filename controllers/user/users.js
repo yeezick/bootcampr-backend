@@ -21,8 +21,8 @@ import { updatingImage } from './addingImage.js';
 // BACKEND TEST SUITE CODE
 export const getAllUsers = async (req, res) => {
   try {
-    const allUser = await User.find({});
-    if (allUser) {
+    const allUser = await User.find().select('-passwordDigest');
+    if (allUser && allUser.length > 0) {
       res.status(200).json(allUser);
     } else {
       res.status(404).json({ message: 'All User not found.', error: 'No users found in the database.' });
@@ -156,7 +156,7 @@ export const getAllChatThreads = async (req, res) => {
 
     // Fetch all group threads
     const groupThreads = await GroupChat.find({
-      participant: { $elemMatch: { $eq: mongoose.Types.ObjectId(userId) } },
+      'participants.participant': mongoose.Types.ObjectId(userId),
     })
       .select('_id participants lastActive groupName groupPhoto')
       .populate({
