@@ -1,8 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { getMediaByUserId } from '../../controllers/chat/media.js';
-import { getProjectByUserId } from '../../controllers/project/projects.js';
-import { addImagesToS3Bucket } from '../../controllers/user/addingImage.js';
+import { addImagesToS3Bucket, deleteImageFromS3Bucket  } from '../../controllers/user/addingImage.js';
 import {
   deleteUser,
   getAllChatThreads,
@@ -20,7 +19,8 @@ router.get('/users', getAllUsers);
 router.get('/users/:id', getOneUser);
 router.put('/users/:id', updateUserInfo);
 router.delete('/users/:id', deleteUser);
-router.post('/addUserImage', uploadImage.single('image'), addImagesToS3Bucket);
+router.post('/users/:id/addImage', uploadImage.single('image'), addImagesToS3Bucket);
+router.delete('/users/:id/deleteImage', deleteImageFromS3Bucket);
 
 // Chat Threads
 router.get('/users/:userId/messages', getAllChatThreads);

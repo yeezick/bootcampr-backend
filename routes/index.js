@@ -29,5 +29,6 @@ router.use('/', groupChatRoutes);
 router.use('/', mediaRoutes);
 router.use('/', meetingRoutes);
 router.use('/', taskRoutes);
+router.use('/', ticketsRoutes);
 
 export default router;
