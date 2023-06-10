@@ -10,28 +10,11 @@ import PushNotifications from './models/notifications.js';
 import User from './models/user.js';
 import { google } from 'googleapis';
 
-// export const auth = new google.auth.GoogleAuth({
-//   // credentials: JSON.parse(process.env.CALENDAR_CREDS),
-//   keyFilename: './calendarSecret.json',
-//   scopes: ['https://www.googleapis.com/auth/calendar'],
-//   // subject: 'erick.manrique@bootcampr.io',
-// });
-
 export const auth = new google.auth.GoogleAuth({
-  credentials: {
-    client_email: 'scheduler@bootcampr-calendar.iam.gserviceaccount.com',
-    private_key:
-      '-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDY5RRLL4SxaJNo\nxeySE/V23xGFACoc5KeVMF3b9Yt+kKlyKgrHJfUfRLglLlK8CUnmaGKEGtDr22eZ\nPKIkIHEguu3mHUQ2Z8tnsVksRrl7NEJgoro5mD97axRTYMoZ2OJCglnvlFfaF8kZ\nHsCtkZ1VZUjci9gzPpwpixlqM+7mDPZ3I4bFQxAq7d36X49fxb3c4uqZBTm+6Iun\nKJsMXvg/kHPcfDaLoSsUCRc+tGp2zL+z/Mb42zv1QtcFO589Kr8bhwDELstpWc1Y\nmm3UJVNV5fR/rkaUD19XAoCru13qryLKttn2ddeu7wW4TX7OV2GWBiWnvUSNUALW\nv3viKgCdAgMBAAECggEAGyKZ0Ig64n58sWcltZGKrFsJvukqMPWIY86qch+SWqdw\nPj4KnXy0YeY/4DhJ6zLW9zJdtOetS1IRRXzDpPUWwitbd7vMnL6NQO/8AeE9SQUy\nPWh5F5s3wfyVDT4MOtdFWLXPLlKRpSbu/AC6xrGeN0tV0MXW1XPCp3iQGZcyub7F\nddoIxrIF8Q7Gc0DG9rq1MD2NXtONUzt4SrqKtyF7jd54jZyuBLDKNfehb0Z15BQv\nuOu4+W5XUMOBowvPxeZ7JL43HjBy+mb37xi9yA51VbX5TQkoR77NSwRzeJjCCvhT\nel7oML5/NYvvllsiLUb6jberp0shnBUOFE+mrxSPrwKBgQDulsgPVVtSPnfzynDK\ns44QzjBM0cph1V9eblqRon+5usD7bJznIU1wKcWpy7F0oRxMdY2GalgAhfS+0oUx\n2CC0t8DCUcuWPwV2458fKKBxXURFh09FPGaGUYHDsHWq2aucrboH1o9DGjV0ICQj\nPzYzA6CRW3tgA20awtsZz6r3PwKBgQDouQRR7nerQqjgC0/RNAaODLkiGTvD08Jc\nOLC5wlSEG77Myvu1WIk/t8v/pbBy/AM/n83i3kQuQBYYM5/33v9cbkZa3h6LND/g\nWZQKxa0bKngNiHMSUfghoAWDVndxeeEWPc0O/7mfBgmyk8XoPFZ6p8mplRyhqH1m\n2eeGvcQNIwKBgQDRMCjGsOs5yAW6HdQZFadI+s+Eeyh78O4GSLFmIVjlimWrzEYh\nrKRN5IInZq33eU7rhuIIaXMxOkIlkUUxN7MtYDNE7RyYZjcvT1HzqtZJryGt6H5L\nUTL/L7Wb0zrICsOZwwRp3OiNSAx3/bpRoRmvTs3YxKH+w+JEZXZfQiI/VwKBgQC1\nCMAQkCXtRqSh7IrBnev/cmxN1z1Dn6YRIVRwnHgscHzjSH+32VCjDXIWw6hYOiy4\nwLJjai21oMrPNtGY+5LAL1RxeVpfRVzvRB/CpXV8rXPIaz3AoZ0ZYycGvSubTYlI\nSPkMUuftib/fd867UryfG4jnb4RfSPeMG7Rcf6BT6wKBgE1XjwZm3FwfXw8YOdum\nAN9QEtKK97jxV5xuB8Peg5W1UToBbPD6WDhts0lh7sl2TUhA5HFJ/BWGIoozvIUp\nIY4d08oVcA2k1VKyn+3ubkLamC75zPRxadiuR+ddD0wauqHtw4t3O+Qk00q68tSx\nm2EqZ1DP4TE1aZV5FwouG0DZ\n-----END PRIVATE KEY-----\n',
-    user_email: 'erick.manrique@bootcampr.io',
-  },
+  keyFilename: './calendarSecret.json',
   scopes: ['https://www.googleapis.com/auth/calendar'],
 });
-console.log('auth-before', auth);
-
-// const authClient = await auth.getClient();
-// console.log('authClient', authClient);
-// auth.subject = 'erick.manrique@bootcampr.io';
-console.log('auth-after', auth);
+auth.subject = 'erick.manrique@bootcampr.io';
 
 export const calendar = google.calendar({ version: 'v3', auth });
 

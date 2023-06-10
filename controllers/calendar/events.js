@@ -1,6 +1,5 @@
 import { formatCalendarId } from '../../utils/helperFunctions.js';
 import { calendar } from '../../server.js';
-import sgMail from '@sendgrid/mail';
 
 // Potential New Controllers for Meetings
 // Update Single User Attendence
@@ -39,7 +38,7 @@ export const fetchEvent = async (req, res) => {
 
 /*
 const sampleNewEvent = {
-    "calendarId": "gieggl7g0egdgdtptosvin5bno@group.calendar.google.com",
+    "calendarId": "{{CALENDAR_ID}}@group.calendar.google.com",
     "resource": {
         "description": "description",
         "summary": "1",
@@ -53,58 +52,10 @@ const sampleNewEvent = {
         },
         "attendees": [
             {
-                "email": "bootcamprcalendar@gmail.com"
+                "email": "{{USER_EMAIL}}@gmail.com"
             }
         ]
     },
     "sendUpdates": "all"
 };
 */
-
-/* Attempt at using SG to send emails -> not functional nor pretty
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-const iCalContent = `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//My Calendar//EN
-BEGIN:VEVENT
-UID:${event.data.id}
-SUMMARY:${req.body.eventName}
-DTSTART:${req.body.eventStartTime}
-DTEND:${req.body.eventEndTime}
-LOCATION:
-DESCRIPTION:
-ORGANIZER:MAILTO:${'erickmanriqpro@gmail.com'}
-ATTENDEE;RSVP=TRUE;PARTSTAT=NEEDS-ACTION;ROLE=REQ-PARTICIPANT;CUTYPE=INDIVIDUAL;CN=${
-  req.body.attendees[0].email
-}:mailto:${req.body.attendees[0].email}
-END:VEVENT
-END:VCALENDAR`;
-
-const base64Content = Buffer.from(iCalContent).toString('base64');
-
-const msg = {
-  to: req.body.attendees[0].email, // Change to your recipient
-  from: `${process.env.EMAIL_SENDER}`, // Change to your verified sender
-  subject: 'New event',
-  text: `${req.body.description}`,
-  // need to double check this ternary reads right
-  attachments: [
-    {
-      content: base64Content,
-      filename: 'invitation.ics',
-      type: 'text/calendar',
-      disposition: 'attachment',
-    },
-  ],
-};
-console.log('msg', msg);
-sgMail
-  .send(msg)
-  .then(() => {
-    console.log('Verification email sent successfully');
-  })
-  .catch((error) => {
-    console.log('Email not sent');
-    console.error(error.response.body);
-  });
-  */
