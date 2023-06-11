@@ -17,16 +17,16 @@ const reSeedDatabase = async () => {
 
   // Generate x number of Projects
   const projects = [];
-  const numOfProjects = 1; // set to only 2 to avoid hitting calendar quotas
-  // for (let i = 0; i < numOfProjects; i++) {
-  projects.push(new Project(await generateProject()));
-  // }
+  const numOfProjects = 2; // set to only 2 to avoid hitting calendar quotas
+  for (let i = 0; i < numOfProjects; i++) {
+    projects.push(new Project(await generateProject()));
+  }
 
   // Fill a single project with users
   await fillProjectWithUsers(projects[0], designers.slice(0, 2), engineers.slice(0, 3));
+  projects[0].calendarId = await addCalendarToProject(projects[0]._id);
 
   for (const project of projects) {
-    project.calendarId = await addCalendarToProject(project._id);
     await project.save();
   }
 

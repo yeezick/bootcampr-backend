@@ -29,9 +29,6 @@ router.use('/', privateChatRoutes);
 router.use('/', projectRoutes);
 router.use('/', taskRoutes);
 router.use('/', ticketsRoutes);
-<<<<<<< HEAD
-=======
 router.use('/', userRoutes);
->>>>>>> 71c2c24 (delete meetings.js, replace with calendar and event files for both controllers and routes)
 
 export default router;

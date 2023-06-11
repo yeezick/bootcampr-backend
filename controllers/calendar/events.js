@@ -11,8 +11,7 @@ import { calendar } from '../../server.js';
 export const createEvent = async (req, res) => {
   try {
     const { calendarId } = req.params;
-    console.log('reqbod', req.body);
-    // Sample event below
+    // Sample event at bottom of file
     const event = await calendar.events.insert(req.body);
 
     res.status(200).send(event);

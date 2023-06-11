@@ -12,6 +12,7 @@ export const generateProject = async (project = defaultProject) => {
   const endDate = Date.now() + duration * 24 * 60 * 60 * 60;
 
   return {
+    calendarId: '',
     chats: [],
     goal,
     meetings: [],
