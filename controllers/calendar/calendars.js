@@ -50,7 +50,6 @@ export const createCalendar = async (req, res) => {
     const newCalendar = await calendar.calendars.insert({
       requestBody: calendarData,
     });
-    console.log('newcal', newCalendar);
 
     // Set ACLs to grant access to invitees
     const rule = {
