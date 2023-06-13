@@ -20,6 +20,7 @@ export const createTicket = async (req, res) => {
 export const updateTicketInformationAndStatus = async (req, res) => {
   try {
     const { link, newStatus, oldStatus, ticketId, projectId, description, date, assignees, title } = req.body;
+
     const ticket = await Ticket.findByIdAndUpdate(
       ticketId,
       {
@@ -28,6 +29,7 @@ export const updateTicketInformationAndStatus = async (req, res) => {
         date: date,
         title: title,
         assignees: assignees,
+        status: newStatus,
       },
       { new: true },
     );
@@ -42,10 +44,14 @@ export const updateTicketInformationAndStatus = async (req, res) => {
 };
 
 const updateTicketStatus = async ({ oldStatus, newStatus, ticketId, projectId }) => {
-  await Project.findByIdAndUpdate(projectId, {
-    $pull: { [`projectTracker.${oldStatus}`]: ticketId },
-    $push: { [`projectTracker.${newStatus}`]: ticketId },
-  });
+  await Project.findByIdAndUpdate(
+    projectId,
+    {
+      $pull: { [`projectTracker.${oldStatus}`]: ticketId },
+      $push: { [`projectTracker.${newStatus}`]: ticketId },
+    },
+    { new: true },
+  );
 };
 
 export const deleteTicket = async (req, res) => {
