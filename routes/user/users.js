@@ -9,6 +9,7 @@ import {
   getOneUser,
   updateUserInfo,
 } from '../../controllers/user/users.js';
+import { getUserProjects } from '../../controllers/projects.js';
 
 //middleware
 const storage = multer.memoryStorage();
@@ -27,6 +28,6 @@ router.get('/users/:userId/messages', getAllChatThreads);
 router.get('/users/:userId/media', getMediaByUserId);
 
 // Projects
-router.get('/users/:userId/project', getProjectByUserId);
+router.get('/users/:userId/project', getUserProjects);
 
 export default router;
