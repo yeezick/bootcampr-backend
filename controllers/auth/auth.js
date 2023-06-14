@@ -10,6 +10,21 @@ const today = new Date();
 const exp = new Date(today);
 exp.setDate(today.getDate() + 30);
 
+const defaultDayAvailability = {
+  available: false,
+  availability: []
+};
+
+const availability = {
+  SUN: defaultDayAvailability,
+  MON: defaultDayAvailability,  
+  TUE: defaultDayAvailability,
+  WED: defaultDayAvailability,
+  THU: defaultDayAvailability,
+  FRI: defaultDayAvailability,
+  SAT: defaultDayAvailability
+};
+
 export const signUp = async (req, res) => {
   try {
     const { email, firstName, lastName, password } = req.body;
@@ -23,7 +38,7 @@ export const signUp = async (req, res) => {
       });
     }
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = new User({ email, firstName, lastName, passwordDigest, onboarded: false });
+    const user = new User({ availability, email, firstName, lastName, passwordDigest, onboarded: false });
     await user.save();
 
     const token = newToken(user, true);

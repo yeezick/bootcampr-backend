@@ -7,7 +7,7 @@
     "test": "cross-env NODE_ENV=test jest",
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "db:seed": "node seed/data.js"
+    "db:seed": "node utils/seed/seedDatabase.js"
   },
   "repository": {
     "type": "git",

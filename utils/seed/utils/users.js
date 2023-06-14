@@ -36,14 +36,35 @@ export const generateFakeUser = async (role) => {
     
     return {
         availability: {
-            sunday: JSON.stringify(generateRandomSingleDayAvailability()),
-            monday: JSON.stringify(generateRandomSingleDayAvailability()),
-            tuesday: JSON.stringify(generateRandomSingleDayAvailability()),
-            wednesday: JSON.stringify(generateRandomSingleDayAvailability()),
-            thursday: JSON.stringify(generateRandomSingleDayAvailability()),
-            friday: JSON.stringify(generateRandomSingleDayAvailability()),
-            saturday: JSON.stringify(generateRandomSingleDayAvailability())
-        },
+            SUN: {
+                available: true,
+                availability: generateRandomSingleDayAvailability(),
+            },
+            MON: {
+                available: true,
+                availability: generateRandomSingleDayAvailability(),
+            },
+            TUE: {
+                available: true,
+                availability: generateRandomSingleDayAvailability(),
+                },
+            WED: {
+                available: true,
+                availability: generateRandomSingleDayAvailability(),
+                },
+            THU: {
+                available: true,
+                availability: generateRandomSingleDayAvailability(),
+                },
+            FRI: {
+                available: true,
+                availability: generateRandomSingleDayAvailability(),
+                },
+            SAT: {
+                available: true,
+                availability: generateRandomSingleDayAvailability()
+            },
+        },            
         bio: generateBio(role),
         email: faker.helpers.unique(faker.internet.email, [name.first, name.last]),
         firstName: name.first,

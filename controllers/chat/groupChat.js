@@ -1,10 +1,16 @@
 import mongoose from 'mongoose';
 import GroupChat from '../../models/chat/groupChat.js';
 
-export const createGroupChat = async (req, res) => {
+export const createGroupChatRoom = async (req, res) => {
   try {
     const { userId } = req.params;
     let { groupName, groupDescription, groupPhoto, participants } = req.body;
+
+    participants = participants.map((participantId) => ({
+      participant: mongoose.Types.ObjectId(participantId),
+      isAdmin: false,
+    }));
+
     const newGroupChat = new GroupChat({
       groupName,
       groupDescription,
@@ -14,6 +20,7 @@ export const createGroupChat = async (req, res) => {
     });
     await newGroupChat.save();
     res.status(201).json({
+      newRoomId: newGroupChat._id,
       message: `Group chat created successfully by user with ID ${userId}.`,
     });
   } catch (error) {
@@ -31,6 +38,7 @@ export const createGroupChatMessage = async (req, res) => {
     existingGroupChat['messages'].push({
       text: text,
       sender: mongoose.Types.ObjectId(userId),
+      readBy: [{ user: mongoose.Types.ObjectId(userId) }],
     });
     await existingGroupChat.save();
     res.status(201).json({
@@ -48,7 +56,7 @@ export const getAllGroupChatsByUserId = async (req, res) => {
     const groupChatThreads = await GroupChat.find({
       'participants.participant': userId,
     })
-      .populate({ path: 'participants.participant', select: 'email' })
+      .populate({ path: 'participants.participant', select: 'email profilePicture' })
       .populate({ path: 'creator', select: 'email' })
       .populate({ path: 'messages.sender', select: 'email' });
 
@@ -71,14 +79,15 @@ export const getGroupChatByChatId = async (req, res) => {
   try {
     const { groupChatId } = req.params;
     const groupChatThread = await GroupChat.findOne({ _id: groupChatId })
-      .populate({ path: 'participants.participant', select: 'email' })
+      .populate({ path: 'participants.participant', select: 'email profilePicture firstName lastName' })
       .populate({ path: 'creator', select: 'email' })
       .populate({
         path: 'media',
         select: 'status fileName fileType fileUrl',
         populate: { path: 'sender', select: 'email' },
       })
-      .populate({ path: 'messages.sender', select: 'email' });
+      .populate({ path: 'messages.sender', select: 'email' })
+      .select('-messages');
 
     !groupChatThread
       ? res.status(404).json({ message: `No group chat found with ID ${groupChatId}.` })
@@ -255,6 +264,36 @@ export const deleteMessage = async (req, res) => {
       { new: true },
     );
     res.status(200).json({ message: `Successfully deleted message with ID ${messageId}.` });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const updateGroupMessageReadStatus = async (req, res) => {
+  try {
+    const { userId, groupChatId } = req.params;
+
+    // Fetch group chat and obtain last message
+    const groupChat = await GroupChat.findById(groupChatId);
+
+    const combinedMessages = groupChat.messages?.concat(groupChat.media) || [];
+    combinedMessages.sort((a, b) => new Date(b.createdAt || b.timestamp) - new Date(a.createdAt || a.timestamp));
+
+    const lastMessage = combinedMessages[0];
+
+    const userRead = lastMessage.readBy.findIndex((userObj) => userObj.user._id.toString() === userId);
+
+    // Add user to readBy array of last message
+    if (userRead === -1) {
+      lastMessage.readBy.push({ user: mongoose.Types.ObjectId(userId) });
+      await groupChat.save();
+      return res
+        .status(201)
+        .json({ message: `User with ID ${userId} successfully read the last message in group chat ${groupChatId}.` });
+    }
+
+    res.status(201).json({ message: `Last message in group chat ${groupChatId} already read by user ${userId}.` });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });
