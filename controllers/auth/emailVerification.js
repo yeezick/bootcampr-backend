@@ -22,21 +22,32 @@ export const emailTokenVerification = async (user, token) => {
 };
 
 export const sendSignUpEmail = (user, url, verified = false) => {
-  const { email, firstName, lastName } = user;
+  // TODO: Host final bootcampr logo (email version) and replace URL
+  const bootcamprLogoURL = 'https://images.unsplash.com/photo-1682687982502-1529b3b33f85?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDN8RnpvM3p1T0hONnd8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60'
+  const { email, firstName } = user;
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+  const body = `
+    <img src=${bootcamprLogoURL} />
+    <br><br>Hey ${firstName},
+    <br><br>Thank you for sigining up to be a beta Bootcampr!
+    <br><br>We'll send you an email outlining the next steps when we're ready to start the beta test.
+    <br><br>In the meantime, please <a href="${url}">confirm your email address</a> to log in.
+    <br><br>After you log in, there will be a short onbording process.
+    <br><br>You can also set up your profile. Your profile will only be seen by the members of your project team so they can get to know you.
+    <br><br>If you are receiving this email in error, we're sorry for bothering you. You can ignore it.
+    <br><br>We'll chat soon.
+    <br><br>Let's go!
+    <br><br>The Bootcampr Team
+    <br><br><br> ** Plese note: Do not reply to this email. This email is sent from an unattended mailbox. Replies will not be read.`
+
   const msg = {
-    to: email, // Change to your recipient
+    to: email,
     from: `${process.env.EMAIL_SENDER}`, // Change to your verified sender
-    subject: 'Verify your email for Bootcampr',
-    text: `Welcome to Bootcampr, ${firstName} ${lastName}`,
-    // need to double check this ternary reads right
-    html: verified
-      ? `Your account is not verified. Please click this link to verify your account before logging in:
-    <br><br>${url}`
-      : `Click this link to confirm your email address and complete setup for your candidate account:
-    <br><br>${url}`,
+    subject: 'Welcome to Bootcampr!',
+    html: body,
   };
+
   sgMail
     .send(msg)
     .then(() => {
@@ -109,5 +120,34 @@ export const resendNewEmailLink = async (req, res) => {
   } catch (error) {
     console.log(error.message);
     res.status(400).send({ error: error });
+  }
+};
+
+export const verifyUniqueEmail = async (req,res) => {
+  try {
+    // check if user exists
+    const email = req.params.email.toLowerCase()
+    const user = await User.findOne({ email })
+  
+    // validate email format
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
+    const validFormat = emailRegex.test(email)
+  
+    if (!validFormat) {
+      throw new Error('Please enter a valid email address.')
+    } else if (user) {
+      throw new Error('Email address already exists.')
+    } else {
+      res.status(200).json({message: 'Email is valid and unique.'})
+    }
+  } catch (error) {
+    let statusCode = 400;
+
+    if (error.message === 'Please enter a valid email address.') {
+      statusCode = 422
+    } else if (error.message === 'Email already exists.') {
+      statusCode = 409
+    }
+    res.status(statusCode).send({ error: error.message })
   }
 };
