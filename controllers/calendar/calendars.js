@@ -76,6 +76,7 @@ export const createCalendar = async (req, res) => {
 /**
  * Used to delete all calendars when re-seeding DB
  */
+// TODO: remove or restrict access to this endpoint before deployment
 export const deleteAllCalendars = async (req, res) => {
   try {
     const response = await calendar.calendarList.list();

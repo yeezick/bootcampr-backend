@@ -8,6 +8,7 @@ import axios from 'axios';
 const reSeedDatabase = async () => {
   // Remove all data from database
   await db.dropDatabase();
+  // TODO: remove or restrict access to this endpoint before deployment
   await axios.delete(`http://localhost:8001/calendar/deleteAllCalendars`);
 
   // Generate set of Users

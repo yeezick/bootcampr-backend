@@ -59,7 +59,7 @@ export const addCalendarToProject = async (projectId) => {
     });
     return response.data.id.split('@')[0];
   } catch (error) {
-    console.log('Error creating a project for this team', error);
+    console.error('Error creating a project for this team', error);
     return null;
   }
 };
