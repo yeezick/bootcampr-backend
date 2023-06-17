@@ -11,10 +11,12 @@ import User from './models/user.js';
 import { google } from 'googleapis';
 
 export const auth = new google.auth.GoogleAuth({
-  keyFilename: './calendarSecret.json',
-  scopes: ['https://www.googleapis.com/auth/calendar'],
+  credentials: JSON.parse(process.env.CALENDAR_CREDS),
+  scopes: ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.events'],
+  clientOptions: {
+    subject: process.env.CALENDAR_EMAIL,
+  },
 });
-auth.subject = 'erick.manrique@bootcampr.io';
 
 export const calendar = google.calendar({ version: 'v3', auth });
 
