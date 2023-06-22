@@ -4,6 +4,7 @@ import {
   deleteProject,
   getAllProjects,
   getOneProject,
+  getProjectMembers,
   updateProject,
   updateUserAndProject,
 } from '../../controllers/project/projects.js';
@@ -15,6 +16,7 @@ router.get('/projects', getAllProjects);
 router.get('/projects/:id', getOneProject);
 // TODO: This route should be protected by BC ADMIN
 router.post('/projects', createProject);
+router.get('/project/:projectId/members', getProjectMembers)
 // TODO: Discuss during SWE meeting
 // What elements of a project can be updated?
 // Should they each have their own route? aka, meetings, chats, tasks etc.
