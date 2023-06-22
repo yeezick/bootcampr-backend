@@ -43,6 +43,25 @@ export const getOneProject = async (req, res) => {
   }
 }; // tested and is good
 
+export const getProjectMembers = async (req, res) => {
+  try {
+    const { projectId } = req.params
+    const project = await Project.findOne({_id: projectId})
+    console.log(project)
+    const memberIds = [...project.members.engineers, ...project.members.designers]
+    const users = memberIds.map(async (member) => {
+      const user = await User.findById(member)
+      console.log(user)
+      return user
+    }).then(
+      res.status(200).json(users)
+    )
+    // convert designers and engineers into single array of members
+  } catch (err) {
+    console.error(err)
+  }
+}
+
 export const createProject = async (req, res) => {
   try {
     const newProject = new Project(req.body);
