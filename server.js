@@ -4,11 +4,12 @@ import express from 'express';
 import logger from 'morgan';
 import cors from 'cors';
 import routes from './routes/index.js';
-import * as io from 'socket.io';
-import { createServer } from 'http';
+import { Server } from 'socket.io';
+import http from 'http';
 import PushNotifications from './models/notifications.js';
 import User from './models/user.js';
 import { google } from 'googleapis';
+import colors from 'colors';
 
 export const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.CALENDAR_CREDS),
@@ -23,11 +24,11 @@ export const calendar = google.calendar({ version: 'v3', auth });
 const app = express();
 const PORT = process.env.PORT || 8001;
 
-const server = createServer(app);
-const socketio = new io.Server(server, db, {
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, {
   cors: {
     transports: ['websocket'],
-    origin: '*',
+    origin: process.env.BASE_URL,
     credentials: true,
   },
 });
@@ -37,12 +38,12 @@ app.use(express.json());
 app.use(logger('dev'));
 app.use(routes);
 
-socketio.on('connection', (socket) => {
+io.on('connection', (socket) => {
   socket.on('setUserId', async (userId) => {
     if (userId) {
       const oneUser = await User.findById(userId).lean().exec();
       if (oneUser) {
-        console.log(`Socket: User with id ${userId} has connected.`);
+        console.log(`Socket: User with id ${userId} has connected.`.cyan.bold.underline);
       } else {
         console.log(`No user with id ${userId}`);
       }
@@ -55,8 +56,30 @@ socketio.on('connection', (socket) => {
       userId = null;
     });
   });
+
+  socket.on('join-conversation', (data) => {
+    socket.join(data.chatRoom);
+    console.log(`Socket: User with ID: ${data.authUser} joined chat room: ${data.chatRoom}`.cyan);
+  });
+
+  socket.on('send-message', (data) => {
+    socket.broadcast.emit('message-from-server', data.newMessage);
+    console.log(`Socket: New message received!`.cyan);
+  });
+
+  socket.on('read-message', (data) => {
+    socket.broadcast.emit('read-message-check', `Unread message opened by user: ${data.authUser}`);
+  });
+
+  socket.on('check-any-unread-messages', (data) => {
+    socket.broadcast.emit('unread-messages-checked', data);
+  });
+
+  socket.on('disconnect', (socket) => {
+    console.log('User left.');
+  });
 });
 
-server.listen(PORT, () => {
-  console.log(`Express server application is running on port: ${PORT}\n\n`);
+httpServer.listen(PORT, () => {
+  console.log(`Express server application is running on port: ${PORT}\n\n`.yellow.bold.underline);
 });

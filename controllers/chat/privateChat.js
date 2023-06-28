@@ -54,7 +54,15 @@ export const createPrivateChatMessage = async (req, res) => {
       readBy: [{ user: mongoose.Types.ObjectId(userId) }],
     });
     await existingMessageThread.save();
+
+    const newMessage = await PrivateChat.findOne({ _id: privateChatId })
+      .select('messages')
+      .slice('messages', -1)
+      .select('sender status text timestamp')
+      .populate({ path: 'messages.sender', select: 'email profilePicture' });
+
     res.status(201).json({
+      newMessage: newMessage.messages[0],
       message: `Successfully sent message from user with ID ${userId} to private chat ${privateChatId}.`,
     });
   } catch (error) {
