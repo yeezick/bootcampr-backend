@@ -20,12 +20,15 @@ router.get('/users', getAllUsers);
 router.get('/users/:id', getOneUser);
 router.put('/users/:id', updateUserInfo);
 router.delete('/users/:id', deleteUser);
+
+// Profile Image
 router.post('/users/:id/addImage', uploadImage.single('image'), addImagesToS3Bucket);
 router.delete('/users/:id/deleteImage', deleteImageFromS3Bucket);
 
 // Chat Threads
 router.get('/users/:userId/messages', getAllChatThreads);
 router.get('/users/:userId/media', getMediaByUserId);
+
 
 // Projects
 router.get('/users/:userId/project', getProjectByUserId);
