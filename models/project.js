@@ -26,6 +26,7 @@ const Project = new Schema(
       underReview: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
       completed: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
     },
+    deployedURL: { type: String }
   },
   { timestamps: true },
 );
