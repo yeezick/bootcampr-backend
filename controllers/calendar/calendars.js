@@ -10,7 +10,7 @@ export const fetchCalendar = async (req, res) => {
   try {
     const { calendarId } = req.params;
     const allEvents = await calendar.events.list({
-      calendarId: formatCalendarId(calendarId),
+      calendarId: 'primary',
       singleEvents: true, // returns instances of recurring events, not the recurring event themselves, might need to be adapted
       orderBy: 'startTime',
     });
@@ -81,10 +81,16 @@ export const deleteAllCalendars = async (req, res) => {
   try {
     const response = await calendar.calendarList.list();
     const calendars = response.data.items;
-
-    for (const calendarCurr of calendars) {
-      await calendar.calendarList.delete({ calendarId: calendarCurr.id });
-      console.log(`Deleted calendar with ID: ${calendarCurr.id}`);
+    const ignoreCalendars = [
+      'en.usa#holiday@group.v.calendar.google.com',
+      'addressbook#contacts@group.v.calendar.google.com',
+      process.env.CALENDAR_EMAIL,
+    ];
+    for (const currCalendar of calendars) {
+      if (!ignoreCalendars.includes(currCalendar.id)) {
+        await calendar.calendarList.delete({ calendarId: currCalendar.id });
+        console.log(`Deleted calendar with ID: ${currCalendar.id}`);
+      }
     }
 
     res.status(200).send('All calendars deleted');

@@ -39,7 +39,7 @@ const User = new Schema(
         availability: [[String]],
       }
     },
-    bio: { type: String, maxlength: 300 },
+    bio: { type: String, maxlength: 500 },
     email: {
       match: /.+\@.+\..+/,
       type: String,
