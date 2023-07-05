@@ -45,20 +45,24 @@ export const getOneProject = async (req, res) => {
   }
 }; // tested and is good
 
+// TODO: move to utils
+const convertQueryAttributesToMongoString = (attributes) => {
+  return attributes.split(',').join(' ')
+}
+
 export const getProjectMembers = async (req, res) => {
   try {
     const { projectId } = req.params
+    const { attributes } = req.query
+
+    const attributesToFetch = convertQueryAttributesToMongoString(attributes)
+
     const project = await Project.findOne({_id: projectId})
-    console.log(project)
     const memberIds = [...project.members.engineers, ...project.members.designers]
-    const users = memberIds.map(async (member) => {
-      const user = await User.findById(member)
-      console.log(user)
-      return user
-    }).then(
-      res.status(200).json(users)
-    )
-    // convert designers and engineers into single array of members
+  
+    const members = await User.find({ _id: { "$in": memberIds }}).select(attributesToFetch)
+  
+    res.status(200).json(members)
   } catch (err) {
     console.error(err)
   }
