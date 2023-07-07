@@ -20,7 +20,7 @@ router.post('/projects', createProject);
 // Should they each have their own route? aka, meetings, chats, tasks etc.
 // Yes IMO if it's a change to only one property to protect the rest of the
 // record in case additional accidental data is submitted with this request
-router.put('/projects/:id', updateProject); //update description etc
+router.patch('/projects/:id', updateProject); //update description etc
 router.delete('/projects/:id', deleteProject);
 router.patch('/update-user-and-project', updateUserAndProject);
 

@@ -31,3 +31,12 @@ const Project = new Schema(
   { timestamps: true },
 );
 export default mongoose.model('Project', Project);
+
+// ...project
+// completedInfo: {
+//   participatingMembers: ['userId'], array of objectIds ex: line 24 
+//   deployedUrl: {
+//     'userId': 'www'
+//   }
+// }
+// }
