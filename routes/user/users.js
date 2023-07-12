@@ -10,7 +10,6 @@ import {
   getOneUser,
   updateUserInfo,
 } from '../../controllers/user/users.js';
-import { getUserProjects } from '../../controllers/projects.js';
 
 //middleware
 const storage = multer.memoryStorage();
@@ -29,7 +28,6 @@ router.delete('/users/:id/deleteImage', deleteImageFromS3Bucket);
 // Chat Threads
 router.get('/users/:userId/messages', getAllChatThreads);
 router.get('/users/:userId/media', getMediaByUserId);
-
 
 // Projects
 router.get('/users/:userId/project', getUserProjects);
