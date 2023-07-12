@@ -43,11 +43,6 @@ export const getOneProject = async (req, res) => {
   }
 }; // tested and is good
 
-// TODO: move to utils
-const convertQueryAttributesToMongoString = (attributes) => {
-  return attributes.split(',').join(' ')
-}
-
 export const getProjectMembers = async (req, res) => {
   try {
     const { projectId } = req.params
