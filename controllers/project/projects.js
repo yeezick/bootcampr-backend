@@ -9,6 +9,7 @@
 import Project from '../../models/project.js';
 import User from '../../models/user.js';
 import PushNotifications from '../../models/notifications.js';
+import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
 
 //basic CRUD functions:
 export const getAllProjects = async (req, res) => {
