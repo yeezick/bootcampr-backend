@@ -8,7 +8,7 @@ const Ticket = new Schema(
     link: { type: String },
     status: { type: String, enum: ['toDo', 'inProgress', 'underReview', 'completed'] },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
-    assignees: { type: Schema.Types.ObjectId, ref: 'User' },
+    assignee: { type: Schema.Types.ObjectId, ref: 'User' },
     image: { type: String },
     dueDate: { type: String },
     projectId: { type: String },
