@@ -18,7 +18,7 @@ const router = Router();
 
 router.get('/users', getAllUsers);
 router.get('/users/:id', getOneUser);
-router.put('/users/:id', updateUserInfo);
+router.post('/users/:id', updateUserInfo);
 router.delete('/users/:id', deleteUser);
 
 // Profile Image
@@ -28,7 +28,6 @@ router.delete('/users/:id/deleteImage', deleteImageFromS3Bucket);
 // Chat Threads
 router.get('/users/:userId/messages', getAllChatThreads);
 router.get('/users/:userId/media', getMediaByUserId);
-
 
 // Projects
 router.get('/users/:userId/project', getProjectByUserId);
