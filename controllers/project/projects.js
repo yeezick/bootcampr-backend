@@ -26,6 +26,8 @@ export const getOneProject = async (req, res) => {
     const { id } = req.params;
     const project = await Project.findOne({ _id: id })
       .populate([
+        { path: 'members.engineers' },
+        { path: 'members.designers' },
         { path: 'projectTracker.toDo', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
         { path: 'projectTracker.inProgress', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
         { path: 'projectTracker.underReview', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
