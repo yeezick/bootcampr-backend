@@ -9,13 +9,18 @@ import { calendar } from '../../server.js';
 // Get All Project Meetings for 'x' number of days
 
 export const createEvent = async (req, res) => {
+  const { calendarId } = req.params;
   try {
-    // Sample event at bottom of file
-    const event = await calendar.events.insert(req.body);
+    const preparedEvent = {
+      calendarId: `${calendarId}@group.calendar.google.com`,
+      resource: req.body,
+      sendUpdates: 'all',
+    };
+    const event = await calendar.events.insert(preparedEvent);
 
     res.status(200).send(event);
   } catch (error) {
-    console.error('Error creating event:', error);
+    console.error(`Error creating event for calendar (${calendarId})`, error);
     res.status(400).send(error);
   }
 };

@@ -27,10 +27,12 @@ export const getOneProject = async (req, res) => {
     const { id } = req.params;
     const project = await Project.findOne({ _id: id })
       .populate([
-        { path: 'projectTracker.toDo', select: '-projectTracker', populate: { path: 'createdBy assignee' } },
-        { path: 'projectTracker.inProgress', select: '-projectTracker', populate: { path: 'createdBy assignee' } },
-        { path: 'projectTracker.underReview', select: '-projectTracker', populate: { path: 'createdBy assignee' } },
-        { path: 'projectTracker.completed', select: '-projectTracker', populate: { path: 'createdBy assignee' } },
+        { path: 'members.engineers' },
+        { path: 'members.designers' },
+        { path: 'projectTracker.toDo', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
+        { path: 'projectTracker.inProgress', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
+        { path: 'projectTracker.underReview', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
+        { path: 'projectTracker.completed', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
       ])
       .exec();
 
@@ -46,21 +48,21 @@ export const getOneProject = async (req, res) => {
 
 export const getProjectMembers = async (req, res) => {
   try {
-    const { projectId } = req.params
-    const { attributes } = req.query
+    const { projectId } = req.params;
+    const { attributes } = req.query;
 
-    const attributesToFetch = convertQueryAttributesToMongoString(attributes)
+    const attributesToFetch = convertQueryAttributesToMongoString(attributes);
 
-    const project = await Project.findOne({_id: projectId})
-    const memberIds = [...project.members.engineers, ...project.members.designers]
-  
-    const members = await User.find({ _id: { "$in": memberIds }}).select(attributesToFetch)
-  
-    res.status(200).json(members)
+    const project = await Project.findOne({ _id: projectId });
+    const memberIds = [...project.members.engineers, ...project.members.designers];
+
+    const members = await User.find({ _id: { $in: memberIds } }).select(attributesToFetch);
+
+    res.status(200).json(members);
   } catch (err) {
-    console.error(err)
+    console.error(err);
   }
-}
+};
 
 export const createProject = async (req, res) => {
   try {
