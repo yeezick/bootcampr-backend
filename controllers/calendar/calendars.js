@@ -1,6 +1,6 @@
 import { calendar } from '../../server.js';
 import { formatCalendarId } from '../../utils/helperFunctions.js';
-
+import Project from '../../models/project.js';
 /**
  * There are usage limits to this API. (https://developers.google.com/calendar/api/guides/quota)
  * Ex: only 60 calendars can be created within an hour
@@ -10,12 +10,12 @@ export const fetchCalendar = async (req, res) => {
   try {
     const { calendarId } = req.params;
     const allEvents = await calendar.events.list({
-      calendarId: 'primary',
+      calendarId: formatCalendarId(calendarId),
       singleEvents: true, // returns instances of recurring events, not the recurring event themselves, might need to be adapted
       orderBy: 'startTime',
     });
 
-    res.status(200).send(allEvents);
+    res.status(200).send(allEvents.data);
   } catch (error) {
     console.error('Error fetching event:', error);
     res.status(400).send(error);

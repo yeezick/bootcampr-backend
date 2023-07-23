@@ -10,7 +10,6 @@ import { calendar } from '../../server.js';
 
 export const createEvent = async (req, res) => {
   try {
-    const { calendarId } = req.params;
     // Sample event at bottom of file
     const event = await calendar.events.insert(req.body);
 
@@ -31,6 +30,33 @@ export const fetchEvent = async (req, res) => {
     res.status(200).send(event);
   } catch (error) {
     console.error('Error fetching event:', error);
+    res.status(400).send(error);
+  }
+};
+
+export const deleteCalendarEvents = async (req, res) => {
+  try {
+    const { calendarId } = req.params;
+    const formattedCalendarId = formatCalendarId(calendarId);
+    const {
+      data: { items: events },
+    } = await calendar.events.list({
+      calendarId: formattedCalendarId,
+      singleEvents: true,
+      fields: 'items(id)',
+    });
+
+    for (const event of events) {
+      await calendar.events.delete({
+        calendarId: formattedCalendarId,
+        eventId: event.id,
+      });
+      console.log('Deleting calendar:', calendarId);
+    }
+
+    res.status(200).send('All events deleted');
+  } catch (error) {
+    console.error('Error deleting events:', error);
     res.status(400).send(error);
   }
 };
