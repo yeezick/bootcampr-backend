@@ -2,6 +2,8 @@
 import User from '../../models/user.js';
 import jwt from 'jsonwebtoken';
 import sgMail from '@sendgrid/mail';
+import { scheduleJob } from 'node-schedule';
+import { getAllChatThreads } from '../user/users.js';
 
 const TOKEN_KEY = process.env.NODE_ENV === 'production' ? process.env.TOKEN_KEY : 'themostamazingestkey';
 
@@ -151,4 +153,70 @@ export const verifyUniqueEmail = async (req, res) => {
     }
     res.status(statusCode).send({ error: error.message });
   }
+};
+
+export const newMessageNotificationEmail = async (req, res) => {
+  try {
+    const frequency = '0 20 3 * * ?'; // Every day at 12:00PM
+
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+    scheduleJob(frequency, async () => {
+      try {
+        const users = await User.find().select('unreadMessages email firstName');
+
+        if (users.length === 0) {
+          return res.status(204).json({ message: 'No users found in database' });
+        }
+
+        users.forEach((user) => {
+          const { firstName, email, unreadMessages } = user;
+
+          const unreadAmount = Object.keys(unreadMessages).length; // Number of unread messages
+
+          if (Object.keys(unreadMessages).length > 0) {
+            console.log(`User with email ${email} has unread messages!`);
+            sendUnreadMessagesEmail(email, firstName, unreadAmount);
+          } else {
+            console.log(`User with email ${email} has no unread messages`);
+          }
+        });
+        res.status(200).json({ message: `Email notification job completed successfully` });
+      } catch (error) {
+        console.error(error.message);
+      }
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const sendUnreadMessagesEmail = (email, firstName, unreadAmount) => {
+  const url = 'http://localhost:3000/sign-in';
+
+  const body = `
+    <br><br>Hey ${firstName}!
+    <br><br>You have ${unreadAmount} unread messages in your Bootcampr inbox.
+    <br><br><a href="${url}">Login in</a> to join the party.
+    <br><br>
+    <br><br>The Bootcampr Team
+    <br><br><br> ** Plese note: Do not reply to this email. This email is sent from an unattended mailbox. Replies will not be read.`;
+
+  const msg = {
+    to: email,
+    from: `${process.env.SENDGRID_EMAIL}`,
+    subject: 'You have unread messages!',
+    html: body,
+  };
+
+  sgMail
+    .send(msg)
+    .then(() => {
+      console.log('Unread messages email notification sent successfully');
+    })
+    .catch((error) => {
+      console.log('Email not sent');
+      console.error(error);
+    });
 };

@@ -10,6 +10,7 @@ import PushNotifications from './models/notifications.js';
 import User from './models/user.js';
 import { google } from 'googleapis';
 import colors from 'colors';
+import { newMessageNotificationEmail } from './controllers/auth/emailVerification.js';
 
 export const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.CALENDAR_CREDS),
@@ -80,6 +81,13 @@ io.on('connection', (socket) => {
   });
 });
 
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, async () => {
   console.log(`Express server application is running on port: ${PORT}\n\n`.yellow.bold.underline);
+
+  try {
+    // Call the newMessageNotificationEmail function at the scheduled time
+    await newMessageNotificationEmail();
+  } catch (error) {
+    console.error('Error scheduling email notification job:', error.message);
+  }
 });
