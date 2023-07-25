@@ -8,7 +8,7 @@ export const createComment = async (req, res) => {
         await comment.save();
 
         if (parentComment) {
-            Comment.findByIdAndUpdate(parentComment, {$push: {"replies": comment._id}})
+            await Comment.findByIdAndUpdate(parentComment, {$push: {"replies": comment._id}})
         }
 
         const parentTicket = await Ticket.findByIdAndUpdate(ticketId, {$push: {"comments": comment._id}})
@@ -69,15 +69,33 @@ export const deleteComment = async (req, res) => {
 
 export const updateComment = async (req, res) => {
     try {
-      const { commentId } = req.params;
-      const comment = await Comment.findByIdAndUpdate(commentId, req.body, { new: true });
-      if (!comment) {
-        return res.status(404).json({ error: 'Comment not found.' });
-      }
-      res.status(200).send(comment);
-    } catch (error) {
-      console.log(error.message);
-      return res.status(404).json({ error: error.message });
+        const { commentId } = req.params;
+        const comment = await Comment.findByIdAndUpdate(commentId, req.body, { new: true });
+        if (!comment) {
+            return res.status(404).json({ error: 'Comment not found.' });
+        }
+        res.status(200).send(comment);
+        } catch (error) {
+        console.log(error.message);
+        return res.status(404).json({ error: error.message });
+    }
+};
+
+export const getReplies = async (req, res) => {
+    try {
+        const { commentId } = req.params
+        const comment = await Comment.findById(commentId)
+        console.log(comment)
+        const { replies } = comment
+
+        const replyComments = await Comment.find({
+            _id: { $in: replies }
+        });
+        console.log(replyComments)
+        res.status(200).json(replyComments)
+    } catch (err) {
+        console.error(err)
+        res.status(400).json({error: err.message})
     }
 };
 
