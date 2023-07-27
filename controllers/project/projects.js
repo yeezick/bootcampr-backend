@@ -30,6 +30,7 @@ export const getOneProject = async (req, res) => {
         { path: 'projectTracker.inProgress', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
         { path: 'projectTracker.underReview', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
         { path: 'projectTracker.completed', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
+        { path: 'completedInfo.participatingMembers.user', select: 'firstName lastName role' },
       ])
       .exec();
 
@@ -57,11 +58,18 @@ export const createProject = async (req, res) => {
 export const updateProject = async (req, res) => {
   try {
     const { id } = req.params;
-    const project = await Project.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
+    const updatedProject = await Project.findByIdAndUpdate(
+      id,
+      { $set: req.body },
+      {
+        new: true,
+      },
+    );
 
-    res.status(200).json(project);
+    if (updatedProject) {
+      return res.status(200).json(updatedProject);
+    }
+    throw new Error('Project not found.');
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: error.message });
