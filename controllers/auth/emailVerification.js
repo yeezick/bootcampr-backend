@@ -157,14 +157,14 @@ export const verifyUniqueEmail = async (req, res) => {
 
 export const newMessageNotificationEmail = async (req, res) => {
   try {
-    const frequency = '0 20 3 * * ?'; // Every day at 12:00PM
+    const frequency = '0 44 14 * * ?'; // Every day at 12:00PM
 
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
     scheduleJob(frequency, async () => {
       try {
         const users = await User.find().select('unreadMessages email firstName');
-
+        console.log('all users:', users);
         if (users.length === 0) {
           return res.status(204).json({ message: 'No users found in database' });
         }
@@ -172,11 +172,11 @@ export const newMessageNotificationEmail = async (req, res) => {
         users.forEach((user) => {
           const { firstName, email, unreadMessages } = user;
 
-          const unreadAmount = Object.keys(unreadMessages).length; // Number of unread messages
+          const unreadAmount = unreadMessages.size; // Number of unread messages
 
-          if (Object.keys(unreadMessages).length > 0) {
-            console.log(`User with email ${email} has unread messages!`);
-            sendUnreadMessagesEmail(email, firstName, unreadAmount);
+          if (unreadAmount > 0) {
+            console.log(`User with email ${email} has '${unreadAmount}' unread messages!`);
+            // sendUnreadMessagesEmail(email, firstName, unreadAmount);
           } else {
             console.log(`User with email ${email} has no unread messages`);
           }

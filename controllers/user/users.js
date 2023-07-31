@@ -211,3 +211,54 @@ export const getAllChatThreads = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const setUnreadMessageForUser = async (req, res) => {
+  try {
+    const { chatId, usersArray } = req.body;
+
+    const updatePromises = usersArray.map(async (userId) => {
+      const user = await User.findOne({ _id: userId });
+
+      if (user) {
+        if (!user.unreadMessages[chatId]) {
+          user.unreadMessages[chatId] = true;
+          await user.save();
+        }
+      } else {
+        console.error(`User not found with id: ${userId}`);
+      }
+    });
+
+    await Promise.all(updatePromises);
+
+    res.status(200).json({ message: 'Unread messages updated for users successfully.' });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const markConversationAsRead = async (req, res) => {
+  try {
+    const { chatId } = req.body;
+    const { userId } = req.params;
+
+    const user = await User.findOne({ _id: userId });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    if (user.unreadMessages.has(chatId)) {
+      user.unreadMessages.delete(chatId);
+      await user.save();
+
+      return res.status(200).json({ message: 'Conversation marked as read successfully.' });
+    } else {
+      return res.status(200).json({ message: 'Conversation is already marked as read.' });
+    }
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
