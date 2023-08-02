@@ -220,8 +220,8 @@ export const setUnreadMessageForUser = async (req, res) => {
       const user = await User.findOne({ _id: userId });
 
       if (user) {
-        if (!user.unreadMessages[chatId]) {
-          user.unreadMessages[chatId] = true;
+        if (!user.unreadMessages.get(chatId)) {
+          user.unreadMessages.set(chatId, true);
           await user.save();
         }
       } else {

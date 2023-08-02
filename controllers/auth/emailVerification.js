@@ -157,35 +157,31 @@ export const verifyUniqueEmail = async (req, res) => {
 
 export const newMessageNotificationEmail = async (req, res) => {
   try {
-    const frequency = '0 44 14 * * ?'; // Every day at 12:00PM
+    const frequency = '0 0 12 * * ?'; // Every day at 12:00PM
 
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
     scheduleJob(frequency, async () => {
       try {
         const users = await User.find().select('unreadMessages email firstName');
-        console.log('all users:', users);
+
         if (users.length === 0) {
           return res.status(204).json({ message: 'No users found in database' });
         }
 
         users.forEach((user) => {
           const { firstName, email, unreadMessages } = user;
-
-          const unreadAmount = unreadMessages.size; // Number of unread messages
+          const unreadAmount = unreadMessages.size; // Number of unread conversations
 
           if (unreadAmount > 0) {
-            console.log(`User with email ${email} has '${unreadAmount}' unread messages!`);
-            // sendUnreadMessagesEmail(email, firstName, unreadAmount);
-          } else {
-            console.log(`User with email ${email} has no unread messages`);
+            sendUnreadMessagesEmail(email, firstName, unreadAmount);
           }
         });
-        res.status(200).json({ message: `Email notification job completed successfully` });
       } catch (error) {
         console.error(error.message);
       }
     });
+    res.status(200).json({ message: `Email notification job completed successfully` });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });
@@ -193,15 +189,30 @@ export const newMessageNotificationEmail = async (req, res) => {
 };
 
 export const sendUnreadMessagesEmail = (email, firstName, unreadAmount) => {
-  const url = 'http://localhost:3000/sign-in';
+  const loginUrl = 'http://localhost:3000/sign-in';
+  const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
 
   const body = `
-    <br><br>Hey ${firstName}!
-    <br><br>You have ${unreadAmount} unread messages in your Bootcampr inbox.
-    <br><br><a href="${url}">Login in</a> to join the party.
-    <br><br>
-    <br><br>The Bootcampr Team
-    <br><br><br> ** Plese note: Do not reply to this email. This email is sent from an unattended mailbox. Replies will not be read.`;
+    <table style="background-color: #F2F4FF; width: 100%; max-width: 900px; min-height: 335px; margin: 0 auto; border-radius: 4px; padding: 25px 25px 125px 25px;">
+      <tr>
+        <td style="text-align: center;">
+          <img src=${bootcamprLogoURL} alt="logo" style="height: 40px; width: auto; margin: 0 auto; margin-bottom: 25px;" draggable="false" />
+          <table style="background-color: #FFFFFF; width: 100%; max-width: 560px; margin: 0 auto; padding: 22px;">
+            <tr>
+              <td style="font-size: 16px;">
+                <p style="color: black; margin: 0; margin-bottom: 20px; text-align: left;">Hi ${firstName}!</p>
+                <p style="color: black; margin: 0; margin-bottom: 2px; text-align: left;">You have ${unreadAmount} new message${
+    unreadAmount > 1 ? 's' : ''
+  }!</p>
+                <p style="color: black; margin: 0; margin-bottom: 40px; text-align: left;">Your teammates value your input and would like to hear from you.</p>
+                <a href=${loginUrl} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 11px; font-weight: 500; padding: 8px 20px; text-decoration: none; text-align: center;">View messages</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+`;
 
   const msg = {
     to: email,
@@ -213,10 +224,10 @@ export const sendUnreadMessagesEmail = (email, firstName, unreadAmount) => {
   sgMail
     .send(msg)
     .then(() => {
-      console.log('Unread messages email notification sent successfully');
+      console.log(`Unread messages email notification sent to ${email} successfully`);
     })
     .catch((error) => {
-      console.log('Email not sent');
+      console.log('Unread messages email not sent');
       console.error(error);
     });
 };
