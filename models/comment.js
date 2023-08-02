@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const Comment = new Schema(
     {
-        likes: [ { type: Schema.Types.ObjectId, ref: 'User'}],
+        likes: [{ type: Schema.Types.ObjectId, ref: 'User'}],
         content: { type: String },
         author: { type: {
             userId: { type: Schema.Types.ObjectId, ref: 'User'},
@@ -12,7 +12,7 @@ const Comment = new Schema(
             profilePicture: { type: String },
         }, required: true},
         replies: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
-        isReply: { type: Boolean, default: false}
+        isReply: { type: Boolean, default: false }
     },
     { timestamps: true },
 );
