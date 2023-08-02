@@ -10,11 +10,11 @@ router.put('/updateTicketInformation', updateTicketInformationAndStatus);
 router.post('/deleteTicket', deleteTicket);
 
 // comments
+router.get('/comments', getAllComments);
+router.get('/ticket/:ticketId/comments', getTicketComments);
+router.get('/comment/:commentId/replies', getReplies);
 router.post('/createComment', createComment);
-router.get('/comments', getAllComments)
-router.get('/ticket/:ticketId/comments', getTicketComments)
-router.delete('/comments/:id', deleteComment)
-router.post('/updateComment/:commentId', updateComment)
-router.get('/comment/:commentId/replies', getReplies)
+router.patch('/updateComment/:commentId', updateComment);
+router.delete('/comments/:id', deleteComment);
 
 export default router;
