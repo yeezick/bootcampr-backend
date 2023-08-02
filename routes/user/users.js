@@ -18,7 +18,7 @@ const router = Router();
 
 router.get('/users', getAllUsers);
 router.get('/users/:id', getOneUser);
-router.post('/users/:id', updateUserInfo);
+router.put('/users/:id', updateUserInfo);
 router.delete('/users/:id', deleteUser);
 
 // Profile Image
