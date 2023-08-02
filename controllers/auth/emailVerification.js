@@ -25,24 +25,27 @@ export const emailTokenVerification = async (user, token) => {
 
 export const sendSignUpEmail = (user, url, verified = false) => {
   // TODO: Host final bootcampr logo (email version) and replace URL
-  const bootcamprLogoURL =
-    'https://images.unsplash.com/photo-1682687982502-1529b3b33f85?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDN8RnpvM3p1T0hONnd8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60';
+  const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
   const { email, firstName } = user;
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-  const body = `
-    <img src=${bootcamprLogoURL} />
-    <br><br>Hey ${firstName},
-    <br><br>Thank you for sigining up to be a beta Bootcampr!
-    <br><br>We'll send you an email outlining the next steps when we're ready to start the beta test.
-    <br><br>In the meantime, please <a href="${url}">confirm your email address</a> to log in.
-    <br><br>After you log in, there will be a short onbording process.
-    <br><br>You can also set up your profile. Your profile will only be seen by the members of your project team so they can get to know you.
-    <br><br>If you are receiving this email in error, we're sorry for bothering you. You can ignore it.
-    <br><br>We'll chat soon.
-    <br><br>Let's go!
-    <br><br>The Bootcampr Team
-    <br><br><br> ** Plese note: Do not reply to this email. This email is sent from an unattended mailbox. Replies will not be read.`;
+  const body = `<table style="background-color: #F2F4FF; width: 100%; max-width: 910px; min-height: 335px; margin: 0 auto; border-radius: 4px; padding: 25px 25px 125px 25px;">
+      <tr>
+        <td style="text-align: center;">
+          <img src=${bootcamprLogoURL} alt="logo" style="height: 42px; width: auto; margin: 0 auto; margin-bottom: 25px;" draggable="false" />
+          <table style="background-color: #FFFFFF; width: 100%; max-width: 560px; margin: 0 auto; padding: 20px;">
+            <tr>
+              <td style="font-size: 15px;">
+                <p style="color: black; margin: 0; margin-bottom: 20px; text-align: left;">Hi ${firstName}!</p>
+                <p style="color: black; margin: 0; margin-bottom: 2px; text-align: left;">You've signed up to be a beta Bootcampr!</p>
+                <p style="color: black; margin: 0; margin-bottom: 40px; text-align: left;">Confirm your email address to log in and start a short onboarding process.</p>
+                <a href=${url} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 11px; font-weight: 500; padding: 8px 20px; text-decoration: none; text-align: center;">Confirm your email address</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>`;
 
   const msg = {
     to: email,
@@ -193,13 +196,13 @@ export const sendUnreadMessagesEmail = (email, firstName, unreadAmount) => {
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
 
   const body = `
-    <table style="background-color: #F2F4FF; width: 100%; max-width: 900px; min-height: 335px; margin: 0 auto; border-radius: 4px; padding: 25px 25px 125px 25px;">
+    <table style="background-color: #F2F4FF; width: 100%; max-width: 910px; min-height: 335px; margin: 0 auto; border-radius: 4px; padding: 25px 25px 125px 25px;">
       <tr>
         <td style="text-align: center;">
-          <img src=${bootcamprLogoURL} alt="logo" style="height: 40px; width: auto; margin: 0 auto; margin-bottom: 25px;" draggable="false" />
-          <table style="background-color: #FFFFFF; width: 100%; max-width: 560px; margin: 0 auto; padding: 22px;">
+          <img src=${bootcamprLogoURL} alt="logo" style="height: 42px; width: auto; margin: 0 auto; margin-bottom: 25px;" draggable="false" />
+          <table style="background-color: #FFFFFF; width: 100%; max-width: 560px; margin: 0 auto; padding: 20px;">
             <tr>
-              <td style="font-size: 16px;">
+              <td style="font-size: 15px;">
                 <p style="color: black; margin: 0; margin-bottom: 20px; text-align: left;">Hi ${firstName}!</p>
                 <p style="color: black; margin: 0; margin-bottom: 2px; text-align: left;">You have ${unreadAmount} new message${
     unreadAmount > 1 ? 's' : ''
