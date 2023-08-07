@@ -29,7 +29,6 @@ router.delete('/users/:id/deleteImage', deleteImageFromS3Bucket);
 router.get('/users/:userId/messages', getAllChatThreads);
 router.get('/users/:userId/media', getMediaByUserId);
 
-
 // Projects
 router.get('/users/:userId/project', getProjectByUserId);
 
