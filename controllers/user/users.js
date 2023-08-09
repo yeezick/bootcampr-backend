@@ -253,9 +253,15 @@ export const markConversationAsRead = async (req, res) => {
       user.unreadMessages.delete(chatId);
       await user.save();
 
-      return res.status(200).json({ message: 'Conversation marked as read successfully.' });
+      return res
+        .status(200)
+        .json({ unreadMessages: user.unreadMessages, message: 'Conversation marked as read successfully.' });
+      // User with ID ${userId} successfully read the last message in group chat ${groupChatId}.
     } else {
-      return res.status(200).json({ message: 'Conversation is already marked as read.' });
+      return res
+        .status(200)
+        .json({ unreadMessages: user.unreadMessages, message: 'Conversation is already marked as read.' });
+      // Last message in group chat ${groupChatId} already read by user ${userId}.
     }
   } catch (error) {
     console.error(error.message);

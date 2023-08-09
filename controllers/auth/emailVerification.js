@@ -60,7 +60,7 @@ export const sendSignUpEmail = (user, url, verified = false) => {
       console.log('Verification email sent successfully');
     })
     .catch((error) => {
-      console.log('Email not sent');
+      console.log('Verification email not sent');
       console.error(error);
     });
 };
