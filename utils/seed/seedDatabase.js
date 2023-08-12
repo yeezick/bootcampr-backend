@@ -33,7 +33,6 @@ const reSeedDatabase = async () => {
   for (const project of projects) {
     await project.save();
   }
-  console.log('users', users);
   for (const user of users) {
     await user.save();
   }
