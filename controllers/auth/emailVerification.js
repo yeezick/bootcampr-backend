@@ -160,7 +160,7 @@ export const verifyUniqueEmail = async (req, res) => {
 
 export const newMessageNotificationEmail = async (req, res) => {
   try {
-    const frequency = '0 0 12 * * ?'; // Every day at 12:00PM
+    const frequency = '0 02 20 * * ?'; // Every day at 12:00PM
 
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -180,11 +180,11 @@ export const newMessageNotificationEmail = async (req, res) => {
             sendUnreadMessagesEmail(email, firstName, unreadAmount);
           }
         });
+        res.status(200).json({ message: `Email notification job completed successfully` });
       } catch (error) {
         console.error(error.message);
       }
     });
-    res.status(200).json({ message: `Email notification job completed successfully` });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });

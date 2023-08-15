@@ -217,15 +217,19 @@ export const setUnreadMessageForUser = async (req, res) => {
     const { chatId, usersArray } = req.body;
 
     const updatePromises = usersArray.map(async (userId) => {
-      const user = await User.findOne({ _id: userId });
+      try {
+        const user = await User.findOne({ _id: userId });
 
-      if (user) {
-        if (!user.unreadMessages.get(chatId)) {
-          user.unreadMessages.set(chatId, true);
-          await user.save();
+        if (user) {
+          if (!user.unreadMessages.get(chatId)) {
+            user.unreadMessages.set(chatId, true);
+            await user.save();
+          }
+        } else {
+          console.error(`User not found with id: ${userId}`);
         }
-      } else {
-        console.error(`User not found with id: ${userId}`);
+      } catch (error) {
+        console.error(`Error updating user with id ${userId}: ${error.message}`);
       }
     });
 
