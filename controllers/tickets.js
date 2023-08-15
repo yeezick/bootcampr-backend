@@ -13,7 +13,7 @@ export const createTicket = async (req, res) => {
     res.status(200).send(newTicket);
   } catch (err) {
     console.error(err);
-    res.status(500).send('Error creating ticket.');
+    res.status(500).json({error: err.message});
   }
 };
 

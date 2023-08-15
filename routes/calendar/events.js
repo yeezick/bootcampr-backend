@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import * as controllers from '../../controllers/calendar/events.js';
-
+import { createEvent, deleteCalendarEvents, fetchEvent } from '../../controllers/calendar/events.js';
 const router = Router();
 
 // event routes
@@ -9,7 +8,7 @@ const router = Router();
 // UPDATE start time
 // UPDATE duration
 
-router.post('/calendar/:calendarId/createEvent', controllers.createEvent);
-router.get('/calendar/:calendarId/fetchEvent/:eventId', controllers.fetchEvent);
-
+router.post('/calendar/:calendarId/createEvent', createEvent);
+router.get('/calendar/:calendarId/fetchEvent/:eventId', fetchEvent);
+router.delete('/calendar/:calendarId/events', deleteCalendarEvents);
 export default router;
