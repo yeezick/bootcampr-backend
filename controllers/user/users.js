@@ -109,7 +109,7 @@ export const updateUserInfo = async (req, res) => {
     res.status(200).send(updatedUserImg);
   } catch (error) {
     console.log(error.message);
-    return res.status(404).json({ error: error.message });
+    res.status(404).json({ error: error.message });
   }
 };
 
