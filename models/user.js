@@ -10,34 +10,34 @@ const Schema = mongoose.Schema;
 const User = new Schema(
   {
     availability: {
-      SUN: { 
+      SUN: {
         available: { type: Boolean },
         availability: [[String]],
       },
-      MON: { 
+      MON: {
         available: { type: Boolean },
         availability: [[String]],
       },
-      TUE: { 
+      TUE: {
         available: { type: Boolean },
         availability: [[String]],
       },
-      WED: { 
+      WED: {
         available: { type: Boolean },
         availability: [[String]],
       },
-      THU: { 
+      THU: {
         available: { type: Boolean },
         availability: [[String]],
       },
-      FRI: { 
+      FRI: {
         available: { type: Boolean },
         availability: [[String]],
       },
-      SAT: { 
+      SAT: {
         available: { type: Boolean },
         availability: [[String]],
-      }
+      },
     },
     bio: { type: String, maxlength: 500 },
     email: {
@@ -59,6 +59,7 @@ const User = new Schema(
     project: { type: Schema.Types.ObjectId, ref: 'Project' },
     role: { type: String, enum: ['Software Engineer', 'UX Designer'] },
     timezone: { type: String },
+    unreadMessages: { type: Map, of: Boolean, default: {} },
     verified: { type: Boolean, default: false },
 
     // CALENDAR

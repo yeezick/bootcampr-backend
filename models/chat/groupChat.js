@@ -27,12 +27,6 @@ const GroupChat = new Schema(
           enum: ['sent', 'read', 'failed'],
           default: 'sent',
         },
-        readBy: [
-          {
-            user: { type: mongoose.Types.ObjectId, ref: 'User' },
-            timestamp: { type: Date, default: Date.now },
-          },
-        ],
       },
     ],
     media: [{ type: mongoose.Types.ObjectId, ref: 'Media' }],

@@ -8,6 +8,8 @@ import {
   getAllChatThreads,
   getAllUsers,
   getOneUser,
+  markConversationAsRead,
+  setUnreadMessageForUser,
   updateUserInfo,
 } from '../../controllers/user/users.js';
 
@@ -28,6 +30,8 @@ router.delete('/users/:id/deleteImage', deleteImageFromS3Bucket);
 // Chat Threads
 router.get('/users/:userId/messages', getAllChatThreads);
 router.get('/users/:userId/media', getMediaByUserId);
+router.post('/messages/setUnreadMessages', setUnreadMessageForUser);
+router.post('/users/:userId/messages/markConversationAsRead', markConversationAsRead);
 
 // Projects
 router.get('/users/:userId/project', getProjectByUserId);
