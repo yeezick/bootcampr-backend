@@ -160,7 +160,7 @@ export const verifyUniqueEmail = async (req, res) => {
 
 export const newMessageNotificationEmail = async (req, res) => {
   try {
-    const frequency = '0 02 20 * * ?'; // Every day at 12:00PM
+    const frequency = '0 0 12 * * ?'; // Every day at 12:00PM
 
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
