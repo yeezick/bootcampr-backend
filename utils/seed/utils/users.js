@@ -26,7 +26,7 @@ export const generateBio = (role) => {
  * @param {enum: ['Software Engineer', 'UX Designer']} role
  * @returns a User object with randomly generated user data
  */
-export const generateFakeUser = async (role, defaultInfo) => {
+export const generateFakeUser = async (role, customInfo) => {
   const name = {
     first: faker.name.firstName(),
     last: faker.name.lastName(),
@@ -78,7 +78,7 @@ export const generateFakeUser = async (role, defaultInfo) => {
     role,
     timezone: 'TBD',
     verified: true,
-    ...defaultInfo, // has to go last to overwrrite previous assignments
+    ...customInfo, // has to go last to overwrrite previous assignments
   };
 };
 
