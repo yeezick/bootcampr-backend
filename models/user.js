@@ -53,7 +53,7 @@ const User = new Schema(
       linkedinUrl: { type: String },
       portfolioUrl: { type: String },
     },
-    onboarded: { type: Boolean },
+    onboarded: { type: Boolean, default: false },
     passwordDigest: { type: String, required: true, select: false },
     profilePicture: { type: String },
     project: { type: Schema.Types.ObjectId, ref: 'Project' },
