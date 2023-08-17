@@ -1,7 +1,8 @@
 import 'dotenv/config.js';
 import db from '../../db/connection.js';
 import Project from '../../models/project.js';
-import { generateFakeUsers } from './utils/users.js';
+import User from '../../models/user.js';
+import { generateFakeUser, generateFakeUsers } from './utils/users.js';
 import { addCalendarToProject, generateProject, fillProjectWithUsers } from './utils/projects.js';
 import axios from 'axios';
 
@@ -27,10 +28,11 @@ const reSeedDatabase = async () => {
   await fillProjectWithUsers(projects[0], designers.slice(0, 2), engineers.slice(0, 3));
   projects[0].calendarId = await addCalendarToProject(projects[0]._id);
 
+  await addStaticSeedData(projects, users);
+
   for (const project of projects) {
     await project.save();
   }
-
   for (const user of users) {
     await user.save();
   }
@@ -45,3 +47,17 @@ reSeedDatabase()
     console.log('Error reseeding DB', error);
     db.close();
   });
+
+// Todo: move to a util file, project import currently fails script
+export const addStaticSeedData = async (projects, users) => {
+  const staticProject = new Project(await generateProject());
+  const staticUX = [
+    new User(await generateFakeUser('UX Designer', { email: 'star@struck.com' })),
+    new User(await generateFakeUser('UX Designer', { email: 'boootcampr@gmail.com' })),
+  ];
+  const staticSWE = [new User(await generateFakeUser('Software Engineer', { email: 'silly@goose.com' }))];
+  await fillProjectWithUsers(staticProject, staticUX, staticSWE);
+  staticProject.calendarId = await addCalendarToProject(staticProject._id);
+  projects.push(staticProject);
+  users.push(...staticUX, ...staticSWE);
+};

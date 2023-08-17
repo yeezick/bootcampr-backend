@@ -2,6 +2,8 @@
 import User from '../../models/user.js';
 import jwt from 'jsonwebtoken';
 import sgMail from '@sendgrid/mail';
+import { scheduleJob } from 'node-schedule';
+import { getAllChatThreads } from '../user/users.js';
 
 const TOKEN_KEY = process.env.NODE_ENV === 'production' ? process.env.TOKEN_KEY : 'themostamazingestkey';
 
@@ -23,24 +25,27 @@ export const emailTokenVerification = async (user, token) => {
 
 export const sendSignUpEmail = (user, url, verified = false) => {
   // TODO: Host final bootcampr logo (email version) and replace URL
-  const bootcamprLogoURL =
-    'https://images.unsplash.com/photo-1682687982502-1529b3b33f85?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDN8RnpvM3p1T0hONnd8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60';
+  const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
   const { email, firstName } = user;
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-  const body = `
-    <img src=${bootcamprLogoURL} />
-    <br><br>Hey ${firstName},
-    <br><br>Thank you for sigining up to be a beta Bootcampr!
-    <br><br>We'll send you an email outlining the next steps when we're ready to start the beta test.
-    <br><br>In the meantime, please <a href="${url}">confirm your email address</a> to log in.
-    <br><br>After you log in, there will be a short onbording process.
-    <br><br>You can also set up your profile. Your profile will only be seen by the members of your project team so they can get to know you.
-    <br><br>If you are receiving this email in error, we're sorry for bothering you. You can ignore it.
-    <br><br>We'll chat soon.
-    <br><br>Let's go!
-    <br><br>The Bootcampr Team
-    <br><br><br> ** Plese note: Do not reply to this email. This email is sent from an unattended mailbox. Replies will not be read.`;
+  const body = `<table style="background-color: #F2F4FF; width: 100%; max-width: 910px; min-height: 335px; margin: 0 auto; border-radius: 4px; padding: 25px 25px 125px 25px;">
+      <tr>
+        <td style="text-align: center;">
+          <img src=${bootcamprLogoURL} alt="logo" style="height: 42px; width: auto; margin: 0 auto; margin-bottom: 25px;" draggable="false" />
+          <table style="background-color: #FFFFFF; width: 100%; max-width: 560px; margin: 0 auto; padding: 20px;">
+            <tr>
+              <td style="font-size: 15px;">
+                <p style="color: black; margin: 0; margin-bottom: 20px; text-align: left;">Hi ${firstName}!</p>
+                <p style="color: black; margin: 0; margin-bottom: 2px; text-align: left;">You've signed up to be a beta Bootcampr!</p>
+                <p style="color: black; margin: 0; margin-bottom: 40px; text-align: left;">Confirm your email address to log in and start a short onboarding process.</p>
+                <a href=${url} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 11px; font-weight: 500; padding: 8px 20px; text-decoration: none; text-align: center;">Confirm your email address</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>`;
 
   const msg = {
     to: email,
@@ -55,7 +60,7 @@ export const sendSignUpEmail = (user, url, verified = false) => {
       console.log('Verification email sent successfully');
     })
     .catch((error) => {
-      console.log('Email not sent');
+      console.log('Verification email not sent');
       console.error(error);
     });
 };
@@ -184,4 +189,81 @@ export const verifyUniqueEmail = async (req, res) => {
     }
     res.status(statusCode).send({ error: error.message });
   }
+};
+
+export const newMessageNotificationEmail = async (req, res) => {
+  try {
+    const frequency = '0 0 12 * * ?'; // Every day at 12:00PM
+
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+    scheduleJob(frequency, async () => {
+      try {
+        const users = await User.find().select('unreadMessages email firstName');
+
+        if (users.length === 0) {
+          return res.status(204).json({ message: 'No users found in database' });
+        }
+
+        users.forEach((user) => {
+          const { firstName, email, unreadMessages } = user;
+          const unreadAmount = unreadMessages.size; // Number of unread conversations
+
+          if (unreadAmount > 0) {
+            sendUnreadMessagesEmail(email, firstName, unreadAmount);
+          }
+        });
+        res.status(200).json({ message: `Email notification job completed successfully` });
+      } catch (error) {
+        console.error(error.message);
+      }
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const sendUnreadMessagesEmail = (email, firstName, unreadAmount) => {
+  const loginUrl = 'http://localhost:3000/sign-in';
+  const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
+
+  const body = `
+    <table style="background-color: #F2F4FF; width: 100%; max-width: 910px; min-height: 335px; margin: 0 auto; border-radius: 4px; padding: 25px 25px 125px 25px;">
+      <tr>
+        <td style="text-align: center;">
+          <img src=${bootcamprLogoURL} alt="logo" style="height: 42px; width: auto; margin: 0 auto; margin-bottom: 25px;" draggable="false" />
+          <table style="background-color: #FFFFFF; width: 100%; max-width: 560px; margin: 0 auto; padding: 20px;">
+            <tr>
+              <td style="font-size: 15px;">
+                <p style="color: black; margin: 0; margin-bottom: 20px; text-align: left;">Hi ${firstName}!</p>
+                <p style="color: black; margin: 0; margin-bottom: 2px; text-align: left;">You have ${unreadAmount} new message${
+    unreadAmount > 1 ? 's' : ''
+  }!</p>
+                <p style="color: black; margin: 0; margin-bottom: 40px; text-align: left;">Your teammates value your input and would like to hear from you.</p>
+                <a href=${loginUrl} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 11px; font-weight: 500; padding: 8px 20px; text-decoration: none; text-align: center;">View messages</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+`;
+
+  const msg = {
+    to: email,
+    from: `${process.env.SENDGRID_EMAIL}`,
+    subject: 'You have unread messages!',
+    html: body,
+  };
+
+  sgMail
+    .send(msg)
+    .then(() => {
+      console.log(`Unread messages email notification sent to ${email} successfully`);
+    })
+    .catch((error) => {
+      console.log('Unread messages email not sent');
+      console.error(error);
+    });
 };
