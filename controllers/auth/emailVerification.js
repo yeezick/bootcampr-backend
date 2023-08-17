@@ -64,6 +64,39 @@ export const sendSignUpEmail = (user, url, verified = false) => {
     });
 };
 
+// consider swapper user for just email here (though id may be necessary in the new url to verify)
+export const sendNewEmailAddressVerificationEmail = (user, url) => {
+  // TODO: Host final bootcampr logo (email version) and replace URL
+  const bootcamprLogoURL =
+    'https://images.unsplash.com/photo-1682687982502-1529b3b33f85?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDN8RnpvM3p1T0hONnd8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60';
+  const { email } = user;
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+  const body = `
+    <img src=${bootcamprLogoURL} />
+    <br><br>Please verify your updated email address.
+    <br><br>You'll be asked to log in again.
+    <br><br><a href="${url}">Verify updated email address</a>
+    <br><br><br> ** Plese note: Do not reply to this email. This email is sent from an unattended mailbox. Replies will not be read.`;
+
+  const msg = {
+    to: email,
+    from: `${process.env.SENDGRID_EMAIL}`, // Change to your verified sender
+    subject: "It's Bootcampr!",
+    html: body,
+  };
+
+  sgMail
+    .send(msg)
+    .then(() => {
+      console.log('Verification email sent successfully');
+    })
+    .catch((error) => {
+      console.log('Email not sent');
+      console.error(error);
+    });
+};
+
 export const verifyEmailLink = async (req, res) => {
   try {
     const expiredToken = await verifyValidToken(req, req.params.token);
