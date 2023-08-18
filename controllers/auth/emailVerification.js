@@ -6,12 +6,11 @@ import { scheduleJob } from 'node-schedule';
 import { getAllChatThreads } from '../user/users.js';
 
 const TOKEN_KEY = process.env.NODE_ENV === 'production' ? process.env.TOKEN_KEY : 'themostamazingestkey';
+const today = new Date();
+const exp = new Date(today);
+exp.setDate(today.getDate() + 30);
 
 export const newToken = (user, temp = false) => {
-  const today = new Date();
-  const exp = new Date(today);
-  exp.setDate(today.getDate() + 30);
-
   const tokenjwt = jwt.sign({ userID: user._id, email: user.email }, TOKEN_KEY, {
     expiresIn: temp ? 1800 : parseInt(exp.getTime() / 1000),
   }); // temp expires in 30 minutes
@@ -67,7 +66,7 @@ export const sendSignUpEmail = (user, url, verified = false) => {
 
 export const verifyEmailLink = async (req, res) => {
   try {
-    const expiredToken = await verifyValidToken(req.params.token, res);
+    const expiredToken = await verifyValidToken(req, res, req.params.token);
     if (expiredToken) {
       return res.status(299).json({ msg: 'This url is expired. Please request a new link.', isExpired: true });
     }
@@ -89,11 +88,17 @@ export const verifyEmailLink = async (req, res) => {
   }
 };
 
-export const verifyValidToken = async (tokenjwt, res) => {
-  try {
-    const isExpired = jwt.decode(tokenjwt);
+export const verifyValidToken = async (req, res, tokenjwt) => {
+  const { emailToken } = req.params;
 
-    if (isExpired.exp * 1000 < Date.now()) return true;
+  try {
+    const isExpired = jwt.decode(emailToken || tokenjwt);
+
+    if (isExpired.exp * 1000 < Date.now()) {
+      res.status(401).json({ expired: true });
+      return true;
+    }
+    res.status(200).json({ expired: false });
     return false;
   } catch (error) {
     res.status(400).send({ error: error });
@@ -166,18 +171,28 @@ export const newMessageNotificationEmail = async (req, res) => {
 
     scheduleJob(frequency, async () => {
       try {
-        const users = await User.find().select('unreadMessages email firstName');
+        const users = await User.find().select('project unreadMessages email firstName');
 
         if (users.length === 0) {
           return res.status(204).json({ message: 'No users found in database' });
         }
 
         users.forEach((user) => {
-          const { firstName, email, unreadMessages } = user;
+          const { _id: userId, project, firstName, email, unreadMessages } = user;
           const unreadAmount = unreadMessages.size; // Number of unread conversations
 
+          // New token created to auto login user
+          const payload = {
+            userID: userId,
+            email,
+          };
+          const expiration = {
+            expiresIn: 43200, // Expires in 12 hours
+          };
+          const token = jwt.sign(payload, TOKEN_KEY, expiration);
+
           if (unreadAmount > 0) {
-            sendUnreadMessagesEmail(email, firstName, unreadAmount);
+            sendUnreadMessagesEmail(project, userId, email, firstName, unreadAmount, token);
           }
         });
         res.status(200).json({ message: `Email notification job completed successfully` });
@@ -191,8 +206,8 @@ export const newMessageNotificationEmail = async (req, res) => {
   }
 };
 
-export const sendUnreadMessagesEmail = (email, firstName, unreadAmount) => {
-  const loginUrl = 'http://localhost:3000/sign-in';
+export const sendUnreadMessagesEmail = (project, userId, email, firstName, unreadAmount, token) => {
+  const loginUrl = `http://localhost:3000/project/${project}?user=${userId}&unread=${token}`;
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
 
   const body = `
