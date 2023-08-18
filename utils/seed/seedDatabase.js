@@ -6,7 +6,8 @@ import { generateFakeUser, generateFakeUsers } from './utils/users.js';
 import { addCalendarToProject, generateProject, fillProjectWithUsers } from './utils/projects.js';
 import axios from 'axios';
 
-const reSeedDatabase = async () => {
+
+export const reSeedDatabase = async () => {
   // Remove all data from database
   await db.dropDatabase();
   // TODO: remove or restrict access to this endpoint before deployment
@@ -38,6 +39,9 @@ const reSeedDatabase = async () => {
   }
   return;
 };
+
+console.log(process.env)
+console.log(process.env.MONGODB_URI)
 
 reSeedDatabase()
   .then(() => {

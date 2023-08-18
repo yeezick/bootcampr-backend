@@ -54,6 +54,8 @@ export const signUp = async (req, res) => {
   }
 };
 
+
+
 export const duplicateEmail = async (email) => {
   try {
     const foundUser = await User.findOne({ email: email });

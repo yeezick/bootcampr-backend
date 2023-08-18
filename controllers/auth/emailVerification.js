@@ -66,28 +66,46 @@ export const sendSignUpEmail = (user, url, verified = false) => {
 };
 
 // consider swapper user for just email here (though id may be necessary in the new url to verify)
-export const sendNewEmailAddressVerificationEmail = (user, url) => {
-  // TODO: Host final bootcampr logo (email version) and replace URL
-  const bootcamprLogoURL =
-    'https://images.unsplash.com/photo-1682687982502-1529b3b33f85?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDN8RnpvM3p1T0hONnd8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60';
-  const { email } = user;
+export const sendUpdateEmailVerificationEmail = ({ body }, res) => {
+  console.log(body.newEmail)
+  const encodedEmail = btoa(body.newEmail)
+
+  const loginUrl = `http://localhost:3000/sign-in?${encodedEmail}`;
+  const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
+
+  console.log('update email verification')
+  // const { email } = user;
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-  const body = `
-    <img src=${bootcamprLogoURL} />
-    <br><br>Please verify your updated email address.
-    <br><br>You'll be asked to log in again.
-    <br><br><a href="${url}">Verify updated email address</a>
-    <br><br><br> ** Plese note: Do not reply to this email. This email is sent from an unattended mailbox. Replies will not be read.`;
+  const emailBody = `
+    <table style="background-color: #F2F4FF; width: 100%; max-width: 910px; min-height: 335px; margin: 0 auto; border-radius: 4px; padding: 25px 25px 125px 25px;">
+      <tr>
+        <td style="text-align: center;">
+          <img src=${bootcamprLogoURL} alt="logo" style="height: 42px; width: auto; margin: 0 auto; margin-bottom: 25px;" draggable="false" />
+          <table style="background-color: #FFFFFF; width: 100%; max-width: 560px; margin: 0 auto; padding: 20px;">
+            <tr>
+              <td style="font-size: 15px;">
+                <p style="color: black; margin: 0; margin-bottom: 40px; text-align: left;">Please verify your updated email address</p>
+                <p style="color: black; margin: 0; margin-bottom: 40px; text-align: left;">You'll be asked to log in again.</p>
+                <a href=${loginUrl} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 11px; font-weight: 500; padding: 8px 20px; text-decoration: none; text-align: center;">Verify updated email address</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+`;
 
   const msg = {
-    to: email,
-    from: `${process.env.SENDGRID_EMAIL}`, // Change to your verified sender
+    to: 'juliadwyer93@gmail.com',
+    // from: `${process.env.SENDGRID_EMAIL}`, // Change to your verified sender
+    from: 'koffiarielhessou@gmail.com',
     subject: "It's Bootcampr!",
-    html: body,
+    html: emailBody,
   };
 
-  sgMail
+  try {
+    sgMail
     .send(msg)
     .then(() => {
       console.log('Verification email sent successfully');
@@ -95,7 +113,15 @@ export const sendNewEmailAddressVerificationEmail = (user, url) => {
     .catch((error) => {
       console.log('Email not sent');
       console.error(error);
+      throw error
     });
+    res.status(200).send({msg: 'email sent'})
+  } catch (err) {
+    console.error(err)
+  }
+
+
+    // return 'email verification'
 };
 
 export const verifyEmailLink = async (req, res) => {
