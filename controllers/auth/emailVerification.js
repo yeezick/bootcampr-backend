@@ -65,10 +65,18 @@ export const sendSignUpEmail = (user, url, verified = false) => {
     });
 };
 
+export const newEmailTokenVerification = async (user, newEmail, token) => {
+  const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token}`;
+  sendUpdateEmailVerification(newEmail, url);
+};
+
 // consider swapper user for just email here (though id may be necessary in the new url to verify)
-export const sendUpdateEmailVerificationEmail = ({ body }, res) => {
-  console.log(body.newEmail)
-  const encodedEmail = btoa(body.newEmail)
+export const sendUpdateEmailVerification = (user, newEmail, token, res) => {
+  const encodedEmail = btoa(newEmail)
+  const url = `http://localhost:3000/users/${user._id}/verify/${token}?${encodedEmail}`;
+  console.log(newEmail)
+  console.log(url)
+  // const encodedEmail = btoa(newEmail)
 
   const loginUrl = `http://localhost:3000/sign-in?${encodedEmail}`;
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
@@ -87,7 +95,7 @@ export const sendUpdateEmailVerificationEmail = ({ body }, res) => {
               <td style="font-size: 15px;">
                 <p style="color: black; margin: 0; margin-bottom: 40px; text-align: left;">Please verify your updated email address</p>
                 <p style="color: black; margin: 0; margin-bottom: 40px; text-align: left;">You'll be asked to log in again.</p>
-                <a href=${loginUrl} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 11px; font-weight: 500; padding: 8px 20px; text-decoration: none; text-align: center;">Verify updated email address</a>
+                <a href=${url} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 11px; font-weight: 500; padding: 8px 20px; text-decoration: none; text-align: center;">Verify updated email address</a>
               </td>
             </tr>
           </table>
@@ -120,8 +128,6 @@ export const sendUpdateEmailVerificationEmail = ({ body }, res) => {
     console.error(err)
   }
 
-
-    // return 'email verification'
 };
 
 export const verifyEmailLink = async (req, res) => {
