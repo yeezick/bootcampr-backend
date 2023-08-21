@@ -12,17 +12,17 @@ exp.setDate(today.getDate() + 30);
 
 const defaultDayAvailability = {
   available: false,
-  availability: []
+  availability: [],
 };
 
 const availability = {
   SUN: defaultDayAvailability,
-  MON: defaultDayAvailability,  
+  MON: defaultDayAvailability,
   TUE: defaultDayAvailability,
   WED: defaultDayAvailability,
   THU: defaultDayAvailability,
   FRI: defaultDayAvailability,
-  SAT: defaultDayAvailability
+  SAT: defaultDayAvailability,
 };
 
 export const signUp = async (req, res) => {
@@ -152,6 +152,17 @@ export const updatePassword = async (req, res) => {
   }
 };
 
+export const updateAvailability = async (req, res) => {
+  try {
+    const { userId, newAvailability } = req.body;
+    const user = await User.findByIdAndUpdate(userId, { availability: newAvailability }, { new: true });
+    user.save();
+    res.status(201).json({ status: true, message: 'Availability Updated', user });
+  } catch (error) {
+    console.error(error.message);
+    res.status(400).json({ status: false, message: error.message });
+  }
+};
 // Potentinal new User Controllers
 //
 // Assign Project - User
