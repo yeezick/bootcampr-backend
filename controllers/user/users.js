@@ -100,7 +100,6 @@ export const deleteUser = async (req, res) => {
 // BACKEND TEST SUITE CODE
 export const updateUserInfo = async (req, res) => {
   try {
-    console.log('hello');
     const { id } = req.params;
     const user = await User.findByIdAndUpdate(id, req.body, { new: true });
     if (!user) {
@@ -207,6 +206,67 @@ export const getAllChatThreads = async (req, res) => {
           combinedThreads,
           message: `Successfully retrieved all chat threads for user with ID ${userId}.`,
         });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const setUnreadMessageForUser = async (req, res) => {
+  try {
+    const { chatId, usersArray } = req.body;
+
+    const updatePromises = usersArray.map(async (userId) => {
+      try {
+        const user = await User.findOne({ _id: userId });
+
+        if (user) {
+          if (!user.unreadMessages.get(chatId)) {
+            user.unreadMessages.set(chatId, true);
+            await user.save();
+          }
+        } else {
+          console.error(`User not found with id: ${userId}`);
+        }
+      } catch (error) {
+        console.error(`Error updating user with id ${userId}: ${error.message}`);
+      }
+    });
+
+    await Promise.all(updatePromises);
+
+    res.status(200).json({ message: 'Unread messages updated for users successfully.' });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const markConversationAsRead = async (req, res) => {
+  try {
+    const { chatId } = req.body;
+    const { userId } = req.params;
+
+    const user = await User.findOne({ _id: userId });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    if (user.unreadMessages.has(chatId)) {
+      user.unreadMessages.delete(chatId);
+      await user.save();
+
+      return res
+        .status(200)
+        .json({ unreadMessages: user.unreadMessages, message: 'Conversation marked as read successfully.' });
+      // User with ID ${userId} successfully read the last message in group chat ${groupChatId}.
+    } else {
+      return res
+        .status(200)
+        .json({ unreadMessages: user.unreadMessages, message: 'Conversation is already marked as read.' });
+      // Last message in group chat ${groupChatId} already read by user ${userId}.
+    }
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });
