@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { newEmailTokenVerification, resendNewEmailLink, sendUpdateEmailVerification, verifyEmailLink, verifyUniqueEmail } from '../../controllers/auth/emailVerification.js';
+import { resendNewEmailLink, verifyEmailLink, verifyUniqueEmail } from '../../controllers/auth/emailVerification.js';
 import { signUp, signIn, verify, confirmPassword, updatePassword, updateEmail } from '../../controllers/auth/auth.js';
 
 //middleware

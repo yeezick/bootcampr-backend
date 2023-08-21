@@ -69,21 +69,13 @@ export const newEmailTokenVerification = async (user, newEmail, token) => {
   sendUpdateEmailVerification(newEmail, url);
 };
 
-// consider swapper user for just email here (though id may be necessary in the new url to verify)
 export const sendUpdateEmailVerification = (req, res) => {
   // make sure this is working
   const { user, newEmail, token } = req
   const encodedEmail = btoa(newEmail)
   const url = `http://localhost:3000/users/${user._id}/verify/${token}?${encodedEmail}`;
-  console.log(newEmail)
-  console.log(url)
-  // const encodedEmail = btoa(newEmail)
-
-  const loginUrl = `http://localhost:3000/sign-in?${encodedEmail}`;
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
 
-  console.log('update email verification')
-  // const { email } = user;
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
   const emailBody = `
@@ -128,7 +120,6 @@ export const sendUpdateEmailVerification = (req, res) => {
   } catch (err) {
     console.error(err)
   }
-
 };
 
 export const verifyEmailLink = async (req, res) => {
