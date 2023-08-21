@@ -71,7 +71,9 @@ export const newEmailTokenVerification = async (user, newEmail, token) => {
 };
 
 // consider swapper user for just email here (though id may be necessary in the new url to verify)
-export const sendUpdateEmailVerification = (user, newEmail, token, res) => {
+export const sendUpdateEmailVerification = (req, res) => {
+  // make sure this is working
+  const { user, newEmail, token } = req
   const encodedEmail = btoa(newEmail)
   const url = `http://localhost:3000/users/${user._id}/verify/${token}?${encodedEmail}`;
   console.log(newEmail)
@@ -123,7 +125,7 @@ export const sendUpdateEmailVerification = (user, newEmail, token, res) => {
       console.error(error);
       throw error
     });
-    res.status(200).send({msg: 'email sent'})
+    // res.status(200).send({msg: 'email sent'})
   } catch (err) {
     console.error(err)
   }
