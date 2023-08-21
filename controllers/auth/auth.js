@@ -1,7 +1,7 @@
 import User from '../../models/user.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { newToken, emailTokenVerification, unverifiedEmailUser, newEmailTokenVerification, sendUpdateEmailVerification } from './emailVerification.js';
+import { newToken, emailTokenVerification, unverifiedEmailUser, sendUpdateEmailVerification } from './emailVerification.js';
 
 // should token key be generated here or how do we go about identifying the token to store in env?
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
@@ -53,8 +53,6 @@ export const signUp = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
-
 
 export const duplicateEmail = async (email) => {
   try {
@@ -157,9 +155,8 @@ export const updatePassword = async (req, res) => {
 export const updateEmail = async (req, res) => {
   try {
     const { userId, oldEmail, newEmail } = req.body;
-
     const user = await User.findById(userId)
-    console.log(user)
+
     // check that old email matches current users email
     if (user.email !== oldEmail) {
       return res.status(400).json({
@@ -189,7 +186,6 @@ export const updateEmail = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
 
 // Potentinal new User Controllers
 //
