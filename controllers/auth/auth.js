@@ -178,7 +178,8 @@ export const updateEmail = async (req, res) => {
     // generate verification token
     const token = newToken(user, true);
     // swap for new method
-    await sendUpdateEmailVerification(user, newEmail, token);
+    const userInfo = {user, newEmail, token}
+    await sendUpdateEmailVerification(userInfo);
     res.status(201).json({
       message: `We've sent a verification link to ${newEmail}. Please click on the link that has been sent to your email to verify your updated email address. The link expires in 30 minutes.`,
       invalidCredentials: false,
