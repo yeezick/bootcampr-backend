@@ -160,7 +160,7 @@ export const updateEmail = async (req, res) => {
     // check that old email matches current users email
     if (user.email !== oldEmail) {
       return res.status(400).json({
-        message: `This email address does not match the provided account`
+        message: `This email address does not match the provided account.`
       })
     }
     // check if email already exists elsewhere
