@@ -86,10 +86,10 @@ export const sendUpdateEmailVerification = (req, res) => {
           <img src=${bootcamprLogoURL} alt="logo" style="height: 42px; width: auto; margin: 0 auto; margin-bottom: 25px;" draggable="false" />
           <table style="background-color: #FFFFFF; width: 100%; max-width: 560px; margin: 0 auto; padding: 20px;">
             <tr>
-              <td style="font-size: 15px;">
-                <p style="color: black; margin: 0; margin-bottom: 40px; text-align: left;">Please verify your updated email address</p>
-                <p style="color: black; margin: 0; margin-bottom: 40px; text-align: left;">You'll be asked to log in again.</p>
-                <a href=${url} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 11px; font-weight: 500; padding: 8px 20px; text-decoration: none; text-align: center;">Verify updated email address</a>
+              <td style="font-size: 16px;">
+                <p style="color: black; margin: 0; margin: 10px 0; text-align: center;">Please verify your updated email address</p>
+                <p style="color: black; margin: 0; margin-bottom: 30px; text-align: center;">You'll be asked to log in again.</p>
+                <a href=${url} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 14px; padding: 8px 20px; text-decoration: none; text-align: center; margin-bottom: 25px;">Verify updated email address</a>
               </td>
             </tr>
           </table>
