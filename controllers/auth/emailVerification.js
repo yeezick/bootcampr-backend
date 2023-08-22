@@ -73,6 +73,7 @@ export const sendUpdateEmailVerification = (req, res) => {
   // make sure this is working
   const { user, newEmail, token } = req
   const encodedEmail = btoa(newEmail)
+  // TODO: replace with env base url
   const url = `http://localhost:3000/users/${user._id}/verify/${token}?${encodedEmail}`;
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
 
