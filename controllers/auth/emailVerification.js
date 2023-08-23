@@ -70,9 +70,9 @@ export const newEmailTokenVerification = async (user, newEmail, token) => {
   sendUpdateEmailVerification(newEmail, url);
 };
 
-export const sendUpdateEmailVerification = (req, res) => {
+export const sendUpdateEmailVerification = (user, newEmail, token) => {
   // make sure this is working
-  const { user, newEmail, token } = req
+  console.log(user)
   const encodedEmail = btoa(newEmail)
   // TODO: replace with env base url
   const url = `http://localhost:3000/users/${user._id}/verify/${token}?${encodedEmail}`;
@@ -179,10 +179,19 @@ export const resendNewEmailLink = async (req, res) => {
   try {
     const { id: userId } = req.params;
     const user = await User.findById(userId);
-    const tempToken = newToken(user, true);
-    emailTokenVerification(user, tempToken);
-    res.status(200).json({ message: `Hi ${user.firstName}, a new link has been sent to your email. Please verify.` });
+    console.log(user)
+    const token = newToken(user, true);
+    if (req._parsedUrl.query.length > 0) {
+      const newEmail = atob(req._parsedUrl.query)
+      console.log(user)
+      await sendUpdateEmailVerification(user, newEmail, token)
+      console.log(newEmail)
+    } else {
+      emailTokenVerification(user, token);
+      res.status(200).json({ message: `Hi ${user.firstName}, a new link has been sent to your email. Please verify.` });
+    }
   } catch (error) {
+    console.error(error)
     console.log(error.message);
     res.status(400).send({ error: error });
   }
