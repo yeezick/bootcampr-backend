@@ -160,25 +160,25 @@ export const updateEmail = async (req, res) => {
     // check that old email matches current users email
     if (user.email !== oldEmail) {
       return res.status(400).json({
-        message: `This email address does not match the provided account.`
+        friendlyMessage: `This email address does not match the provided account.`
       })
     }
     // check if email already exists elsewhere
     const isDuplicateEmail = await duplicateEmail(newEmail);
     if (isDuplicateEmail) {
+    // if (!isDuplicateEmail) {
       return res.status(401).json({
-        message: `An account with email ${newEmail} already exists.`,
+        friendlyMessage: `An account with email ${newEmail} already exists.`,
         existingAccount: true,
       });
     }
 
     // generate verification token
     const token = newToken(user, true);
-    // swap for new method
     const userInfo = {user, newEmail, token}
     await sendUpdateEmailVerification(userInfo);
     res.status(201).json({
-      message: `We've sent a verification link to ${newEmail}. Please click on the link that has been sent to your email to verify your updated email address. The link expires in 30 minutes.`,
+      friendlyMessage: `We've sent a verification link to ${newEmail}. Please click on the link that has been sent to your email to verify your updated email address. The link expires in 30 minutes.`,
       invalidCredentials: false,
     });
   } catch (error) {
