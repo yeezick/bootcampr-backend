@@ -19,13 +19,11 @@ export const newToken = (user, temp = false) => {
 };
 
 export const emailTokenVerification = async (user, token) => {
-  // const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token}`;
-  const url = `http://localhost:3000/users/${user._id}/verify/${token}`;
+  const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token}`;
   sendSignUpEmail(user, url);
 };
 
 export const sendSignUpEmail = (user, url, verified = false) => {
-  // TODO: Host final bootcampr logo (email version) and replace URL
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
   const { email, firstName } = user;
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -50,8 +48,7 @@ export const sendSignUpEmail = (user, url, verified = false) => {
 
   const msg = {
     to: email,
-    // from: `${process.env.SENDGRID_EMAIL}`, // Change to your verified sender
-    from: 'koffiarielhessou@gmail.com',
+    from: `${process.env.SENDGRID_EMAIL}` || 'koffiarielhessou@gmail.com', // Change to your verified sender
     subject: 'Welcome to Bootcampr!',
     html: body,
   };
@@ -67,20 +64,9 @@ export const sendSignUpEmail = (user, url, verified = false) => {
     });
 };
 
-export const newEmailTokenVerification = async (user, newEmail, token) => {
-  // const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token}`;
-  const url = `http://localhost:3000/users/${user._id}/verify/${token}`;
-  sendUpdateEmailVerification(newEmail, url);
-};
-
 export const sendUpdateEmailVerification = ({user, newEmail, token}) => {
-  // make sure this is working
-  console.log(user)
-  console.log(user._id)
-  console.log(token)
   const encodedEmail = btoa(newEmail)
-  // TODO: replace with env base url
-  const url = `http://localhost:3000/users/${user._id}/verify/${token}?${encodedEmail}`;
+  const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token}?${encodedEmail}`;
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
 
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -105,9 +91,8 @@ export const sendUpdateEmailVerification = ({user, newEmail, token}) => {
 `;
 
   const msg = {
-    to: 'juliadwyer93@gmail.com',
-    // from: `${process.env.SENDGRID_EMAIL}`, // Change to your verified sender
-    from: 'koffiarielhessou@gmail.com',
+    to: newEmail,
+    from: `${process.env.SENDGRID_EMAIL}` || 'koffiarielhessou@gmail.com', // Change to your verified sender
     subject: "It's Bootcampr!",
     html: emailBody,
   };
@@ -123,7 +108,6 @@ export const sendUpdateEmailVerification = ({user, newEmail, token}) => {
       console.error(error);
       throw error
     });
-    // res.status(200).send({msg: 'email sent'})
   } catch (err) {
     console.error(err)
   }
@@ -184,14 +168,12 @@ export const resendNewEmailLink = async (req, res) => {
   try {
     const { id: userId } = req.params;
     const user = await User.findById(userId);
-    console.log(user)
     const token = newToken(user, true);
+
     if (req._parsedUrl.query.length > 0) {
-      // throw Error('blah')
+      // decode email from query params
       const newEmail = atob(req._parsedUrl.query)
-      console.log(user)
-      await sendUpdateEmailVerification(user, newEmail, token)
-      console.log(newEmail)
+      await sendUpdateEmailVerification(user, newEmail, token);
       res.status(200).json({ friendlyMessage: 'A new verification link has been sent to your updated email address.'})
     } else {
       emailTokenVerification(user, token);
@@ -199,7 +181,6 @@ export const resendNewEmailLink = async (req, res) => {
     }
   } catch (error) {
     console.error(error)
-    console.log(error.message);
     res.status(400).send({ error: error, friendlyMessage: 'There was an error sending a new verification email. Please try again or contact support.' });
   }
 };
