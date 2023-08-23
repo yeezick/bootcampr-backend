@@ -18,7 +18,8 @@ export const newToken = (user, temp = false) => {
 };
 
 export const emailTokenVerification = async (user, token) => {
-  const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token}`;
+  // const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token}`;
+  const url = `http://localhost:3000/users/${user._id}/verify/${token}`;
   sendSignUpEmail(user, url);
 };
 
@@ -48,7 +49,8 @@ export const sendSignUpEmail = (user, url, verified = false) => {
 
   const msg = {
     to: email,
-    from: `${process.env.SENDGRID_EMAIL}`, // Change to your verified sender
+    // from: `${process.env.SENDGRID_EMAIL}`, // Change to your verified sender
+    from: 'koffiarielhessou@gmail.com',
     subject: 'Welcome to Bootcampr!',
     html: body,
   };
@@ -65,7 +67,8 @@ export const sendSignUpEmail = (user, url, verified = false) => {
 };
 
 export const newEmailTokenVerification = async (user, newEmail, token) => {
-  const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token}`;
+  // const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token}`;
+  const url = `http://localhost:3000/users/${user._id}/verify/${token}`;
   sendUpdateEmailVerification(newEmail, url);
 };
 
