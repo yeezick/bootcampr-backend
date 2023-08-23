@@ -1,6 +1,11 @@
 import { Router } from 'express';
-import { resendNewEmailLink, verifyEmailLink, verifyUniqueEmail } from '../../controllers/auth/emailVerification.js';
 import { signUp, signIn, verify, confirmPassword, updatePassword, updateEmail } from '../../controllers/auth/auth.js';
+import {
+  resendNewEmailLink,
+  verifyEmailLink,
+  verifyUniqueEmail,
+  verifyValidToken,
+} from '../../controllers/auth/emailVerification.js';
 
 //middleware
 const router = Router();
@@ -12,6 +17,7 @@ router.get('/verify-email/:email', verifyUniqueEmail);
 router.post('/users/:id/expired-link', resendNewEmailLink);
 router.post('/users/:id/update-email-verification', updateEmail)
 router.get('/:id/verify/:token', verifyEmailLink);
+router.get('/verify-token-expiration/:emailToken', verifyValidToken);
 router.post('/confirm-password/:userID', confirmPassword);
 router.patch('/update-password/:userID', updatePassword);
 
