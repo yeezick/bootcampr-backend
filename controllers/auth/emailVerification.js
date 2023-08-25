@@ -75,8 +75,9 @@ export const verifyEmailLink = async (req, res) => {
     if (!user) {
       return res.status(400).send({ msg: 'Invalid link' });
     }
+
     const userToken = newToken(user);
-    return res.status(200).send({
+    res.status(200).send({
       msg: `Hi, ${user.firstName}! Your email has been successfully verified. Please Sign In to finish setting up your account.`,
       user: user,
       bootcamprNewToken: userToken,
