@@ -76,7 +76,7 @@ export const verifyEmailLink = async (req, res) => {
       return res.status(400).send({ msg: 'Invalid link' });
     } else {
       const userToken = newToken(user);
-      return res.status(200).json({
+      return res.status(200).send({
         msg: `Hi, ${user.firstName}! Your email has been successfully verified. Please Sign In to finish setting up your account.`,
         user: user,
         bootcamprNewToken: userToken,
@@ -84,7 +84,7 @@ export const verifyEmailLink = async (req, res) => {
     }
   } catch (error) {
     console.log(error.message);
-    return res.status(500).json({ status: false, message: error.message });
+    res.status(500).json({ status: false, message: error.message });
   }
 };
 
@@ -147,7 +147,7 @@ export const verifyUniqueEmail = async (req, res) => {
     } else if (user) {
       throw new Error('Email address already exists.');
     } else {
-      return res.status(200).json({ message: 'Email is valid and unique.' });
+      res.status(200).json({ message: 'Email is valid and unique.' });
     }
   } catch (error) {
     let statusCode = 400;
@@ -157,7 +157,7 @@ export const verifyUniqueEmail = async (req, res) => {
     } else if (error.message === 'Email already exists.') {
       statusCode = 409;
     }
-    return res.status(statusCode).send({ error: error.message });
+    res.status(statusCode).send({ error: error.message });
   }
 };
 
