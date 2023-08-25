@@ -66,7 +66,7 @@ export const sendSignUpEmail = (user, url, verified = false) => {
 
 export const verifyEmailLink = async (req, res) => {
   try {
-    const expiredToken = await verifyValidToken(req, res, req.params.token);
+    const expiredToken = await verifyValidToken(req, req.params.token);
     if (expiredToken) {
       return res.status(299).json({ msg: 'This url is expired. Please request a new link.', isExpired: true });
     }
@@ -74,31 +74,29 @@ export const verifyEmailLink = async (req, res) => {
     const user = await User.findByIdAndUpdate({ _id: req.params.id }, { verified: true }, { new: true });
     if (!user) {
       return res.status(400).send({ msg: 'Invalid link' });
+    } else {
+      const userToken = newToken(user);
+      return res.status(200).json({
+        msg: `Hi, ${user.firstName}! Your email has been successfully verified. Please Sign In to finish setting up your account.`,
+        user: user,
+        bootcamprNewToken: userToken,
+      });
     }
-
-    const userToken = newToken(user);
-    res.status(200).send({
-      msg: `Hi, ${user.firstName}! Your email has been successfully verified. Please Sign In to finish setting up your account.`,
-      user: user,
-      bootcamprNewToken: userToken,
-    });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ status: false, message: error.message });
+    return res.status(500).json({ status: false, message: error.message });
   }
 };
 
-export const verifyValidToken = async (req, res, tokenjwt) => {
+export const verifyValidToken = async (req, tokenjwt) => {
   const { emailToken } = req.params;
 
   try {
     const isExpired = jwt.decode(emailToken || tokenjwt);
 
     if (isExpired.exp * 1000 < Date.now()) {
-      res.status(401).json({ expired: true });
       return true;
     }
-    res.status(200).json({ expired: false });
     return false;
   } catch (error) {
     res.status(400).send({ error: error });
@@ -149,7 +147,7 @@ export const verifyUniqueEmail = async (req, res) => {
     } else if (user) {
       throw new Error('Email address already exists.');
     } else {
-      res.status(200).json({ message: 'Email is valid and unique.' });
+      return res.status(200).json({ message: 'Email is valid and unique.' });
     }
   } catch (error) {
     let statusCode = 400;
@@ -159,7 +157,7 @@ export const verifyUniqueEmail = async (req, res) => {
     } else if (error.message === 'Email already exists.') {
       statusCode = 409;
     }
-    res.status(statusCode).send({ error: error.message });
+    return res.status(statusCode).send({ error: error.message });
   }
 };
 
