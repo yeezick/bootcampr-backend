@@ -23,7 +23,6 @@ export const emailTokenVerification = async (user, token) => {
 };
 
 export const sendSignUpEmail = (user, url, verified = false) => {
-  // TODO: Host final bootcampr logo (email version) and replace URL
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
   const { email, firstName } = user;
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -48,7 +47,7 @@ export const sendSignUpEmail = (user, url, verified = false) => {
 
   const msg = {
     to: email,
-    from: `${process.env.SENDGRID_EMAIL}`, // Change to your verified sender
+    from: `${process.env.SENDGRID_EMAIL}` || 'koffiarielhessou@gmail.com', // Change to your verified sender
     subject: 'Welcome to Bootcampr!',
     html: body,
   };
@@ -62,6 +61,55 @@ export const sendSignUpEmail = (user, url, verified = false) => {
       console.log('Verification email not sent');
       console.error(error);
     });
+};
+
+export const sendUpdateEmailVerification = ({user, newEmail, token}) => {
+  const encodedEmail = btoa(newEmail)
+  const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token}?${encodedEmail}`;
+  const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
+
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+  const emailBody = `
+    <table style="background-color: #F2F4FF; width: 100%; max-width: 910px; min-height: 335px; margin: 0 auto; border-radius: 4px; padding: 25px 25px 125px 25px;">
+      <tr>
+        <td style="text-align: center;">
+          <img src=${bootcamprLogoURL} alt="logo" style="height: 42px; width: auto; margin: 0 auto; margin-bottom: 25px;" draggable="false" />
+          <table style="background-color: #FFFFFF; width: 100%; max-width: 560px; margin: 0 auto; padding: 20px;">
+            <tr>
+              <td style="font-size: 16px;">
+                <p style="color: black; margin: 0; margin: 10px 0; text-align: center;">Please verify your updated email address</p>
+                <p style="color: black; margin: 0; margin-bottom: 30px; text-align: center;">You'll be asked to log in again.</p>
+                <a href=${url} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 14px; padding: 8px 20px; text-decoration: none; text-align: center; margin-bottom: 25px;">Verify updated email address</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+`;
+
+  const msg = {
+    to: newEmail,
+    from: `${process.env.SENDGRID_EMAIL}` || 'koffiarielhessou@gmail.com', // Change to your verified sender
+    subject: "It's Bootcampr!",
+    html: emailBody,
+  };
+
+  try {
+    sgMail
+    .send(msg)
+    .then(() => {
+      console.log('Verification email sent successfully');
+    })
+    .catch((error) => {
+      console.log('Email not sent');
+      console.error(error);
+      throw error
+    });
+  } catch (err) {
+    console.error(err)
+  }
 };
 
 export const verifyEmailLink = async (req, res) => {
@@ -123,12 +171,20 @@ export const resendNewEmailLink = async (req, res) => {
   try {
     const { id: userId } = req.params;
     const user = await User.findById(userId);
-    const tempToken = newToken(user, true);
-    emailTokenVerification(user, tempToken);
-    res.status(200).json({ message: `Hi ${user.firstName}, a new link has been sent to your email. Please verify.` });
+    const token = newToken(user, true);
+
+    if (req._parsedUrl.query.length > 0) {
+      // decode email from query params
+      const newEmail = atob(req._parsedUrl.query)
+      await sendUpdateEmailVerification(user, newEmail, token);
+      res.status(200).json({ friendlyMessage: 'A new verification link has been sent to your updated email address.'})
+    } else {
+      emailTokenVerification(user, token);
+      res.status(200).json({ friendlyMessage: `Hi ${user.firstName}, a new link has been sent to your email. Please verify.` });
+    }
   } catch (error) {
-    console.log(error.message);
-    res.status(400).send({ error: error });
+    console.error(error)
+    res.status(400).send({ error: error, friendlyMessage: 'There was an error sending a new verification email. Please try again or contact support.' });
   }
 };
 
