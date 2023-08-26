@@ -66,7 +66,7 @@ export const sendSignUpEmail = (user, url, verified = false) => {
 
 export const verifyEmailLink = async (req, res) => {
   try {
-    const expiredToken = await verifyValidToken(req, res, req.params.token);
+    const expiredToken = await verifyValidToken(req, req.params.token);
     if (expiredToken) {
       return res.status(299).json({ msg: 'This url is expired. Please request a new link.', isExpired: true });
     }
@@ -88,17 +88,15 @@ export const verifyEmailLink = async (req, res) => {
   }
 };
 
-export const verifyValidToken = async (req, res, tokenjwt) => {
+export const verifyValidToken = async (req, tokenjwt) => {
   const { emailToken } = req.params;
 
   try {
     const isExpired = jwt.decode(emailToken || tokenjwt);
 
     if (isExpired.exp * 1000 < Date.now()) {
-      res.status(401).json({ expired: true });
       return true;
     }
-    res.status(200).json({ expired: false });
     return false;
   } catch (error) {
     res.status(400).send({ error: error });
