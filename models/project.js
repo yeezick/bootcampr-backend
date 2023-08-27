@@ -33,7 +33,9 @@ const Project = new Schema(
           decision: { type: String, enum: ['Participate', "Don't participate"] },
         },
       ],
-      deployedUrl: { user: { type: Schema.Types.ObjectId, ref: 'User' }, url: { type: String } },
+      deployedUrl: {
+        type: Schema.Types.Mixed,
+      },
     },
   },
   { timestamps: true },

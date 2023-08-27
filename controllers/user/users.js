@@ -100,6 +100,7 @@ export const deleteUser = async (req, res) => {
 // BACKEND TEST SUITE CODE
 export const updateUserInfo = async (req, res) => {
   try {
+    console.log('hello');
     const { id } = req.params;
     const user = await User.findByIdAndUpdate(id, req.body, { new: true });
     if (!user) {
@@ -109,7 +110,7 @@ export const updateUserInfo = async (req, res) => {
     res.status(200).send(updatedUserImg);
   } catch (error) {
     console.log(error.message);
-    return res.status(404).json({ error: error.message });
+    res.status(404).json({ error: error.message });
   }
 };
 
