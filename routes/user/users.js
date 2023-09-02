@@ -4,6 +4,7 @@ import { getMediaByUserId } from '../../controllers/chat/media.js';
 import { addImagesToS3Bucket, deleteImageFromS3Bucket } from '../../controllers/user/addingImage.js';
 import { getProjectByUserId } from '../../controllers/project/projects.js';
 import {
+  updateUserProfile,
   deleteUser,
   getAllChatThreads,
   getAllUsers,
@@ -21,6 +22,7 @@ const router = Router();
 router.get('/users', getAllUsers);
 router.get('/users/:id', getOneUser);
 router.post('/users/:id', updateUserInfo);
+router.post('/onboarding/:id', updateUserProfile);
 router.delete('/users/:id', deleteUser);
 
 // Profile Image
