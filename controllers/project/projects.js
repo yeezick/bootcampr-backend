@@ -50,14 +50,10 @@ export const getProjectMembers = async (req, res) => {
   try {
     const { projectId } = req.params;
     const { attributes } = req.query;
-
     const attributesToFetch = convertQueryAttributesToMongoString(attributes);
-
     const project = await Project.findOne({ _id: projectId });
     const memberIds = [...project.members.engineers, ...project.members.designers];
-
     const members = await User.find({ _id: { $in: memberIds } }).select(attributesToFetch);
-
     res.status(200).json(members);
   } catch (err) {
     console.error(err);
