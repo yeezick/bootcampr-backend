@@ -10,13 +10,46 @@ import { calendar } from '../../server.js';
 
 export const createEvent = async (req, res) => {
   const { calendarId } = req.params;
+
   try {
     const preparedEvent = {
       calendarId: `${calendarId}@group.calendar.google.com`,
+      conferenceDataVersion: 1,
+      resource: {
+        ...req.body,
+        // Todo: Enables google meets events
+        // conferenceData: {
+        //   createRequest: {
+        //     requestId: 'tessldahli',
+        //     conferenceSolutionKey: {
+        //       type: 'hangoutsMeet',
+        //     },
+        //   },
+        // },
+      },
+      sendUpdates: 'all',
+    };
+
+    const event = await calendar.events.insert(preparedEvent);
+    res.status(200).send(event);
+  } catch (error) {
+    console.error(`Error creating event for calendar (${calendarId})`, error);
+    res.status(400).send(error);
+  }
+};
+
+export const updateEvent = async (req, res) => {
+  const { calendarId, eventId } = req.params;
+
+  try {
+    const preparedEvent = {
+      calendarId: `${calendarId}@group.calendar.google.com`,
+      eventId,
       resource: req.body,
       sendUpdates: 'all',
     };
-    const event = await calendar.events.insert(preparedEvent);
+
+    const event = await calendar.events.update(preparedEvent);
     res.status(200).send(event);
   } catch (error) {
     console.error(`Error creating event for calendar (${calendarId})`, error);
