@@ -74,6 +74,7 @@ export const generateFakeUser = async (role, customInfo) => {
     },
     passwordDigest: await bcrypt.hash('gumballs', 11),
     profilePicture: faker.image.people(640, 480, true),
+    hasUploadedProfilePicture: true,
     project: null,
     role,
     timezone: 'TBD',
