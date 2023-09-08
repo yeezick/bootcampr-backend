@@ -12,17 +12,17 @@ exp.setDate(today.getDate() + 30);
 
 const defaultDayAvailability = {
   available: false,
-  availability: []
+  availability: [],
 };
 
 const availability = {
   SUN: defaultDayAvailability,
-  MON: defaultDayAvailability,  
+  MON: defaultDayAvailability,
   TUE: defaultDayAvailability,
   WED: defaultDayAvailability,
   THU: defaultDayAvailability,
   FRI: defaultDayAvailability,
-  SAT: defaultDayAvailability
+  SAT: defaultDayAvailability,
 };
 
 export const signUp = async (req, res) => {
@@ -78,9 +78,11 @@ export const signIn = async (req, res) => {
         message: `That Bootcampr account doesn't exist. Enter a different account or Sign Up to create a new one.`,
       });
     }
+
     if (!user.verified) {
       return await unverifiedEmailUser(user, res);
     }
+
     if (user) {
       let secureUser = Object.assign({}, user._doc, {
         passwordDigest: undefined,
@@ -94,10 +96,18 @@ export const signIn = async (req, res) => {
         const token = jwt.sign(payload, TOKEN_KEY);
         res.status(201).json({ user: secureUser, token });
       } else {
-        res.status(299).json({ invalidCredentials: true, message: 'Invalid email or password.' });
+        res.status(299).json({
+          invalidCredentials: true,
+          message: 'Invalid email or password.',
+          tMsg: 'Invalid email or password.',
+        });
       }
     } else {
-      res.status(299).json({ invalidCredentials: true, message: 'No account exists with this email.' });
+      res.status(299).json({
+        invalidCredentials: true,
+        message: 'No account exists with this email.',
+        tMsg: 'No account exists with this email.',
+      });
     }
   } catch (error) {
     console.error(error.message);
@@ -145,10 +155,24 @@ export const updatePassword = async (req, res) => {
       exp: parseInt(exp.getTime() / 1000),
     };
     const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
-    res.status(201).json({ status: true, message: 'Password Updated', user, bootcamprAuthToken });
+    res
+      .status(201)
+      .json({ status: true, message: 'Password Updated', user, bootcamprAuthToken, tMsg: 'Password Updated' });
   } catch (error) {
     console.error(error.message);
-    res.status(400).json({ status: false, message: error.message });
+    res.status(400).json({ status: false, message: error.message, tMsg: 'Error updating password' });
+  }
+};
+
+export const updateAvailability = async (req, res) => {
+  try {
+    const { userId, newAvailability } = req.body;
+    const user = await User.findByIdAndUpdate(userId, { availability: newAvailability }, { new: true });
+    user.save();
+    res.status(201).json({ status: true, message: 'Availability Updated', user, tMsg: 'Availability Updated' });
+  } catch (error) {
+    console.error(error.message);
+    res.status(400).json({ status: false, message: error.message, tMsg: 'Error updating availability' });
   }
 };
 
