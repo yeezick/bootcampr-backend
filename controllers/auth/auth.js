@@ -1,7 +1,7 @@
 import User from '../../models/user.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { newToken, emailTokenVerification, unverifiedEmailUser } from './emailVerification.js';
+import { newToken, emailTokenVerification, unverifiedEmailUser, sendUpdateEmailVerification } from './emailVerification.js';
 
 // should token key be generated here or how do we go about identifying the token to store in env?
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 11;
@@ -175,6 +175,44 @@ export const updateAvailability = async (req, res) => {
     res.status(400).json({ status: false, message: error.message, tMsg: 'Error updating availability' });
   }
 };
+
+export const updateEmail = async (req, res) => {
+  try {
+    const { userId, oldEmail, newEmail } = req.body;
+    const user = await User.findById(userId)
+
+    // check that old email matches current users email
+    if (user.email !== oldEmail) {
+      return res.status(400).json({
+        friendlyMessage: `This email address does not match the provided account.`
+      })
+    }
+    // check if email already exists elsewhere in database
+    const isDuplicateEmail = await duplicateEmail(newEmail);
+
+    if (isDuplicateEmail) {
+      return res.status(401).json({
+        friendlyMessage: `An account with email ${newEmail} already exists.`,
+        existingAccount: true,
+      });
+    }
+
+    // generate verification token
+    const token = newToken(user, true);
+    const userInfo = { user, newEmail, token }
+
+    await sendUpdateEmailVerification(userInfo);
+
+    res.status(201).json({
+      friendlyMessage: `We've sent a verification link to ${newEmail}. Please click on the link that has been sent to your email to verify your updated email address. The link expires in 30 minutes.`,
+      invalidCredentials: false,
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(400).json({ error: error.message, friendlyMessage: 'There was an issue re-sending your verification email. Please try again or contact support' });
+  }
+};
+
 // Potentinal new User Controllers
 //
 // Assign Project - User

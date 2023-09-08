@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { roleSchema } from '../utils/schemas.js';
 const Schema = mongoose.Schema;
 
 const Project = new Schema(
@@ -20,11 +19,23 @@ const Project = new Schema(
       endDate: { type: String },
     },
     title: { type: String, required: true, maxLength: 45 },
+    loading: { type: Boolean },
     projectTracker: {
       toDo: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
       inProgress: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
       underReview: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
       completed: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
+    },
+    completedInfo: {
+      participatingMembers: [
+        {
+          user: { type: Schema.Types.ObjectId, ref: 'User' },
+          decision: { type: String, enum: ['Participate', "Don't participate"] },
+        },
+      ],
+      deployedUrl: {
+        type: Schema.Types.Mixed,
+      },
     },
   },
   { timestamps: true },

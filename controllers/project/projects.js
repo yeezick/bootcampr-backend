@@ -33,6 +33,7 @@ export const getOneProject = async (req, res) => {
         { path: 'projectTracker.inProgress', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
         { path: 'projectTracker.underReview', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
         { path: 'projectTracker.completed', select: '-projectTracker', populate: { path: 'createdBy assignees' } },
+        { path: 'completedInfo.participatingMembers.user', select: 'firstName lastName role' },
       ])
       .exec();
 
@@ -50,14 +51,10 @@ export const getProjectMembers = async (req, res) => {
   try {
     const { projectId } = req.params;
     const { attributes } = req.query;
-
     const attributesToFetch = convertQueryAttributesToMongoString(attributes);
-
     const project = await Project.findOne({ _id: projectId });
     const memberIds = [...project.members.engineers, ...project.members.designers];
-
     const members = await User.find({ _id: { $in: memberIds } }).select(attributesToFetch);
-
     res.status(200).json(members);
   } catch (err) {
     console.error(err);
@@ -78,10 +75,18 @@ export const createProject = async (req, res) => {
 export const updateProject = async (req, res) => {
   try {
     const { id } = req.params;
-    const project = await Project.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
-    res.status(200).json(project);
+    const updatedProject = await Project.findByIdAndUpdate(
+      id,
+      { $set: req.body },
+      {
+        new: true,
+      },
+    );
+
+    if (updatedProject) {
+      return res.status(200).json(updatedProject);
+    }
+    throw new Error('Project not found.');
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: error.message });
