@@ -28,7 +28,7 @@ export const fetchUserCalendar = async (req, res) => {
 
     const allEvents = await calendar.events.list({
       calendarId: formatCalendarId(calendarId),
-      singleEvents: true, // returns instances of recurring events, not the recurring event themselves, might need to be adapted
+      singleEvents: true,
       orderBy: 'startTime',
     });
 
