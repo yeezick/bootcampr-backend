@@ -186,12 +186,10 @@ export const resendNewEmailLink = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res
-      .status(400)
-      .send({
-        error: error,
-        friendlyMessage: 'There was an error sending a new verification email. Please try again or contact support.',
-      });
+    res.status(400).send({
+      error: error,
+      friendlyMessage: 'There was an error sending a new verification email. Please try again or contact support.',
+    });
   }
 };
 
@@ -311,8 +309,8 @@ export const sendUnreadMessagesEmail = (project, userId, email, firstName, unrea
     });
 };
 
-export const resetPasswordEmailVerification = (user, token) => {
-  const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token}`;
+export const resetPasswordEmailVerification = ({ user, token }) => {
+  const url = `${process.env.BASE_URL}/users/${user._id}/reset-password?token=${token}`;
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
 
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);

@@ -134,32 +134,12 @@ export const verify = async (req, res) => {
   }
 };
 
-export const confirmPassword = async (req, res) => {
-  const { email, password } = req.body;
-  // is it better to find the user by their email or id?
-  if (email) {
-    let user = await User.findOne({ email }).select('passwordDigest');
-    if (await bcrypt.compare(password, user.passwordDigest)) {
-      res.status(201).json({ passwordConfirmed: true });
-    } else {
-      res.status(401).json({ passwordConfirmed: false }); // status code: unacceptable lol
-    }
-  } else {
-    res.status(401).json({ passwordConfirmed: false });
-  }
-};
-
 export const updatePassword = async (req, res) => {
   try {
     const { newPassword } = req.body;
     const { userID } = req.params;
     const newPasswordDigest = await bcrypt.hash(newPassword, SALT_ROUNDS);
     const user = await User.findByIdAndUpdate(userID, { passwordDigest: newPasswordDigest }, { new: true });
-
-    // Generate a verification token for password reset
-    const token = newToken(user, true);
-    await resetPasswordEmailVerification(user, token);
-
     const payload = {
       userID: user._id,
       email: user.email,
@@ -184,6 +164,46 @@ export const updateAvailability = async (req, res) => {
   } catch (error) {
     console.error(error.message);
     res.status(400).json({ status: false, message: error.message, tMsg: 'Error updating availability' });
+  }
+};
+
+export const confirmPassword = async (req, res) => {
+  const { email, password } = req.body;
+  // is it better to find the user by their email or id?
+  if (email) {
+    let user = await User.findOne({ email }).select('passwordDigest');
+    if (await bcrypt.compare(password, user.passwordDigest)) {
+      res.status(201).json({ passwordConfirmed: true });
+    } else {
+      res.status(401).json({ passwordConfirmed: false }); // status code: unacceptable lol
+    }
+  } else {
+    res.status(401).json({ passwordConfirmed: false });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    // generate verification token
+    const token = newToken(user, true);
+    const userInfo = { user, email, token };
+
+    await resetPasswordEmailVerification(userInfo);
+
+    res.status(201).json({
+      friendlyMessage: `We've sent a verification link to your email address. Please click on the link that has been sent to your email to reset your account password. The link expires in 30 minutes.`,
+      invalidCredentials: false,
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(400).json({
+      error: error.message,
+      friendlyMessage:
+        'There was an issue sending your reset password verification email. Please try again or contact support',
+    });
   }
 };
 
@@ -220,12 +240,10 @@ export const updateEmail = async (req, res) => {
     });
   } catch (error) {
     console.error(error.message);
-    res
-      .status(400)
-      .json({
-        error: error.message,
-        friendlyMessage: 'There was an issue re-sending your verification email. Please try again or contact support',
-      });
+    res.status(400).json({
+      error: error.message,
+      friendlyMessage: 'There was an issue re-sending your verification email. Please try again or contact support',
+    });
   }
 };
 
