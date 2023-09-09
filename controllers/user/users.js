@@ -83,6 +83,32 @@ export const deleteUser = async (req, res) => {
   }
 };
 
+export const updateUserProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role, availability, firstName, lastName, bio, links } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { role: role, availability: availability, firstName: firstName, lastName: lastName, bio: bio, links: links },
+      { new: true },
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User Profile not found.' });
+    }
+
+    user.save();
+    res.status(201).json({
+      message: 'User profile updated successfully.',
+      userProfile: user,
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: 'Failed to update user profile.' });
+  }
+};
+
 // ORIGINAL CODE
 
 // export const updateUserInfo = async (req, res) => {
