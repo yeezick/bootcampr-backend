@@ -28,6 +28,6 @@ router.get('/:id/verify/:token', verifyEmailLink);
 router.get('/verify-token-expiration/:emailToken', verifyValidToken);
 router.post('/confirm-password/:userID', confirmPassword);
 router.patch('/update-password/:userID', updatePassword);
-router.patch('/reset-password', resetPassword);
+router.post('/reset-password', resetPassword);
 
 export default router;

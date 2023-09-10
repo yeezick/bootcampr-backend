@@ -310,7 +310,8 @@ export const sendUnreadMessagesEmail = (project, userId, email, firstName, unrea
 };
 
 export const resetPasswordEmailVerification = ({ user, token }) => {
-  const url = `${process.env.BASE_URL}/users/${user._id}/reset-password?token=${token}`;
+  const resetPasswordUrl = `${process.env.BASE_URL}/users/${user._id}/reset-password?token=${token}`;
+  const loginUrl = `${process.env.BASE_URL}/sign-in`;
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
 
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -323,9 +324,8 @@ export const resetPasswordEmailVerification = ({ user, token }) => {
             <table style="background-color: #FFFFFF; width: 100%; max-width: 560px; margin: 0 auto; padding: 20px;">
               <tr>
                 <td style="font-size: 16px;">
-                  <p style="color: black; margin: 0; margin: 10px 0; text-align: center;">To reset your password, click the link below. If you did not request to change your password, please email support at bootcampr@gmail.com</p>
-                  <p style="color: black; margin: 0; margin-bottom: 30px; text-align: center;">You'll be asked to log in again.</p>
-                  <a href=${url} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 14px; padding: 8px 20px; text-decoration: none; text-align: center; margin-bottom: 25px;">Reset Password</a>
+                  <p style="color: black; margin: 0; margin: 10px 0; text-align: center;">if you asked to reset your password by mistake, disregard this email and <a href=${loginUrl}>log in</a>.</p>
+                  <a href=${resetPasswordUrl} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 14px; padding: 8px 20px; text-decoration: none; text-align: center; margin-bottom: 25px;">Reset My Password</a>
                 </td>
               </tr>
             </table>

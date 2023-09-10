@@ -136,8 +136,17 @@ export const verify = async (req, res) => {
 
 export const updatePassword = async (req, res) => {
   try {
-    const { newPassword } = req.body;
+    const { password, newPassword } = req.body;
     const { userID } = req.params;
+
+    if (password) {
+      const currentUser = await User.findById(userID).select('+passwordDigest');
+      const passwordMatch = await bcrypt.compare(password, currentUser.passwordDigest);
+      if (!passwordMatch) {
+        res.status(401).json({ error: 'Password is incorrect.' });
+      }
+    }
+
     const newPasswordDigest = await bcrypt.hash(newPassword, SALT_ROUNDS);
     const user = await User.findByIdAndUpdate(userID, { passwordDigest: newPasswordDigest }, { new: true });
     const payload = {
