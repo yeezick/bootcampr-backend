@@ -142,8 +142,11 @@ export const updatePassword = async (req, res) => {
     if (password) {
       const currentUser = await User.findById(userID).select('+passwordDigest');
       const passwordMatch = await bcrypt.compare(password, currentUser.passwordDigest);
+      const passwordCompare = await bcrypt.compare(newPassword, currentUser.passwordDigest);
       if (!passwordMatch) {
-        res.status(401).json({ error: 'Password is incorrect.' });
+        return res.status(401).json({ error: 'Password is incorrect.' });
+      } else if (passwordCompare) {
+        return res.status(401).json({ error: 'New password cannot be the same as your old password.' });
       }
     }
 

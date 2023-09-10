@@ -310,7 +310,7 @@ export const sendUnreadMessagesEmail = (project, userId, email, firstName, unrea
 };
 
 export const resetPasswordEmailVerification = ({ user, token }) => {
-  const resetPasswordUrl = `${process.env.BASE_URL}/users/${user._id}/reset-password?token=${token}`;
+  const resetPasswordUrl = `${process.env.BASE_URL}/users/${user._id}/reset-password/${token}`;
   const loginUrl = `${process.env.BASE_URL}/sign-in`;
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
 
