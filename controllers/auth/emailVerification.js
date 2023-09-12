@@ -63,8 +63,8 @@ export const sendSignUpEmail = (user, url, verified = false) => {
     });
 };
 
-export const sendUpdateEmailVerification = ({user, newEmail, token}) => {
-  const encodedEmail = btoa(newEmail)
+export const sendUpdateEmailVerification = ({ user, newEmail, token }) => {
+  const encodedEmail = btoa(newEmail);
   const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token}?${encodedEmail}`;
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
 
@@ -98,17 +98,17 @@ export const sendUpdateEmailVerification = ({user, newEmail, token}) => {
 
   try {
     sgMail
-    .send(msg)
-    .then(() => {
-      console.log('Verification email sent successfully');
-    })
-    .catch((error) => {
-      console.log('Email not sent');
-      console.error(error);
-      throw error
-    });
+      .send(msg)
+      .then(() => {
+        console.log('Verification email sent successfully');
+      })
+      .catch((error) => {
+        console.log('Email not sent');
+        console.error(error);
+        throw error;
+      });
   } catch (err) {
-    console.error(err)
+    console.error(err);
   }
 };
 
@@ -173,18 +173,25 @@ export const resendNewEmailLink = async (req, res) => {
     const user = await User.findById(userId);
     const token = newToken(user, true);
 
-    if (req._parsedUrl.query.length > 0) {
+    if (req._parsedUrl.query?.length > 0) {
       // decode email from query params
-      const newEmail = atob(req._parsedUrl.query)
+      const newEmail = atob(req._parsedUrl.query);
       await sendUpdateEmailVerification(user, newEmail, token);
-      res.status(200).json({ friendlyMessage: 'A new verification link has been sent to your updated email address.'})
+      res.status(200).json({ friendlyMessage: 'A new verification link has been sent to your updated email address.' });
     } else {
       emailTokenVerification(user, token);
-      res.status(200).json({ friendlyMessage: `Hi ${user.firstName}, a new link has been sent to your email. Please verify.` });
+      res
+        .status(200)
+        .json({ friendlyMessage: `Hi ${user.firstName}, a new link has been sent to your email. Please verify.` });
     }
   } catch (error) {
-    console.error(error)
-    res.status(400).send({ error: error, friendlyMessage: 'There was an error sending a new verification email. Please try again or contact support.' });
+    console.error(error);
+    res
+      .status(400)
+      .send({
+        error: error,
+        friendlyMessage: 'There was an error sending a new verification email. Please try again or contact support.',
+      });
   }
 };
 
