@@ -22,6 +22,34 @@ export const fetchCalendar = async (req, res) => {
   }
 };
 
+export const fetchUserCalendar = async (req, res) => {
+  try {
+    const { calendarId, userEmail } = req.params;
+
+    const allEvents = await calendar.events.list({
+      calendarId: formatCalendarId(calendarId),
+      singleEvents: true,
+      orderBy: 'startTime',
+    });
+
+    const userEvents = allEvents.data.items.filter((event) => {
+      if (event.attendees) {
+        for (const attendee of event.attendees) {
+          if (attendee.email === userEmail) {
+            return event;
+          }
+        }
+      }
+    });
+
+    res.status(200).send(userEvents);
+  } catch (error) {
+    console.error('Error fetching event:', error);
+    res.status(400).send(error);
+  }
+};
+
+// This does NOT return the events for each calendar.
 export const fetchAllCalendars = async (req, res) => {
   try {
     const allEvents = await calendar.calendarList.list();
