@@ -124,8 +124,6 @@ export const updateUserProfile = async (req, res) => {
 export const updateUserInfo = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('Received request to update user with ID: ', id);
-    console.log('Request body data: ', req.body);
     const { role, availability, firstName, lastName, bio, links } = req.body;
     const user = await User.findByIdAndUpdate(
       id,
