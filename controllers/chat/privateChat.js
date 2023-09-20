@@ -76,7 +76,7 @@ export const getAllMessageThreads = async (req, res) => {
     const messageThreads = await PrivateChat.find({
       participants: { $elemMatch: { $eq: userId } },
     })
-      .populate({ path: 'participants', select: 'email' })
+      .populate({ path: 'participants', select: 'email firstName lastName profilePicture' })
       .populate({
         path: 'messages',
         populate: { path: 'sender', select: 'email' },
@@ -89,6 +89,7 @@ export const getAllMessageThreads = async (req, res) => {
 
     if (messageThreads.length === 0) {
       return res.status(404).json({
+        messageThreads,
         message: `No private message threads found for user with ID ${userId}.`,
       });
     }
