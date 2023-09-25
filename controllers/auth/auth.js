@@ -242,7 +242,6 @@ export const updateEmail = async (req, res) => {
     // generate verification token
     const token = newToken(user, true);
     const userInfo = { user, newEmail, token };
-    const userInfo = { user, newEmail, token };
 
     await sendUpdateEmailVerification(userInfo);
 
