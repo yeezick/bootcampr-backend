@@ -173,7 +173,7 @@ export const resendNewEmailLink = async (req, res) => {
     const user = await User.findById(userId);
     const token = newToken(user, true);
 
-    if (req._parsedUrl.query.length > 0) {
+    if (req._parsedUrl.query?.length > 0) {
       // decode email from query params
       const newEmail = atob(req._parsedUrl.query);
       await sendUpdateEmailVerification(user, newEmail, token);

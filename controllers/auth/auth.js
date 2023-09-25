@@ -50,6 +50,7 @@ export const signUp = async (req, res) => {
     const token = newToken(user, true);
     await emailTokenVerification(user, token);
     res.status(201).json({
+      newUser: user._id,
       message: `We've sent a verification link to ${user.email}. Please click on the link that has been sent to your email to verify your account and continue the registration process. The link expires in 30 minutes.`,
       invalidCredentials: false,
       existingAccount: false,
@@ -241,6 +242,7 @@ export const updateEmail = async (req, res) => {
     // generate verification token
     const token = newToken(user, true);
     const userInfo = { user, newEmail, token };
+    const userInfo = { user, newEmail, token };
 
     await sendUpdateEmailVerification(userInfo);
 
@@ -250,6 +252,10 @@ export const updateEmail = async (req, res) => {
     });
   } catch (error) {
     console.error(error.message);
+    res.status(400).json({
+      error: error.message,
+      friendlyMessage: 'There was an issue re-sending your verification email. Please try again or contact support',
+    });
     res.status(400).json({
       error: error.message,
       friendlyMessage: 'There was an issue re-sending your verification email. Please try again or contact support',
