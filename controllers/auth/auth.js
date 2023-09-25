@@ -144,9 +144,9 @@ export const updatePassword = async (req, res) => {
       const passwordMatch = await bcrypt.compare(password, currentUser.passwordDigest);
       const passwordCompare = await bcrypt.compare(newPassword, currentUser.passwordDigest);
       if (!passwordMatch) {
-        return res.status(401).json({ error: 'Password is incorrect.' });
+        return res.status(401).json({ message: 'Password is incorrect.' });
       } else if (passwordCompare) {
-        return res.status(401).json({ error: 'New password cannot be the same as your old password.' });
+        return res.status(401).json({ message: 'New password cannot be the same as your old password.' });
       }
     }
 
@@ -158,12 +158,10 @@ export const updatePassword = async (req, res) => {
       exp: parseInt(exp.getTime() / 1000),
     };
     const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
-    res
-      .status(201)
-      .json({ status: true, message: 'Password Updated', user, bootcamprAuthToken, tMsg: 'Password Updated' });
+    res.status(201).json({ message: 'Password Updated', user, bootcamprAuthToken });
   } catch (error) {
     console.error(error.message);
-    res.status(400).json({ status: false, message: error.message, tMsg: 'Error updating password' });
+    res.status(400).json({ message: 'Error updating password' });
   }
 };
 
