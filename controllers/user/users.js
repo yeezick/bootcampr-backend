@@ -123,8 +123,6 @@ export const updateUserProfile = async (req, res) => {
 export const updateUserInfo = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('Received request to update user with ID: ', id);
-    console.log('Request body data: ', req.body);
     const {
       role,
       availability,
@@ -136,8 +134,7 @@ export const updateUserInfo = async (req, res) => {
       defaultProfilePicture,
       hasUploadedProfilePicture,
     } = req.body;
-    console.log("Profile Picture====:", hasUploadedProfilePicture) 
-    const imageUrl = `https://bootcampruserimage.s3.amazonaws.com/${id}`
+    const imageUrl = `https://bootcampruserimage.s3.amazonaws.com/${id}`;
     const user = await User.findByIdAndUpdate(
       id,
       {
@@ -147,14 +144,12 @@ export const updateUserInfo = async (req, res) => {
         lastName: lastName,
         bio: bio,
         links: links,
-        profilePicture: hasUploadedProfilePicture ? imageUrl : "",
+        profilePicture: hasUploadedProfilePicture ? imageUrl : '',
         defaultProfilePicture: defaultProfilePicture,
         hasUploadedProfilePicture: hasUploadedProfilePicture,
       },
       { new: true },
     );
-
-    console.log('Updated user object: ', user);
     if (!user) {
       console.log('User not found.');
       return res.status(404).json({ error: 'User not found.' });
