@@ -151,22 +151,42 @@ export const confirmPassword = async (req, res) => {
 
 export const updatePassword = async (req, res) => {
   try {
-    const { newPassword } = req.body;
+    const { password, newPassword } = req.body;
     const { userID } = req.params;
+
+    const user = await User.findById(userID).select('passwordDigest');
+
+    if (!user) {
+      return res.status(404).json({
+        status: false,
+        message: 'User not found.',
+        friendlyMessage: 'The user you are trying to update does not exist.',
+      });
+    }
+
+    const currentPassword = user.passwordDigest;
+
+    const passwordsMatch = await bcrypt.compare(password, currentPassword);
+
+    if (!passwordsMatch) {
+      return res.status(401).json({
+        status: false,
+        message: 'Incorrect current password.',
+        friendlyMessage: 'The password you entered is incorrect. Please try again.',
+      });
+    }
+
     const newPasswordDigest = await bcrypt.hash(newPassword, SALT_ROUNDS);
-    const user = await User.findByIdAndUpdate(userID, { passwordDigest: newPasswordDigest }, { new: true });
-    const payload = {
-      userID: user._id,
-      email: user.email,
-      exp: parseInt(exp.getTime() / 1000),
-    };
-    const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
-    res
-      .status(201)
-      .json({ status: true, message: 'Password Updated', user, bootcamprAuthToken, tMsg: 'Password Updated' });
+    await User.findByIdAndUpdate(userID, { passwordDigest: newPasswordDigest }, { new: true });
+
+    res.status(201).json({
+      status: true,
+      message: 'Password Updated.',
+      friendlyMessage: 'Your password has been changed successfully. Use your new password to log in.',
+    });
   } catch (error) {
     console.error(error.message);
-    res.status(400).json({ status: false, message: error.message, tMsg: 'Error updating password' });
+    res.status(400).json({ status: false, message: error.message, friendlyMessage: 'Error updating password.' });
   }
 };
 
