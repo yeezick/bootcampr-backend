@@ -13,13 +13,13 @@ export const createTicket = async (req, res) => {
     res.status(200).send(newTicket);
   } catch (err) {
     console.error(err);
-    res.status(500).json({error: err.message});
+    res.status(500).json({ error: err.message });
   }
 };
 
 export const updateTicketInformationAndStatus = async (req, res) => {
   try {
-    const { link, newStatus, oldStatus, ticketId, projectId, description, date, assignees, title } = req.body;
+    const { link, newStatus, oldStatus, ticketId, projectId, description, date, assignee, title } = req.body;
 
     const ticket = await Ticket.findByIdAndUpdate(
       ticketId,
@@ -28,7 +28,7 @@ export const updateTicketInformationAndStatus = async (req, res) => {
         link: link,
         date: date,
         title: title,
-        assignees: assignees,
+        assignee: assignee,
         status: newStatus,
       },
       { new: true },
