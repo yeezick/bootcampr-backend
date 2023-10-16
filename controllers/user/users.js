@@ -90,7 +90,7 @@ export const updateUserProfile = async (req, res) => {
 
     const user = await User.findByIdAndUpdate(
       id,
-      { role: role, availability: availability, firstName: firstName, lastName: lastName, bio: bio, links: links },
+      { role: role, availability: availability, firstName: firstName, lastName: lastName, bio: bio, links: links, onboarded: true },
       { new: true },
     );
 
