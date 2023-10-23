@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import User from '../../models/user.js';
 import PrivateChat from '../../models/chat/privateChat.js';
 import GroupChat from '../../models/chat/groupChat.js';
-import { updatingImage } from './addingImage.js';
 
 // ORIGINAL CODE
 
@@ -124,7 +123,18 @@ export const updateUserProfile = async (req, res) => {
 export const updateUserInfo = async (req, res) => {
   try {
     const { id } = req.params;
-    const { role, availability, firstName, lastName, bio, links } = req.body;
+    const {
+      role,
+      availability,
+      firstName,
+      lastName,
+      bio,
+      links,
+      profilePicture,
+      defaultProfilePicture,
+      hasProfilePicture,
+    } = req.body;
+    const imageUrl = `https://bootcampruserimage.s3.amazonaws.com/${id}`;
     const user = await User.findByIdAndUpdate(
       id,
       {
@@ -133,17 +143,20 @@ export const updateUserInfo = async (req, res) => {
         firstName: firstName,
         lastName: lastName,
         bio: bio,
-        links: links
+        links: links,
+        profilePicture: hasProfilePicture ? imageUrl : '',
+        defaultProfilePicture: defaultProfilePicture,
+        hasProfilePicture: hasProfilePicture,
       },
       { new: true },
     );
     if (!user) {
+      console.log('User not found.');
       return res.status(404).json({ error: 'User not found.' });
     }
-    const updatedUserImg = await updatingImage(id);
-    res.status(200).send(updatedUserImg);
+    res.status(200).send(user);
   } catch (error) {
-    console.log(error.message);
+    console.log('Error message: ', error.message);
     res.status(404).json({ error: error.message });
   }
 };

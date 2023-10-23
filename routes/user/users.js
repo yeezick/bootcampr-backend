@@ -19,6 +19,7 @@ const storage = multer.memoryStorage();
 const uploadImage = multer({ storage: storage });
 const router = Router();
 
+// Users
 router.get('/users', getAllUsers);
 router.get('/users/:id', getOneUser);
 router.post('/users/:id', updateUserInfo);
