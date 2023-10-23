@@ -144,7 +144,11 @@ export const updateUserInfo = async (req, res) => {
         lastName: lastName,
         bio: bio,
         links: links,
+<<<<<<< HEAD
         profilePicture: hasProfilePicture ? imageUrl : '',
+=======
+        profilePicture: hasUploadedProfilePicture ? imageUrl : '',
+>>>>>>> e5a84f4 (removed logs)
         defaultProfilePicture: defaultProfilePicture,
         hasProfilePicture: hasProfilePicture,
       },
