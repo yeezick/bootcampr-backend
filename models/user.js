@@ -57,7 +57,7 @@ const User = new Schema(
     passwordDigest: { type: String, required: true, select: false },
     profilePicture: { type: String },
     defaultProfilePicture: { type: String },
-    hasUploadedProfilePicture: { type: Boolean },
+    hasProfilePicture: { type: Boolean },
     project: { type: Schema.Types.ObjectId, ref: 'Project' },
     role: { type: String, enum: ['Software Engineer', 'UX Designer'] },
     timezone: { type: String },

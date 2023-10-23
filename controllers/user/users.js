@@ -132,7 +132,7 @@ export const updateUserInfo = async (req, res) => {
       links,
       profilePicture,
       defaultProfilePicture,
-      hasUploadedProfilePicture,
+      hasProfilePicture,
     } = req.body;
     const imageUrl = `https://bootcampruserimage.s3.amazonaws.com/${id}`;
     const user = await User.findByIdAndUpdate(
@@ -144,9 +144,9 @@ export const updateUserInfo = async (req, res) => {
         lastName: lastName,
         bio: bio,
         links: links,
-        profilePicture: hasUploadedProfilePicture ? imageUrl : '',
+        profilePicture: hasProfilePicture ? imageUrl : '',
         defaultProfilePicture: defaultProfilePicture,
-        hasUploadedProfilePicture: hasUploadedProfilePicture,
+        hasProfilePicture: hasProfilePicture,
       },
       { new: true },
     );
