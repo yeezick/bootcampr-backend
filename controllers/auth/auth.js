@@ -6,6 +6,7 @@ import {
   emailTokenVerification,
   unverifiedEmailUser,
   sendUpdateEmailVerification,
+  resetPasswordEmailVerification,
 } from './emailVerification.js';
 
 // should token key be generated here or how do we go about identifying the token to store in env?
@@ -134,6 +135,49 @@ export const verify = async (req, res) => {
   }
 };
 
+export const updatePassword = async (req, res) => {
+  try {
+    const { password, newPassword } = req.body;
+    const { userID } = req.params;
+
+    if (password) {
+      const currentUser = await User.findById(userID).select('+passwordDigest');
+      const passwordMatch = await bcrypt.compare(password, currentUser.passwordDigest);
+      const passwordCompare = await bcrypt.compare(newPassword, currentUser.passwordDigest);
+      if (!passwordMatch) {
+        return res.status(401).json({ message: 'Password is incorrect.' });
+      } else if (passwordCompare) {
+        return res.status(401).json({ message: 'New password cannot be the same as your old password.' });
+      }
+    }
+
+    const newPasswordDigest = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    const user = await User.findByIdAndUpdate(userID, { passwordDigest: newPasswordDigest }, { new: true });
+    const payload = {
+      userID: user._id,
+      email: user.email,
+      exp: parseInt(exp.getTime() / 1000),
+    };
+    const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
+    res.status(201).json({ message: 'Password Updated', user, bootcamprAuthToken });
+  } catch (error) {
+    console.error(error.message);
+    res.status(400).json({ message: 'Error updating password' });
+  }
+};
+
+export const updateAvailability = async (req, res) => {
+  try {
+    const { userId, newAvailability } = req.body;
+    const user = await User.findByIdAndUpdate(userId, { availability: newAvailability }, { new: true });
+    user.save();
+    res.status(201).json({ status: true, message: 'Availability Updated', user, tMsg: 'Availability Updated' });
+  } catch (error) {
+    console.error(error.message);
+    res.status(400).json({ status: false, message: error.message, tMsg: 'Error updating availability' });
+  }
+};
+
 export const confirmPassword = async (req, res) => {
   const { email, password } = req.body;
   // is it better to find the user by their email or id?
@@ -149,36 +193,28 @@ export const confirmPassword = async (req, res) => {
   }
 };
 
-export const updatePassword = async (req, res) => {
+export const resetPassword = async (req, res) => {
   try {
-    const { newPassword } = req.body;
-    const { userID } = req.params;
-    const newPasswordDigest = await bcrypt.hash(newPassword, SALT_ROUNDS);
-    const user = await User.findByIdAndUpdate(userID, { passwordDigest: newPasswordDigest }, { new: true });
-    const payload = {
-      userID: user._id,
-      email: user.email,
-      exp: parseInt(exp.getTime() / 1000),
-    };
-    const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
-    res
-      .status(201)
-      .json({ status: true, message: 'Password Updated', user, bootcamprAuthToken, tMsg: 'Password Updated' });
-  } catch (error) {
-    console.error(error.message);
-    res.status(400).json({ status: false, message: error.message, tMsg: 'Error updating password' });
-  }
-};
+    const { email } = req.body;
+    const user = await User.findOne({ email });
 
-export const updateAvailability = async (req, res) => {
-  try {
-    const { userId, newAvailability } = req.body;
-    const user = await User.findByIdAndUpdate(userId, { availability: newAvailability }, { new: true });
-    user.save();
-    res.status(201).json({ status: true, message: 'Availability Updated', user, tMsg: 'Availability Updated' });
+    // generate verification token
+    const token = newToken(user, true);
+    const userInfo = { user, email, token };
+
+    await resetPasswordEmailVerification(userInfo);
+
+    res.status(201).json({
+      friendlyMessage: `We've sent a verification link to your email address. Please click on the link that has been sent to your email to reset your account password. The link expires in 30 minutes.`,
+      invalidCredentials: false,
+    });
   } catch (error) {
     console.error(error.message);
-    res.status(400).json({ status: false, message: error.message, tMsg: 'Error updating availability' });
+    res.status(400).json({
+      error: error.message,
+      friendlyMessage:
+        'There was an issue sending your reset password verification email. Please try again or contact support',
+    });
   }
 };
 
@@ -215,6 +251,10 @@ export const updateEmail = async (req, res) => {
     });
   } catch (error) {
     console.error(error.message);
+    res.status(400).json({
+      error: error.message,
+      friendlyMessage: 'There was an issue re-sending your verification email. Please try again or contact support',
+    });
     res.status(400).json({
       error: error.message,
       friendlyMessage: 'There was an issue re-sending your verification email. Please try again or contact support',
