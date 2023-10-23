@@ -154,7 +154,6 @@ export const updateUserInfo = async (req, res) => {
       console.log('User not found.');
       return res.status(404).json({ error: 'User not found.' });
     }
-    // const updatedUserImg = await updatingImage(id);
     res.status(200).send(user);
   } catch (error) {
     console.log('Error message: ', error.message);
