@@ -13,6 +13,7 @@ import {
   setUnreadMessageForUser,
   updateUserInfo,
 } from '../../controllers/user/users.js';
+import { getEmailPreferences, updateEmailPreferences } from '../../controllers/user/communications.js';
 
 //middleware
 const storage = multer.memoryStorage();
@@ -38,5 +39,9 @@ router.post('/users/:userId/messages/markConversationAsRead', markConversationAs
 
 // Projects
 router.get('/users/:userId/project', getProjectByUserId);
+
+// Email Preferences
+router.get('/users/:userId/emailPreferences', getEmailPreferences)
+router.post('/users/:userId/updateEmailPreferences', updateEmailPreferences)
 
 export default router;

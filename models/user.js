@@ -46,6 +46,15 @@ const User = new Schema(
       required: true,
       unique: [true, 'E-mail already exists.'],
     },
+    emailPreferences: { type: Object, required: true, default: {
+      newsLetters: true,
+      projectUpdates: true,
+      eventInvitations: true,
+      surveysAndFeedback: true,
+      chatNotifications: true,
+      jobAlerts: true,
+    }
+    },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     links: {
