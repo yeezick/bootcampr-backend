@@ -105,8 +105,8 @@ export const signIn = async (req, res) => {
       } else {
         res.status(299).json({
           invalidCredentials: true,
-          message: 'Invalid email or password.',
-          tMsg: 'Invalid email or password.',
+          message: "User ID and password don't match. Please try again.",
+          tMsg: "User ID and password don't match. Please try again.",
         });
       }
     } else {
