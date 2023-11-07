@@ -205,15 +205,18 @@ export const resetPassword = async (req, res) => {
     await resetPasswordEmailVerification(userInfo);
 
     res.status(201).json({
+      status: true,
+      message: 'Reset password verification email successfully sent.',
       friendlyMessage: `We've sent a verification link to your email address. Please click on the link that has been sent to your email to reset your account password. The link expires in 30 minutes.`,
       invalidCredentials: false,
     });
   } catch (error) {
     console.error(error.message);
     res.status(400).json({
-      error: error.message,
+      status: false,
+      message: error.message,
       friendlyMessage:
-        'There was an issue sending your reset password verification email. Please try again or contact support',
+        'There was an issue sending your reset password verification email. Please try again or contact support.',
     });
   }
 };
