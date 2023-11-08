@@ -58,7 +58,23 @@ export const getOneUser = async (req, res) => {
     if (user) {
       return res.status(200).json(user);
     } else {
-      res.status(404).json({ message: 'User not found.', error: 'No user found in the database.' });
+      res.status(404).json({ message: 'User not found.', error: `No user found with id ${id}.` });
+    }
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({ message: 'Error occured while fetching user', error: error.message });
+  }
+};
+
+export const getOneUserByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    const user = await User.findOne({ email }).select('id');
+    if (user) {
+      return res.status(200).json({ id: user._id });
+    } else {
+      return res.status(404).json({ message: 'User not found.', error: `No user found with email ${email}.` });
     }
   } catch (error) {
     console.error(error.message);
