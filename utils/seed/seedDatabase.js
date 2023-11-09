@@ -51,6 +51,13 @@ reSeedDatabase()
 // Todo: move to a util file, project import currently fails script
 export const addStaticSeedData = async (projects, users) => {
   const staticProject = new Project(await generateProject());
+  const noProjectUX = new User(
+    await generateFakeUser('UX Designer', {
+      email: 'no@project.com',
+      firstName: 'Nop',
+      lastName: 'Roject',
+    }),
+  );
 
   const staticUX = [
     new User(
@@ -80,5 +87,5 @@ export const addStaticSeedData = async (projects, users) => {
   await fillProjectWithUsers(staticProject, staticUX, staticSWE);
   staticProject.calendarId = await addCalendarToProject(staticProject._id);
   projects.push(staticProject);
-  users.push(...staticUX, ...staticSWE);
+  users.push(...staticUX, ...staticSWE, noProjectUX);
 };
