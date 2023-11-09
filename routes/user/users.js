@@ -13,7 +13,7 @@ import {
   setUnreadMessageForUser,
   updateUserInfo,
 } from '../../controllers/user/users.js';
-import { getEmailPreferences, updateEmailPreferences } from '../../controllers/user/communications.js';
+import { getEmailPreferenceOptions, getEmailPreferences, updateEmailPreferences } from '../../controllers/user/communications.js';
 
 //middleware
 const storage = multer.memoryStorage();
@@ -42,6 +42,7 @@ router.get('/users/:userId/project', getProjectByUserId);
 
 // Email Preferences
 router.get('/users/:userId/emailPreferences', getEmailPreferences)
+router.get('/bootcampr/emailPreferenceOptions', getEmailPreferenceOptions)
 router.post('/users/:userId/updateEmailPreferences', updateEmailPreferences)
 
 export default router;
