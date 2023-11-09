@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const Ticket = new Schema(
   {
     title: { type: String },
-    comments: [{ type: Schema.Types.ObjectId, ref: 'Comment'}],
+    comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
     description: { type: String },
     link: { type: String },
     status: { type: String, enum: ['toDo', 'inProgress', 'underReview', 'completed'] },
@@ -12,7 +12,7 @@ const Ticket = new Schema(
     assignee: { type: Schema.Types.ObjectId, ref: 'User' },
     image: { type: String },
     dueDate: { type: String },
-    projectId: { type: String },
+    projectId: { type: Schema.Types.ObjectId, ref: 'Project' },
   },
   { timestamps: true },
 );
