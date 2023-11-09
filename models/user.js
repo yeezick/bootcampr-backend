@@ -47,7 +47,8 @@ const User = new Schema(
       unique: [true, 'E-mail already exists.'],
     },
     emailPreferences: { type: Object, required: true, default: {
-      newsLetters: true,
+      bootcamprUpdates: true,
+      newsletters: true,
       projectUpdates: true,
       eventInvitations: true,
       surveysAndFeedback: true,
