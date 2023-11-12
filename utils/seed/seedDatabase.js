@@ -87,7 +87,7 @@ export const addStaticSeedData = async (projects, users) => {
 
   const sampleTaskBoard = {
     toDo: [sampleTicket._id],
-    inProgress: [new Ticket()._id],
+    inProgress: [],
     underReview: [],
     completed: [],
   };
@@ -98,5 +98,5 @@ export const addStaticSeedData = async (projects, users) => {
   staticProject.calendarId = await addCalendarToProject(staticProject._id);
   staticProject.projectTracker = sampleTaskBoard;
   projects.push(staticProject);
-  users.push(...staticUX, ...staticSWE);
+  users.push(...staticUX, ...staticSWE, noProjectUX);
 };
