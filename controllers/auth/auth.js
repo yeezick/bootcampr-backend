@@ -140,14 +140,40 @@ export const updatePassword = async (req, res) => {
     const { password, newPassword } = req.body;
     const { userID } = req.params;
 
-    if (password) {
-      const currentUser = await User.findById(userID).select('+passwordDigest');
+    const currentUser = await User.findById(userID).select('+passwordDigest');
+
+    if (password && newPassword) {
       const passwordMatch = await bcrypt.compare(password, currentUser.passwordDigest);
       const passwordCompare = await bcrypt.compare(newPassword, currentUser.passwordDigest);
+
       if (!passwordMatch) {
-        return res.status(401).json({ message: 'Password is incorrect.' });
-      } else if (passwordCompare) {
-        return res.status(401).json({ message: 'New password cannot be the same as your old password.' });
+        return res
+          .status(401)
+          .json({
+            status: false,
+            message: 'Current password is incorrect.',
+            friendlyMessage: 'Your password is incorrect.',
+          });
+      }
+
+      if (passwordCompare) {
+        return res.status(401).json({
+          status: false,
+          message: 'New password cannot be the same as your old password.',
+          friendlyMessage: 'Sorry, your new password cannot be the same as your old password.',
+        });
+      }
+    }
+
+    if (!password && newPassword) {
+      const passwordCompare = await bcrypt.compare(newPassword, currentUser.passwordDigest);
+
+      if (passwordCompare) {
+        return res.status(401).json({
+          status: false,
+          message: 'New password cannot be the same as your old password.',
+          friendlyMessage: 'Sorry, your new password cannot be the same as your old password.',
+        });
       }
     }
 
@@ -159,7 +185,7 @@ export const updatePassword = async (req, res) => {
       exp: parseInt(exp.getTime() / 1000),
     };
     const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
-    res.status(201).json({ message: 'Password Updated', user, bootcamprAuthToken });
+    res.status(201).json({ status: true, message: 'Password Updated', user, bootcamprAuthToken });
   } catch (error) {
     console.error(error.message);
     res.status(400).json({ message: 'Error updating password' });
