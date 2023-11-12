@@ -142,6 +142,7 @@ export const updatePassword = async (req, res) => {
 
     const currentUser = await User.findById(userID).select('+passwordDigest');
 
+    // For 'Change password' form containing 'Current password' and 'Enter new password' in Settings
     if (password && newPassword) {
       const passwordMatch = await bcrypt.compare(password, currentUser.passwordDigest);
       const passwordCompare = await bcrypt.compare(newPassword, currentUser.passwordDigest);
@@ -163,6 +164,7 @@ export const updatePassword = async (req, res) => {
       }
     }
 
+    // For 'Reset password' form containing only 'Enter new password' without 'Current password'
     if (!password && newPassword) {
       const passwordCompare = await bcrypt.compare(newPassword, currentUser.passwordDigest);
 
@@ -176,14 +178,13 @@ export const updatePassword = async (req, res) => {
     }
 
     const newPasswordDigest = await bcrypt.hash(newPassword, SALT_ROUNDS);
-    const user = await User.findByIdAndUpdate(userID, { passwordDigest: newPasswordDigest }, { new: true });
-    const payload = {
-      userID: user._id,
-      email: user.email,
-      exp: parseInt(exp.getTime() / 1000),
-    };
-    const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
-    res.status(201).json({ status: true, message: 'Password Updated', user, bootcamprAuthToken });
+    await User.findByIdAndUpdate(userID, { passwordDigest: newPasswordDigest }, { new: true });
+
+    res.status(201).json({
+      status: true,
+      message: 'Password Updated',
+      friendlyMessage: 'Your password has been successfully updated!',
+    });
   } catch (error) {
     console.error(error.message);
     res.status(400).json({ message: 'Error updating password' });
