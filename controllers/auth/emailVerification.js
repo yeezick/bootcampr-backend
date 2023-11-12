@@ -265,6 +265,8 @@ export const newMessageNotificationEmail = async (req, res) => {
   }
 };
 
+// TODO: Following logic to verify user and determine routing should be done at a layout/auth layer on the frontend, not the responsibility of the rendered component
+// BC-619
 export const sendUnreadMessagesEmail = (project, userId, email, firstName, unreadAmount, token) => {
   const loginUrl = `http://localhost:3000/project/${project}?user=${userId}&unread=${token}`;
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
