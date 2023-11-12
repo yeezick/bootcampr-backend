@@ -4,14 +4,12 @@ import { emailPreferenceOptions } from '../../utils/data/emailPreferenceOptions.
 export const getEmailPreferences = async (req, res) => {
     try {
       const { userId } = req.params;
-      // how do I get just user emailPreferences info from this find? (keep lightweight)
-      const foundUser = await User.findById(userId);
-      if (!foundUser) {
+      const foundUserPreferences = await User.findById(userId).select('emailPreferences');
+
+      if (!foundUserPreferences) {
         return res.status(204).json({ message: 'User not found' });
       }
-      console.log(foundUser)
-      const preferences = foundUser.emailPreferences
-      res.json(preferences);
+      res.json(foundUserPreferences);
     } catch (error) {
       console.error(error.message);
       res.status(400).json({ message: error.message });
@@ -26,7 +24,7 @@ export const getEmailPreferences = async (req, res) => {
             {emailPreferences: newPreferences }
         )
       if (!updatedUser) {
-        return res.status(400).send({ msg: 'Error updated user email preferences' })
+        return res.status(400).send({ msg: 'Error updating user email preferences' })
       }
       res.status(201).json(updatedUser.emailPreferences);
     } catch (error) {
