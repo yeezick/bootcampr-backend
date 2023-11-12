@@ -147,13 +147,11 @@ export const updatePassword = async (req, res) => {
       const passwordCompare = await bcrypt.compare(newPassword, currentUser.passwordDigest);
 
       if (!passwordMatch) {
-        return res
-          .status(401)
-          .json({
-            status: false,
-            message: 'Current password is incorrect.',
-            friendlyMessage: 'Your password is incorrect.',
-          });
+        return res.status(401).json({
+          status: false,
+          message: 'Current password is incorrect.',
+          friendlyMessage: 'Your password is incorrect.',
+        });
       }
 
       if (passwordCompare) {
@@ -221,8 +219,21 @@ export const confirmPassword = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, userId } = req.body;
     const user = await User.findOne({ email });
+
+    if (userId) {
+      const loggedInUser = await User.findById(userId);
+
+      // User enters an existing email in database, but does not match their logged in account
+      if (user && email !== loggedInUser.email) {
+        return res.status(401).json({
+          status: false,
+          message: `The email address ${email} is not associated with the user's account.`,
+          friendlyMessage: 'Incorrect email. Please enter the email address associated with your account.',
+        });
+      }
+    }
 
     // generate verification token
     const token = newToken(user, true);
