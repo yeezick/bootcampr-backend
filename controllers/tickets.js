@@ -17,7 +17,7 @@ export const createTicket = async (req, res) => {
   }
 };
 
-export const updateTicketInformationAndStatus = async (req, res) => {
+export const updateTicket = async (req, res) => {
   try {
     const { link, newStatus, oldStatus, ticketId, projectId, description, date, assignee, title } = req.body;
 
@@ -33,25 +33,35 @@ export const updateTicketInformationAndStatus = async (req, res) => {
       },
       { new: true },
     );
-    if (newStatus && oldStatus) {
-      await updateTicketStatus({ oldStatus, newStatus, ticketId, projectId });
-    }
+    // hould not be used
+    // if (newStatus && oldStatus) {
+    //   await updateTicketStatus({ oldStatus, newStatus, ticketId, projectId });
+    // }
     res.status(200).send(ticket);
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ message: 'Error updating ticket.', error: err.message });
+  }
+};
+
+export const updateTicketStatus = async (req, res) => {
+  const { initialStatus, projectId, targetStatus, targetTicketId } = req.body;
+
+  try {
+    await Project.findByIdAndUpdate(
+      projectId,
+      {
+        $pull: { [`projectTracker.${initialStatus}`]: targetTicketId },
+        $push: { [`projectTracker.${targetStatus}`]: targetTicketId },
+      },
+      { new: true },
+    );
+    const updatedTicket = await Ticket.findByIdAndUpdate(targetTicketId, { status: initialStatus });
+    res.status(200).json(updatedTicket);
   } catch (err) {
     console.log(err);
     res.status(400).json({ message: 'Error updating ticket status.', error: err.message });
   }
-};
-
-const updateTicketStatus = async ({ oldStatus, newStatus, ticketId, projectId }) => {
-  await Project.findByIdAndUpdate(
-    projectId,
-    {
-      $pull: { [`projectTracker.${oldStatus}`]: ticketId },
-      $push: { [`projectTracker.${newStatus}`]: ticketId },
-    },
-    { new: true },
-  );
 };
 
 export const deleteTicket = async (req, res) => {

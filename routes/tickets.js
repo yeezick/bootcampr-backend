@@ -1,12 +1,20 @@
 import { Router } from 'express';
-import { createTicket, updateTicketInformationAndStatus, deleteTicket } from '../controllers/tickets.js';
-import { createComment, deleteComment, getAllComments, getReplies, getTicketComments, updateComment } from '../controllers/task-management/comments.js';
+import { createTicket, deleteTicket, updateTicket, updateTicketStatus } from '../controllers/tickets.js';
+import {
+  createComment,
+  deleteComment,
+  getAllComments,
+  getReplies,
+  getTicketComments,
+  updateComment,
+} from '../controllers/task-management/comments.js';
 
 const router = Router();
 
 // roles
 router.post('/createTicket', createTicket);
-router.put('/updateTicketInformation', updateTicketInformationAndStatus);
+router.put('/updateTicket', updateTicket);
+router.put('/updateTicket/status', updateTicketStatus);
 router.post('/deleteTicket', deleteTicket);
 
 // comments
