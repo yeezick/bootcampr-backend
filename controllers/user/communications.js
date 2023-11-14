@@ -32,8 +32,3 @@ export const getEmailPreferences = async (req, res) => {
       res.status(400).json({ status: false, message: error.message });
     }
   };
-
-
-  export const getEmailPreferenceOptions = (req,res) => {
-    return res.status(201).json(emailPreferenceOptions)
-  }

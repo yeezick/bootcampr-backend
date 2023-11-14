@@ -42,7 +42,6 @@ router.get('/users/:userId/project', getProjectByUserId);
 
 // Email Preferences
 router.get('/users/:userId/emailPreferences', getEmailPreferences)
-router.get('/bootcampr/emailPreferenceOptions', getEmailPreferenceOptions)
 router.post('/users/:userId/updateEmailPreferences', updateEmailPreferences)
 
 export default router;
