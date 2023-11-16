@@ -13,7 +13,7 @@ import {
   setUnreadMessageForUser,
   updateUserInfo,
 } from '../../controllers/user/users.js';
-import { getEmailPreferenceOptions, getEmailPreferences, updateEmailPreferences } from '../../controllers/user/communications.js';
+import { getEmailPreferences, updateEmailPreferences } from '../../controllers/user/communications.js';
 
 //middleware
 const storage = multer.memoryStorage();

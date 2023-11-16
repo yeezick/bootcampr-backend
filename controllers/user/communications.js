@@ -1,5 +1,4 @@
 import User from '../../models/user.js'
-import { emailPreferenceOptions } from '../../utils/data/emailPreferenceOptions.js';
 
 export const getEmailPreferences = async (req, res) => {
     try {
