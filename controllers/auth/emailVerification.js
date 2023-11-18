@@ -186,12 +186,10 @@ export const resendNewEmailLink = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res
-      .status(400)
-      .send({
-        error: error,
-        friendlyMessage: 'There was an error sending a new verification email. Please try again or contact support.',
-      });
+    res.status(400).send({
+      error: error,
+      friendlyMessage: 'There was an error sending a new verification email. Please try again or contact support.',
+    });
   }
 };
 
@@ -267,6 +265,8 @@ export const newMessageNotificationEmail = async (req, res) => {
   }
 };
 
+// TODO: Following logic to verify user and determine routing should be done at a layout/auth layer on the frontend, not the responsibility of the rendered component
+// BC-619
 export const sendUnreadMessagesEmail = (project, userId, email, firstName, unreadAmount, token) => {
   const loginUrl = `http://localhost:3000/project/${project}?user=${userId}&unread=${token}`;
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
@@ -309,4 +309,52 @@ export const sendUnreadMessagesEmail = (project, userId, email, firstName, unrea
       console.log('Unread messages email not sent');
       console.error(error);
     });
+};
+
+export const resetPasswordEmailVerification = ({ user, token }) => {
+  const resetPasswordUrl = `${process.env.BASE_URL}/users/${user._id}/reset-password/${token}`;
+  const loginUrl = `${process.env.BASE_URL}/sign-in`;
+  const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
+
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+  const emailBody = `
+      <table style="background-color: #F2F4FF; width: 100%; max-width: 910px; min-height: 335px; margin: 0 auto; border-radius: 4px; padding: 25px 25px 125px 25px;">
+        <tr>
+          <td style="text-align: center;">
+            <img src=${bootcamprLogoURL} alt="logo" style="height: 42px; width: auto; margin: 0 auto; margin-bottom: 25px;" draggable="false" />
+            <table style="background-color: #FFFFFF; width: 100%; max-width: 560px; margin: 0 auto; padding: 20px;">
+              <tr>
+                <td style="font-size: 16px;">
+                  <p style="color: black; margin: 0; margin: 10px 0; text-align: center;">if you asked to reset your password by mistake, disregard this email and <a href=${loginUrl}>log in</a>.</p>
+                  <a href=${resetPasswordUrl} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 14px; padding: 8px 20px; text-decoration: none; text-align: center; margin-bottom: 25px;">Reset My Password</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+  `;
+
+  const msg = {
+    to: user.email,
+    from: `${process.env.SENDGRID_EMAIL}` || 'koffiarielhessou@gmail.com', // Change to your verified sender
+    subject: 'Bootcampr Password Reset Verification',
+    html: emailBody,
+  };
+
+  try {
+    sgMail
+      .send(msg)
+      .then(() => {
+        console.log('Password reset verification sent successfully');
+      })
+      .catch((error) => {
+        console.log('Password reset verification could not be sent');
+        console.error(error);
+        throw error;
+      });
+  } catch (err) {
+    console.error(err);
+  }
 };

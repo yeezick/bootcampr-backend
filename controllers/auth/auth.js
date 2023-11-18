@@ -6,6 +6,7 @@ import {
   emailTokenVerification,
   unverifiedEmailUser,
   sendUpdateEmailVerification,
+  resetPasswordEmailVerification,
 } from './emailVerification.js';
 
 // should token key be generated here or how do we go about identifying the token to store in env?
@@ -104,8 +105,8 @@ export const signIn = async (req, res) => {
       } else {
         res.status(299).json({
           invalidCredentials: true,
-          message: 'Invalid email or password.',
-          tMsg: 'Invalid email or password.',
+          message: "User ID and password don't match. Please try again.",
+          tMsg: "User ID and password don't match. Please try again.",
         });
       }
     } else {
@@ -134,6 +135,74 @@ export const verify = async (req, res) => {
   }
 };
 
+export const updatePassword = async (req, res) => {
+  try {
+    const { password, newPassword } = req.body;
+    const { userID } = req.params;
+
+    const currentUser = await User.findById(userID).select('+passwordDigest');
+
+    // For 'Change password' form containing 'Current password' and 'Enter new password' in Settings
+    if (password && newPassword) {
+      const passwordMatch = await bcrypt.compare(password, currentUser.passwordDigest);
+      const passwordCompare = await bcrypt.compare(newPassword, currentUser.passwordDigest);
+
+      if (!passwordMatch) {
+        return res.status(401).json({
+          status: false,
+          message: 'Current password is incorrect.',
+          friendlyMessage: 'Your password is incorrect.',
+        });
+      }
+
+      if (passwordCompare) {
+        return res.status(401).json({
+          status: false,
+          message: 'New password cannot be the same as your old password.',
+          friendlyMessage: 'Sorry, your new password cannot be the same as your old password.',
+        });
+      }
+    }
+
+    // For 'Reset password' form containing only 'Enter new password' without 'Current password'
+    if (!password && newPassword) {
+      const passwordCompare = await bcrypt.compare(newPassword, currentUser.passwordDigest);
+
+      if (passwordCompare) {
+        return res.status(401).json({
+          status: false,
+          message: 'New password cannot be the same as your old password.',
+          friendlyMessage: 'Sorry, your new password cannot be the same as your old password.',
+        });
+      }
+    }
+
+    const newPasswordDigest = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    await User.findByIdAndUpdate(userID, { passwordDigest: newPasswordDigest }, { new: true });
+
+    res.status(201).json({
+      status: true,
+      message: 'Password Updated',
+      friendlyMessage: 'Your password has been successfully updated!',
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(400).json({ message: 'Error updating password' });
+  }
+};
+
+export const updateAvailability = async (req, res) => {
+  try {
+    const { userId, newAvailability } = req.body;
+    const user = await User.findByIdAndUpdate(userId, { availability: newAvailability }, { new: true });
+    user.save();
+    res.status(201).json({ status: true, message: 'Availability Updated', user, tMsg: 'Availability Updated' });
+  } catch (error) {
+    console.error(error.message);
+    res.status(400).json({ status: false, message: error.message, tMsg: 'Error updating availability' });
+  }
+};
+
 export const confirmPassword = async (req, res) => {
   const { email, password } = req.body;
   // is it better to find the user by their email or id?
@@ -149,36 +218,44 @@ export const confirmPassword = async (req, res) => {
   }
 };
 
-export const updatePassword = async (req, res) => {
+export const resetPassword = async (req, res) => {
   try {
-    const { newPassword } = req.body;
-    const { userID } = req.params;
-    const newPasswordDigest = await bcrypt.hash(newPassword, SALT_ROUNDS);
-    const user = await User.findByIdAndUpdate(userID, { passwordDigest: newPasswordDigest }, { new: true });
-    const payload = {
-      userID: user._id,
-      email: user.email,
-      exp: parseInt(exp.getTime() / 1000),
-    };
-    const bootcamprAuthToken = jwt.sign(payload, TOKEN_KEY);
-    res
-      .status(201)
-      .json({ status: true, message: 'Password Updated', user, bootcamprAuthToken, tMsg: 'Password Updated' });
-  } catch (error) {
-    console.error(error.message);
-    res.status(400).json({ status: false, message: error.message, tMsg: 'Error updating password' });
-  }
-};
+    const { email, userId } = req.body;
+    const user = await User.findOne({ email });
 
-export const updateAvailability = async (req, res) => {
-  try {
-    const { userId, newAvailability } = req.body;
-    const user = await User.findByIdAndUpdate(userId, { availability: newAvailability }, { new: true });
-    user.save();
-    res.status(201).json({ status: true, message: 'Availability Updated', user, tMsg: 'Availability Updated' });
+    if (userId) {
+      const loggedInUser = await User.findById(userId);
+
+      // User enters an existing email in database, but does not match their logged in account
+      if (user && email !== loggedInUser.email) {
+        return res.status(401).json({
+          status: false,
+          message: `The email address ${email} is not associated with the user's account.`,
+          friendlyMessage: 'Incorrect email. Please enter the email address associated with your account.',
+        });
+      }
+    }
+
+    // generate verification token
+    const token = newToken(user, true);
+    const userInfo = { user, email, token };
+
+    await resetPasswordEmailVerification(userInfo);
+
+    res.status(201).json({
+      status: true,
+      message: 'Reset password verification email successfully sent.',
+      friendlyMessage: `We've sent a verification link to your email address. Please click on the link that has been sent to your email to reset your account password. The link expires in 30 minutes.`,
+      invalidCredentials: false,
+    });
   } catch (error) {
     console.error(error.message);
-    res.status(400).json({ status: false, message: error.message, tMsg: 'Error updating availability' });
+    res.status(400).json({
+      status: false,
+      message: error.message,
+      friendlyMessage:
+        'There was an issue sending your reset password verification email. Please try again or contact support.',
+    });
   }
 };
 
@@ -215,6 +292,10 @@ export const updateEmail = async (req, res) => {
     });
   } catch (error) {
     console.error(error.message);
+    res.status(400).json({
+      error: error.message,
+      friendlyMessage: 'There was an issue re-sending your verification email. Please try again or contact support',
+    });
     res.status(400).json({
       error: error.message,
       friendlyMessage: 'There was an issue re-sending your verification email. Please try again or contact support',

@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import User from '../../models/user.js';
 import PrivateChat from '../../models/chat/privateChat.js';
 import GroupChat from '../../models/chat/groupChat.js';
-import { updatingImage } from './addingImage.js';
 
 // ORIGINAL CODE
 
@@ -59,7 +58,23 @@ export const getOneUser = async (req, res) => {
     if (user) {
       return res.status(200).json(user);
     } else {
-      res.status(404).json({ message: 'User not found.', error: 'No user found in the database.' });
+      res.status(404).json({ message: 'User not found.', error: `No user found with id ${id}.` });
+    }
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({ message: 'Error occured while fetching user', error: error.message });
+  }
+};
+
+export const getOneUserByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    const user = await User.findOne({ email }).select('id');
+    if (user) {
+      return res.status(200).json({ id: user._id });
+    } else {
+      return res.status(404).json({ message: 'User not found.', error: `No user found with email ${email}.` });
     }
   } catch (error) {
     console.error(error.message);
@@ -124,7 +139,18 @@ export const updateUserProfile = async (req, res) => {
 export const updateUserInfo = async (req, res) => {
   try {
     const { id } = req.params;
-    const { role, availability, firstName, lastName, bio, links } = req.body;
+    const {
+      role,
+      availability,
+      firstName,
+      lastName,
+      bio,
+      links,
+      profilePicture,
+      defaultProfilePicture,
+      hasProfilePicture,
+    } = req.body;
+    const imageUrl = `https://bootcampruserimage.s3.amazonaws.com/${id}`;
     const user = await User.findByIdAndUpdate(
       id,
       {
@@ -133,17 +159,20 @@ export const updateUserInfo = async (req, res) => {
         firstName: firstName,
         lastName: lastName,
         bio: bio,
-        links: links
+        links: links,
+        profilePicture: hasProfilePicture ? imageUrl : '',
+        defaultProfilePicture: defaultProfilePicture,
+        hasProfilePicture: hasProfilePicture,
       },
       { new: true },
     );
     if (!user) {
+      console.log('User not found.');
       return res.status(404).json({ error: 'User not found.' });
     }
-    const updatedUserImg = await updatingImage(id);
-    res.status(200).send(updatedUserImg);
+    res.status(200).send(user);
   } catch (error) {
-    console.log(error.message);
+    console.log('Error message: ', error.message);
     res.status(404).json({ error: error.message });
   }
 };

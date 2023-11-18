@@ -12,6 +12,7 @@ import {
   markConversationAsRead,
   setUnreadMessageForUser,
   updateUserInfo,
+  getOneUserByEmail,
 } from '../../controllers/user/users.js';
 
 //middleware
@@ -19,8 +20,10 @@ const storage = multer.memoryStorage();
 const uploadImage = multer({ storage: storage });
 const router = Router();
 
+// Users
 router.get('/users', getAllUsers);
 router.get('/users/:id', getOneUser);
+router.get('/users/email/:email', getOneUserByEmail);
 router.post('/users/:id', updateUserInfo);
 router.post('/onboarding/:id', updateUserProfile);
 router.delete('/users/:id', deleteUser);

@@ -3,16 +3,16 @@ const Schema = mongoose.Schema;
 
 const Ticket = new Schema(
   {
-    title: { type: String },
+    title: { type: String, required: true },
     comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
     description: { type: String },
     link: { type: String },
-    status: { type: String, enum: ['toDo', 'inProgress', 'underReview', 'completed'] },
-    createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    status: { type: String, enum: ['toDo', 'inProgress', 'underReview', 'completed'], required: true },
+    createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     assignee: { type: Schema.Types.ObjectId, ref: 'User' },
     image: { type: String },
     dueDate: { type: String },
-    projectId: { type: Schema.Types.ObjectId, ref: 'Project' },
+    projectId: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
   },
   { timestamps: true },
 );
