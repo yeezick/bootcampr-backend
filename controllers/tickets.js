@@ -3,13 +3,18 @@ import Project from '../models/project.js';
 
 export const createTicket = async (req, res) => {
   try {
-    const newTicket = new Ticket(req.body);
-    await newTicket.save();
-    const project = await Project.findById(req.body.projectId);
-    const statusString = req.body.status;
-    const concatenatedString = statusString.replace(/\s+/g, '');
-    project.projectTracker[concatenatedString].push(newTicket);
-    await project.save({ validateBeforeSave: false });
+    // TODO: could this be replaced with .create?
+    const { projectId, status } = req.body;
+    const newTicket = await new Ticket(req.body).save();
+    await Project.findByIdAndUpdate(
+      projectId,
+      {
+        $push: { [`projectTracker.${status}`]: newTicket._id },
+      },
+      { new: true },
+    );
+    // TODO: why do we need this?
+    // await project.save({ validateBeforeSave: false });
     res.status(200).send(newTicket);
   } catch (err) {
     console.error(err);
@@ -19,24 +24,34 @@ export const createTicket = async (req, res) => {
 
 export const updateTicket = async (req, res) => {
   try {
-    const { link, newStatus, oldStatus, ticketId, projectId, description, date, assignee, title } = req.body;
+    const { link, status, oldStatus, _id: ticketId, projectId, description, dueDate, assignee, title } = req.body;
 
-    const ticket = await Ticket.findByIdAndUpdate(
-      ticketId,
-      {
-        description: description,
-        link: link,
-        date: date,
-        title: title,
-        assignee: assignee,
-        status: newStatus,
-      },
-      { new: true },
-    );
-    // hould not be used
-    // if (newStatus && oldStatus) {
-    //   await updateTicketStatus({ oldStatus, newStatus, ticketId, projectId });
-    // }
+    let ticketMdbPayload = {
+      description,
+      link,
+      dueDate,
+      title,
+      status,
+    };
+
+    if (assignee) {
+      ticketMdbPayload.assignee = assignee;
+    } else {
+      ticketMdbPayload = { ...ticketMdbPayload, $unset: { assignee: '' } };
+    }
+
+    const ticket = await Ticket.findByIdAndUpdate(ticketId, ticketMdbPayload, { new: true });
+    if (oldStatus !== status) {
+      await Project.findByIdAndUpdate(
+        projectId,
+        {
+          $pull: { [`projectTracker.${oldStatus}`]: ticketId },
+          $push: { [`projectTracker.${status}`]: ticketId },
+        },
+        { new: true },
+      );
+    }
+
     res.status(200).send(ticket);
   } catch (err) {
     console.log(err);
