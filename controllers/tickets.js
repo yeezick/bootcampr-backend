@@ -13,12 +13,26 @@ export const createTicket = async (req, res) => {
       },
       { new: true },
     );
-    // TODO: why do we need this?
-    // await project.save({ validateBeforeSave: false });
+
     res.status(200).send(newTicket);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
+  }
+};
+
+export const deleteTicket = async (req, res) => {
+  try {
+    const { ticketsStatus, ticketId, projectId } = req.body;
+
+    await Ticket.findOneAndRemove({ _id: ticketId });
+    await Project.findByIdAndUpdate(projectId, {
+      $pull: { [`projectTracker.${ticketsStatus}`]: ticketId },
+    });
+    res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: 'Error deleting ticket.', error: error.message });
   }
 };
 
@@ -76,20 +90,5 @@ export const updateTicketStatus = async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(400).json({ message: 'Error updating ticket status.', error: err.message });
-  }
-};
-
-export const deleteTicket = async (req, res) => {
-  try {
-    const { ticketsStatus, ticketId, projectId } = req.body;
-
-    await Ticket.findOneAndRemove({ _id: ticketId });
-    await Project.findByIdAndUpdate(projectId, {
-      $pull: { [`projectTracker.${ticketsStatus}`]: ticketId },
-    });
-    res.sendStatus(200);
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({ message: 'Error deleting ticket.', error: error.message });
   }
 };
