@@ -1,5 +1,6 @@
 import { formatCalendarId } from '../../utils/helperFunctions.js';
 import { calendar } from '../../server.js';
+import { produce } from 'immer';
 
 // Potential New Controllers for Meetings
 // Update Single User Attendence
@@ -10,25 +11,33 @@ import { calendar } from '../../server.js';
 
 export const createEvent = async (req, res) => {
   const { calendarId } = req.params;
+  const { enabledGoogleMeet, ...eventInfo } = req.body;
 
   try {
-    const preparedEvent = {
+    let preparedEvent = {
       calendarId: `${calendarId}@group.calendar.google.com`,
-      conferenceDataVersion: 1,
-      resource: {
-        ...req.body,
-        // Todo: Enables google meets events
-        // conferenceData: {
-        //   createRequest: {
-        //     requestId: 'tessldahli',
-        //     conferenceSolutionKey: {
-        //       type: 'hangoutsMeet',
-        //     },
-        //   },
-        // },
-      },
+      resource: {},
       sendUpdates: 'all',
     };
+
+    if (enabledGoogleMeet) {
+      preparedEvent = produce(preparedEvent, (draft) => {
+        draft.conferenceDataVersion = 1;
+        draft.resource = eventInfo;
+        draft.resource.conferenceData = {
+          createRequest: {
+            requestId: 'reqid',
+            conferenceSolutionKey: {
+              type: 'hangoutsMeet',
+            },
+          },
+        };
+      });
+    } else {
+      preparedEvent = produce(preparedEvent, (draft) => {
+        draft.resource = eventInfo;
+      });
+    }
 
     const event = await calendar.events.insert(preparedEvent);
     res.status(200).send(event);
