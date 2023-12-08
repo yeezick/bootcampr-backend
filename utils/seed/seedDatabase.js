@@ -8,6 +8,8 @@ import { addCalendarToProject, generateProject, fillProjectWithUsers } from './u
 import axios from 'axios';
 
 const reSeedDatabase = async () => {
+  console.log('Reseeding database');
+
   // Remove all data from database
   await db.dropDatabase();
   // TODO: remove or restrict access to this endpoint before deployment
@@ -73,6 +75,14 @@ export const addStaticSeedData = async (projects, users) => {
       email: 'silly@goose.com',
       firstName: 'Silly',
       lastName: 'Goose',
+    }),
+  );
+
+  const noProjectUX = new User(
+    await generateFakeUser('Software Engineer', {
+      email: 'no@project.com',
+      firstName: 'No',
+      lastName: 'Project',
     }),
   );
 
