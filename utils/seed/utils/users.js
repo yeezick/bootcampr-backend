@@ -35,32 +35,53 @@ export const generateFakeUser = async (role, customInfo) => {
   return {
     availability: {
       SUN: {
-        available: true,
-        availability: generateRandomSingleDayAvailability(),
+        // available: true,
+        available: false,
+
+        // availability: generateRandomSingleDayAvailability(),
+        availability: [],
       },
       MON: {
-        available: true,
-        availability: generateRandomSingleDayAvailability(),
+        // available: true,
+        available: false,
+
+        availability: [],
+        // availability: generateRandomSingleDayAvailability(),
       },
       TUE: {
-        available: true,
-        availability: generateRandomSingleDayAvailability(),
+        // available: true,
+        available: false,
+
+        // availability: generateRandomSingleDayAvailability(),
+        availability: [],
       },
       WED: {
-        available: true,
-        availability: generateRandomSingleDayAvailability(),
+        // available: true,
+        available: false,
+
+        // availability: generateRandomSingleDayAvailability(),
+        availability: [],
       },
       THU: {
-        available: true,
-        availability: generateRandomSingleDayAvailability(),
+        // available: true,
+        available: false,
+
+        // availability: generateRandomSingleDayAvailability(),
+        availability: [],
       },
       FRI: {
-        available: true,
-        availability: generateRandomSingleDayAvailability(),
+        // available: true,
+        available: false,
+
+        // availability: generateRandomSingleDayAvailability(),
+        availability: [],
       },
       SAT: {
-        available: true,
-        availability: generateRandomSingleDayAvailability(),
+        // available: true,
+        // availability: generateRandomSingleDayAvailability(),
+        available: false,
+
+        availability: [],
       },
     },
     bio: generateBio(role),

@@ -9,9 +9,17 @@ import { produce } from 'immer';
 // Get All Project Meetings
 // Get All Project Meetings for 'x' number of days
 
+export const snakeCaseEventSummary = (projectId, eventSummary) => {
+  const snakeCasedEventSummary = eventSummary
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .replace(/[\s_]+/g, '-')
+    .toLowerCase();
+
+  return `${projectId}-${snakeCasedEventSummary}`;
+};
 export const createEvent = async (req, res) => {
   const { calendarId } = req.params;
-  const { enabledGoogleMeet, ...eventInfo } = req.body;
+  const { googleMeetingInfo, projectId, ...eventInfo } = req.body;
 
   try {
     let preparedEvent = {
@@ -20,13 +28,13 @@ export const createEvent = async (req, res) => {
       sendUpdates: 'all',
     };
 
-    if (enabledGoogleMeet) {
+    if (googleMeetingInfo.enabledGoogleMeet) {
       preparedEvent = produce(preparedEvent, (draft) => {
         draft.conferenceDataVersion = 1;
         draft.resource = eventInfo;
         draft.resource.conferenceData = {
           createRequest: {
-            requestId: 'reqid',
+            requestId: buildRequestId(projectId, eventInfo.summary),
             conferenceSolutionKey: {
               type: 'hangoutsMeet',
             },
@@ -49,15 +57,61 @@ export const createEvent = async (req, res) => {
 
 export const updateEvent = async (req, res) => {
   const { calendarId, eventId } = req.params;
+  const { googleMeetingInfo, projectId, ...eventInfo } = req.body;
 
   try {
-    const preparedEvent = {
+    let preparedEvent = {
       calendarId: `${calendarId}@group.calendar.google.com`,
       eventId,
-      resource: req.body,
+      // resource: req.body,
       sendUpdates: 'all',
     };
 
+    // if google meet is enabled
+    // does hangout link exist? do nothing
+    //hangout link doesn't exist? create event
+    // else
+    // does hangout link exist? delete meet
+
+    // if google meet is enabled, check if there is an existing hagout link
+
+    if (googleMeetingInfo.enabledGoogleMeet) {
+      // if there is no hangout link, create one
+      if (!googleMeetingInfo.hangoutLink) {
+        preparedEvent = produce(preparedEvent, (draft) => {
+          draft.conferenceDataVersion = 1;
+          draft.resource = eventInfo;
+          draft.resource.conferenceData = {
+            createRequest: {
+              requestId: buildRequestId(projectId, eventInfo.summary),
+              conferenceSolutionKey: {
+                type: 'hangoutsMeet',
+              },
+            },
+          };
+        });
+      } else {
+        // if google meet is disabled, remove it from the event
+        console.log('hit');
+        preparedEvent = produce(preparedEvent, (draft) => {
+          draft.conferenceDataVersion = 0;
+
+          draft.resource = eventInfo;
+          draft.resource.conferenceData = null;
+          draft.conferenceData = null;
+        });
+      }
+    } else if (!googleMeetingInfo.enabledGoogleMeet && googleMeetingInfo.hangoutLink) {
+      preparedEvent = produce(preparedEvent, (draft) => {
+        draft.conferenceDataVersion = 0;
+
+        draft.resource = eventInfo;
+        draft.resource.conferenceData = null;
+        draft.conferenceData = null;
+      });
+    }
+    console.log('reqbody \n', req.body);
+    console.log('preparedEvent \n', preparedEvent);
     const event = await calendar.events.update(preparedEvent);
     res.status(200).send(event);
   } catch (error) {
