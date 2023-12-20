@@ -17,6 +17,7 @@ export const snakeCaseEventSummary = (projectId, eventSummary) => {
 
   return `${projectId}-${snakeCasedEventSummary}`;
 };
+
 export const createEvent = async (req, res) => {
   const { calendarId } = req.params;
   const { googleMeetingInfo, projectId, ...eventInfo } = req.body;
@@ -34,7 +35,7 @@ export const createEvent = async (req, res) => {
         draft.resource = eventInfo;
         draft.resource.conferenceData = {
           createRequest: {
-            requestId: buildRequestId(projectId, eventInfo.summary),
+            requestId: snakeCaseEventSummary(projectId, eventInfo.summary),
             conferenceSolutionKey: {
               type: 'hangoutsMeet',
             },
@@ -46,8 +47,17 @@ export const createEvent = async (req, res) => {
         draft.resource = eventInfo;
       });
     }
+    console.log('preparedEvent \n', preparedEvent);
+
+    console.log(
+      'attendees \n',
+      preparedEvent.resource.attendees,
+      '\n createRequest',
+      preparedEvent.resource.conferenceData.createRequest,
+    );
 
     const event = await calendar.events.insert(preparedEvent);
+    console.log('Create Event', event);
     res.status(200).send(event);
   } catch (error) {
     console.error(`Error creating event for calendar (${calendarId})`, error);
@@ -83,7 +93,7 @@ export const updateEvent = async (req, res) => {
           draft.resource = eventInfo;
           draft.resource.conferenceData = {
             createRequest: {
-              requestId: buildRequestId(projectId, eventInfo.summary),
+              requestId: snakeCaseEventSummary(projectId, eventInfo.summary),
               conferenceSolutionKey: {
                 type: 'hangoutsMeet',
               },
