@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import 'dotenv/config.js';
 
 // set connection location
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_ENV === 'local' ? process.env.MONGODB_LOCAL_URI : process.env.MONGODB_URI;
 mongoose.set('strictQuery', false);
 mongoose.set('returnOriginal', false); //for findByAndUpdate to return a reference to object at location
 
