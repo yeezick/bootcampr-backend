@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import 'dotenv/config.js';
 
+let MONGODB_URI;
+
 if (process.env.MONGODB_ENV === 'local') {
   console.log('Running MongoDB locally');
   MONGODB_URI = process.env.MONGODB_LOCAL_URI;
