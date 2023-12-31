@@ -204,7 +204,7 @@ export const verifyUniqueEmail = async (req, res) => {
     const validFormat = emailRegex.test(email);
 
     if (!validFormat) {
-      throw new Error('Please enter a valid email address.');
+      throw new Error('Invalid email.');
     } else if (user) {
       throw new Error('Email address already exists.');
     } else {
@@ -213,7 +213,7 @@ export const verifyUniqueEmail = async (req, res) => {
   } catch (error) {
     let statusCode = 400;
 
-    if (error.message === 'Please enter a valid email address.') {
+    if (error.message === 'Invalid email.') {
       statusCode = 422;
     } else if (error.message === 'Email already exists.') {
       statusCode = 409;
