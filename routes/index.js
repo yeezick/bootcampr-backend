@@ -22,7 +22,7 @@ router.use('/', authRoutes);
 router.use('/', availabilityRoutes);
 router.use('/', calendarRoutes);
 router.use('/', eventRoutes);
-// router.use('/', groupChatRoutes);
+router.use('/', groupChatRoutes);
 router.use('/', mediaRoutes);
 router.use('/', notificationRoutes);
 router.use('/', privateChatRoutes);

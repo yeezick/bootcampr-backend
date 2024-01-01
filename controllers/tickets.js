@@ -3,7 +3,6 @@ import Project from '../models/project.js';
 
 export const createTicket = async (req, res) => {
   try {
-    // TODO: could this be replaced with .create?
     const { projectId, status } = req.body;
     const newTicket = await new Ticket(req.body).save();
     await Project.findByIdAndUpdate(
