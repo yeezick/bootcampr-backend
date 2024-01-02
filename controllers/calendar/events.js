@@ -1,6 +1,7 @@
 import { formatCalendarId } from '../../utils/helperFunctions.js';
 import { calendar } from '../../server.js';
 import { produce } from 'immer';
+import { convertGoogleEventsForCalendar } from '../../utils/helpers/calendarHelpers.js';
 
 // Potential New Controllers for Meetings
 // Update Single User Attendence
@@ -47,18 +48,18 @@ export const createEvent = async (req, res) => {
         draft.resource = eventInfo;
       });
     }
-    console.log('preparedEvent \n', preparedEvent);
+    console.log('\n preparedEvent \n', preparedEvent);
 
     console.log(
-      'attendees \n',
+      '\n attendees \n',
       preparedEvent.resource.attendees,
-      '\n createRequest',
-      preparedEvent.resource.conferenceData.createRequest,
+      '\n createRequest\n ',
+      // preparedEvent.resource.conferenceData.createRequest,
     );
 
-    const event = await calendar.events.insert(preparedEvent);
-    console.log('Create Event', event);
-    res.status(200).send(event);
+    const { data: googleEvent } = await calendar.events.insert(preparedEvent);
+    const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
+    res.status(200).send(convertedEvent[0]);
   } catch (error) {
     console.error(`Error creating event for calendar (${calendarId})`, error);
     res.status(400).send(error);
@@ -84,7 +85,6 @@ export const updateEvent = async (req, res) => {
     // does hangout link exist? delete meet
 
     // if google meet is enabled, check if there is an existing hagout link
-
     if (googleMeetingInfo.enabledGoogleMeet) {
       // if there is no hangout link, create one
       if (!googleMeetingInfo.hangoutLink) {
@@ -101,29 +101,28 @@ export const updateEvent = async (req, res) => {
           };
         });
       } else {
-        // if google meet is disabled, remove it from the event
-        console.log('hit');
         preparedEvent = produce(preparedEvent, (draft) => {
-          draft.conferenceDataVersion = 0;
-
           draft.resource = eventInfo;
-          draft.resource.conferenceData = null;
-          draft.conferenceData = null;
         });
       }
     } else if (!googleMeetingInfo.enabledGoogleMeet && googleMeetingInfo.hangoutLink) {
+      // if google meet is disabled & there is an existing link, remove it from the event
       preparedEvent = produce(preparedEvent, (draft) => {
         draft.conferenceDataVersion = 0;
-
         draft.resource = eventInfo;
-        draft.resource.conferenceData = null;
-        draft.conferenceData = null;
+        draft.conferenceData = 0;
+      });
+    } else {
+      // just update the event
+      preparedEvent = produce(preparedEvent, (draft) => {
+        draft.resource = eventInfo;
       });
     }
-    console.log('reqbody \n', req.body);
-    console.log('preparedEvent \n', preparedEvent);
-    const event = await calendar.events.update(preparedEvent);
-    res.status(200).send(event);
+    // console.log('reqbody \n', req.body);
+    console.log('\n preparedEvent \n', preparedEvent);
+    const { data: googleEvent } = await calendar.events.update(preparedEvent);
+    const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
+    res.status(200).send(convertedEvent[0]);
   } catch (error) {
     console.error(`Error creating event for calendar (${calendarId})`, error);
     res.status(400).send(error);
@@ -133,11 +132,12 @@ export const updateEvent = async (req, res) => {
 export const fetchEvent = async (req, res) => {
   try {
     const { calendarId, eventId } = req.params;
-    const event = await calendar.events.get({
+    const { data: googleEvent } = await calendar.events.get({
       calendarId: formatCalendarId(calendarId),
       eventId,
     });
-    res.status(200).send(event);
+    const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
+    res.status(200).send(convertedEvent[0]);
   } catch (error) {
     console.error('Error fetching event:', error);
     res.status(400).send(error);
