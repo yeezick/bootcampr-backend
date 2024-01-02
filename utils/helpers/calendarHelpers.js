@@ -1,3 +1,8 @@
+/**
+ * Translates raw google calendar events into objects that are consumable by FullCalendarJS
+ * @param {ConvertedEvent[]} googleEvents
+ * @returns Array of converted events
+ */
 export const convertGoogleEventsForCalendar = (googleEvents) => {
   if (!googleEvents) {
     return [];
