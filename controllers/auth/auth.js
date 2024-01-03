@@ -303,6 +303,20 @@ export const updateEmail = async (req, res) => {
   }
 };
 
+export const getUserIdFromToken = (authHeader) => {
+  if (!authHeader || authHeader.split(' ')[0] !== 'Bearer') {
+    throw new Error('No or invalid token provided');
+  }
+  const token = authHeader.split(' ')[1];
+  try {
+    const decodedToken = jwt.verify(token, TOKEN_KEY);
+    const userId = decodedToken.userID;
+    return userId;
+  } catch (error) {
+    throw new Error('Invalid token');
+  }
+};
+
 // Potentinal new User Controllers
 //
 // Assign Project - User
