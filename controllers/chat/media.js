@@ -5,7 +5,9 @@ import GroupChat from '../../models/chat/groupChat.js';
 
 export const createMediaMessage = async (req, res) => {
   try {
-    const { userId, privateChatId, groupChatId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = getUserIdFromToken(authHeader);
+    const { privateChatId, groupChatId } = req.params;
     const { fileName, fileType, fileSize, fileUrl } = req.body;
     let existingThread;
 
@@ -52,7 +54,7 @@ export const getAllMedia = async (req, res) => {
   }
 };
 
-export const getMediaByChatId = async (req, res) => {
+export const getMediaMessage = async (req, res) => {
   try {
     const { privateChatId, groupChatId } = req.params;
     if (privateChatId) {
@@ -111,7 +113,7 @@ export const getMediaByUserId = async (req, res) => {
 export const getChatMediaByFileType = async (req, res) => {
   try {
     const { privateChatId, groupChatId } = req.params;
-    const { fileType } = req.query;
+    const fileType = req.query.type;
 
     if (privateChatId) {
       const mediaMessages = await Media.find({ privateChatId });
