@@ -127,17 +127,27 @@ export const updateUserAndProject = async (req, res) => {
 export const getProjectByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
+    // NOTE: Keep this logic for now, might be useful later
+    // const existingProject = await Project.find({
+    //   $or: [{ 'members.engineers': userId }, { 'members.designers': userId }],
+    // })
+    //   .populate({ path: 'members.engineers', select: 'firstName lastName email role profilePicture' })
+    //   .populate({ path: 'members.designers', select: 'firstName lastName email role profilePicture' });
+
     const existingProject = await Project.find({
-      $or: [{ 'members.engineers': userId }, { 'members.designers': userId }],
-    })
-      .populate({ path: 'members.engineers', select: 'firstName lastName email role profilePicture' })
-      .populate({ path: 'members.designers', select: 'firstName lastName email role profilePicture' });
+      'members.engineers': { $ne: userId },
+      'members.designers': { $ne: userId },
+    });
 
     if (existingProject.length === 0) {
-      return res
-        .status(404)
-        .json({ existingProject, message: `User with ID ${userId} is currently not assigned to any project.` });
+      const message = `Bootcampr is now working to match you to a team. After your team of 3 SWEs and 2 UXDs is complete,\n we'll send an email with the date and time of your project kickoff meeting. (Approximately 1 - 2 weeks from today)\n\nIn the meantime, explore the project details page. Other pages in Project Portal will be available once you are matched to a team.\n\nWe love feedback. Please`;
+      return res.status(299).json({
+        existingProject,
+        status: true,
+        message: message,
+      });
     }
+
     res.status(200).json({ existingProject, message: `Successfully retrieved project for user with ID ${userId}.` });
   } catch (error) {
     console.error(error.message);
