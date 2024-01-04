@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createMediaMessage, getChatMediaByFileType, getMediaByChatId } from '../../controllers/chat/media.js';
+import { createMediaMessage, getChatMediaByFileType, getMediaMessage } from '../../controllers/chat/media.js';
 import {
   createPrivateChatMessage,
   createPrivateChatRoom,
@@ -17,7 +17,7 @@ router.delete('/:userId/privateChats/:privateChatId', deleteMessageThread);
 
 // Media Messages
 router.post('/:userId/privateChats/:privateChatId/media', createMediaMessage);
-router.get('/privateChats/:privateChatId/media', getMediaByChatId);
+router.get('/privateChats/:privateChatId/media', getMediaMessage);
 router.get('/privateChats/:privateChatId/media/:fileType', getChatMediaByFileType);
 
 export default router;
