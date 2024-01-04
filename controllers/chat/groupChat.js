@@ -1,9 +1,13 @@
 import mongoose from 'mongoose';
 import GroupChat from '../../models/chat/groupChat.js';
+import { getUserIdFromToken } from '../auth/auth.js';
 
 export const createGroupChatRoom = async (req, res) => {
   try {
-    const { userId } = req.params;
+    //instead of getting user id from endpoint we can get it from token to avoid  /users/userId/chats/id etc..
+    const authHeader = req.headers.authorization;
+    const userId = getUserIdFromToken(authHeader);
+
     let { groupName, groupDescription, groupPhoto, participants } = req.body;
 
     participants = participants.map((participantId) => ({
@@ -31,7 +35,9 @@ export const createGroupChatRoom = async (req, res) => {
 
 export const createGroupChatMessage = async (req, res) => {
   try {
-    const { userId, groupChatId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = getUserIdFromToken(authHeader);
+    const { groupChatId } = req.params;
     let { text } = req.body;
     const existingGroupChat = await GroupChat.findOne({ _id: groupChatId });
 
@@ -49,9 +55,11 @@ export const createGroupChatMessage = async (req, res) => {
   }
 };
 
-export const getAllGroupChatsByUserId = async (req, res) => {
+export const getUserGroupChats = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = getUserIdFromToken(authHeader);
+
     const groupChatThreads = await GroupChat.find({
       'participants.participant': userId,
     })
@@ -73,7 +81,7 @@ export const getAllGroupChatsByUserId = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
+//gets group chat without messages
 export const getGroupChatByChatId = async (req, res) => {
   try {
     const { groupChatId } = req.params;
@@ -100,9 +108,9 @@ export const getGroupChatByChatId = async (req, res) => {
   }
 };
 
-export const getAllGroupMessages = async (req, res) => {
+export const getGroupChatMessages = async (req, res) => {
   try {
-    const { userId, groupChatId } = req.params;
+    const { groupChatId } = req.params;
     const messageThread = await GroupChat.find({
       _id: groupChatId,
     })
@@ -127,7 +135,7 @@ export const getAllGroupMessages = async (req, res) => {
         })
       : res.status(200).json({
           combinedMessages,
-          message: `Successfully retrieved all messages for user with ID ${userId} in group chat thread ${groupChatId}.`,
+          message: `Successfully retrieved all messages in group chat thread ${groupChatId}.`,
         });
   } catch (error) {
     console.error(error.message);
@@ -137,7 +145,9 @@ export const getAllGroupMessages = async (req, res) => {
 
 export const updateGroupChatInfo = async (req, res) => {
   try {
-    const { userId, groupChatId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = getUserIdFromToken(authHeader);
+    const { groupChatId } = req.params;
     const groupChat = await GroupChat.findOne({ _id: groupChatId }).populate('participants');
 
     const user = groupChat.participants.find((participant) => participant.participant._id.toString() === userId);
@@ -172,7 +182,9 @@ export const updateGroupChatInfo = async (req, res) => {
 
 export const deleteGroupChatThread = async (req, res) => {
   try {
-    const { userId, groupChatId } = req.params;
+    const authHeader = req.headers.authorization;
+    const userId = getUserIdFromToken(authHeader);
+    const { groupChatId } = req.params;
     const groupChat = await GroupChat.findOne({ _id: groupChatId });
     if (!groupChat)
       return res.status(404).json({
@@ -204,14 +216,17 @@ export const deleteGroupChatThread = async (req, res) => {
 
 export const leaveGroupChat = async (req, res) => {
   try {
-    const { userId, groupChatId } = req.params;
-    const removedUser = await GroupChat.findByIdAndUpdate(
+    const authHeader = req.headers.authorization;
+    const userId = getUserIdFromToken(authHeader);
+    const { groupChatId } = req.params;
+
+    const updatedChat = await GroupChat.findByIdAndUpdate(
       { _id: groupChatId },
-      { $pull: { participants: { _id: userId } } },
+      { $pull: { participants: { participant: { _id: userId } } } },
       { new: true },
     );
 
-    if (!removedUser) {
+    if (!updatedChat) {
       return res.status(404).json({ message: `Group chat with ID ${groupChatId} not found.` });
     }
     res.status(200).json({
@@ -241,7 +256,7 @@ export const getAllUsersGroupChats = async (req, res) => {
   }
 };
 
-export const deleteGChat = async (req, res) => {
+export const deleteGroupChat = async (req, res) => {
   try {
     const { chatId } = req.params;
     const deletedChat = await GroupChat.findByIdAndDelete(chatId);
