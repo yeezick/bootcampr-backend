@@ -1,23 +1,7 @@
 import { formatCalendarId } from '../../utils/helperFunctions.js';
 import { calendar } from '../../server.js';
 import { produce } from 'immer';
-import { convertGoogleEventsForCalendar } from '../../utils/helpers/calendarHelpers.js';
-
-// Potential New Controllers for Meetings
-// Update Single User Attendence
-// Update Duration
-// Update Start time
-// Get All Project Meetings
-// Get All Project Meetings for 'x' number of days
-
-export const snakeCaseEventSummary = (projectId, eventSummary) => {
-  const snakeCasedEventSummary = eventSummary
-    .replace(/([a-z])([A-Z])/g, '$1-$2')
-    .replace(/[\s_]+/g, '-')
-    .toLowerCase();
-
-  return `${projectId}-${snakeCasedEventSummary}`;
-};
+import { addConferenceDataToGoogleEvent, convertGoogleEventsForCalendar } from '../../utils/helpers/calendarHelpers.js';
 
 export const createEvent = async (req, res) => {
   const { calendarId } = req.params;
@@ -30,32 +14,17 @@ export const createEvent = async (req, res) => {
       sendUpdates: 'all',
     };
 
-    if (googleMeetingInfo.enabledGoogleMeet) {
+    if (googleMeetingInfo.enabled) {
       preparedEvent = produce(preparedEvent, (draft) => {
-        draft.conferenceDataVersion = 1;
-        draft.resource = eventInfo;
-        draft.resource.conferenceData = {
-          createRequest: {
-            requestId: snakeCaseEventSummary(projectId, eventInfo.summary),
-            conferenceSolutionKey: {
-              type: 'hangoutsMeet',
-            },
-          },
-        };
+        draft = { ...draft, ...addConferenceDataToGoogleEvent(projectId, eventInfo.summary, true) };
+        draft.resource = { ...eventInfo, ...draft.resource };
+        return draft;
       });
     } else {
       preparedEvent = produce(preparedEvent, (draft) => {
         draft.resource = eventInfo;
       });
     }
-    console.log('\n preparedEvent \n', preparedEvent);
-
-    console.log(
-      '\n attendees \n',
-      preparedEvent.resource.attendees,
-      '\n createRequest\n ',
-      // preparedEvent.resource.conferenceData.createRequest,
-    );
 
     const { data: googleEvent } = await calendar.events.insert(preparedEvent);
     const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
@@ -74,52 +43,29 @@ export const updateEvent = async (req, res) => {
     let preparedEvent = {
       calendarId: `${calendarId}@group.calendar.google.com`,
       eventId,
-      // resource: req.body,
       sendUpdates: 'all',
     };
 
-    // if google meet is enabled
-    // does hangout link exist? do nothing
-    //hangout link doesn't exist? create event
-    // else
-    // does hangout link exist? delete meet
-
-    // if google meet is enabled, check if there is an existing hagout link
-    if (googleMeetingInfo.enabledGoogleMeet) {
-      // if there is no hangout link, create one
+    if (googleMeetingInfo.enabled) {
       if (!googleMeetingInfo.hangoutLink) {
         preparedEvent = produce(preparedEvent, (draft) => {
-          draft.conferenceDataVersion = 1;
-          draft.resource = eventInfo;
-          draft.resource.conferenceData = {
-            createRequest: {
-              requestId: snakeCaseEventSummary(projectId, eventInfo.summary),
-              conferenceSolutionKey: {
-                type: 'hangoutsMeet',
-              },
-            },
-          };
+          draft = { ...draft, ...addConferenceDataToGoogleEvent(projectId, eventInfo.summary, true) };
+          draft.resource = { ...eventInfo, ...draft.resource };
+          return draft;
         });
       } else {
         preparedEvent = produce(preparedEvent, (draft) => {
           draft.resource = eventInfo;
         });
       }
-    } else if (!googleMeetingInfo.enabledGoogleMeet && googleMeetingInfo.hangoutLink) {
-      // if google meet is disabled & there is an existing link, remove it from the event
-      preparedEvent = produce(preparedEvent, (draft) => {
-        draft.conferenceDataVersion = 0;
-        draft.resource = eventInfo;
-        draft.conferenceData = 0;
-      });
     } else {
-      // just update the event
       preparedEvent = produce(preparedEvent, (draft) => {
-        draft.resource = eventInfo;
+        draft = { ...draft, ...addConferenceDataToGoogleEvent(projectId, eventInfo.summary, false) };
+        draft.resource = { ...eventInfo, ...draft.resource };
+        return draft;
       });
     }
-    // console.log('reqbody \n', req.body);
-    console.log('\n preparedEvent \n', preparedEvent);
+
     const { data: googleEvent } = await calendar.events.update(preparedEvent);
     const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
     res.status(200).send(convertedEvent[0]);
@@ -194,3 +140,12 @@ const sampleNewEvent = {
     "sendUpdates": "all"
 };
 */
+
+// console.log('\n preparedEvent \n', preparedEvent);
+
+// console.log(
+//   '\n attendees \n',
+//   preparedEvent.resource.attendees,
+//   '\n createRequest\n ',
+//   // preparedEvent.resource.conferenceData.createRequest,
+// );
