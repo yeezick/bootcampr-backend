@@ -116,36 +116,3 @@ export const deleteCalendarEvents = async (req, res) => {
     res.status(400).send(error);
   }
 };
-
-/*
-const sampleNewEvent = {
-    "calendarId": "{{CALENDAR_ID}}@group.calendar.google.com",
-    "resource": {
-        "description": "description",
-        "summary": "1",
-        "start": {
-            "dateTime": "2023-05-29T16:00:00Z",
-            "timeZone": "America/New_York"
-        },
-        "end": {
-            "dateTime": "2023-05-29T17:00:00Z",
-            "timeZone": "America/New_York"
-        },
-        "attendees": [
-            {
-                "email": "{{USER_EMAIL}}@gmail.com"
-            }
-        ]
-    },
-    "sendUpdates": "all"
-};
-*/
-
-// console.log('\n preparedEvent \n', preparedEvent);
-
-// console.log(
-//   '\n attendees \n',
-//   preparedEvent.resource.attendees,
-//   '\n createRequest\n ',
-//   // preparedEvent.resource.conferenceData.createRequest,
-// );
