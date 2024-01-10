@@ -2,7 +2,6 @@ import { Router } from 'express';
 import multer from 'multer';
 import { getMediaByUserId } from '../../controllers/chat/media.js';
 import { addImagesToS3Bucket, deleteImageFromS3Bucket } from '../../controllers/user/addingImage.js';
-import { getProjectByUserId } from '../../controllers/project/projects.js';
 import {
   updateUserProfile,
   deleteUser,
@@ -38,9 +37,6 @@ router.get('/users/:userId/messages', getAllChatThreads);
 router.get('/users/:userId/media', getMediaByUserId);
 router.post('/messages/setUnreadMessages', setUnreadMessageForUser);
 router.post('/users/:userId/messages/markConversationAsRead', markConversationAsRead);
-
-// Projects
-router.get('/users/:userId/project', getProjectByUserId);
 
 // Email Preferences
 router.get('/users/:userId/emailPreferences', getEmailPreferences)
