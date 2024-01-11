@@ -116,3 +116,17 @@ export const deleteCalendarEvents = async (req, res) => {
     res.status(400).send(error);
   }
 };
+
+export const deleteEvent = async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const deletedEvent = await Project.findByIdAndDelete(eventId);
+    if (deletedEvent) {
+      return res.status(200).send('Event deleted.');
+    }
+    throw new Error('Event not found.');
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
