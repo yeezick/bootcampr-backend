@@ -12,6 +12,6 @@ router.post('/calendar/:calendarId/createEvent', createEvent);
 router.put('/calendar/:calendarId/updateEvent/:eventId', updateEvent);
 router.get('/calendar/:calendarId/fetchEvent/:eventId', fetchEvent);
 router.delete('/calendar/:calendarId/events', deleteCalendarEvents);
-router.delete('/calendar/:calendarId/events/:eventId', deleteEvent);
+router.delete('/calendar/:calendarId/fetchEvent/:eventId', deleteEvent);
 
 export default router;
