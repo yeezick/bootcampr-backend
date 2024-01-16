@@ -78,7 +78,6 @@ export const generateFakeUser = async (role, customInfo) => {
     hasProfilePicture: true,
     project: null,
     role,
-    timezone: 'TBD',
     verified: true,
     ...customInfo, // has to go last to overwrrite previous assignments
   };
