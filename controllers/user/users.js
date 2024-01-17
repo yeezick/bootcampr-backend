@@ -104,7 +104,7 @@ export const updateUserProfile = async (req, res) => {
     const { role, availability, firstName, lastName, bio, links } = req.body;
     const user = await User.findByIdAndUpdate(
       id,
-      { role, availability, firstName, lastName, bio, links } ,
+      { role, availability, firstName, lastName, bio, links },
       { new: true },
     );
     if (!user) {
