@@ -104,7 +104,7 @@ export const updateUserProfile = async (req, res) => {
     const { role, availability, firstName, lastName, bio, links } = req.body;
     const user = await User.findByIdAndUpdate(
       id,
-      { role: role, availability: availability, firstName: firstName, lastName: lastName, bio: bio, links: links, onboarded: true },
+      { role, availability, firstName, lastName, bio, links },
       { new: true },
     );
     if (!user) {
@@ -146,6 +146,7 @@ export const updateUserInfo = async (req, res) => {
       lastName,
       bio,
       links,
+      onboarded,
       profilePicture,
       defaultProfilePicture,
       hasProfilePicture,
@@ -154,15 +155,16 @@ export const updateUserInfo = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       id,
       {
-        role: role,
-        availability: availability,
-        firstName: firstName,
-        lastName: lastName,
-        bio: bio,
-        links: links,
+        role,
+        availability,
+        firstName,
+        lastName,
+        bio,
+        links,
+        onboarded,
         profilePicture: hasProfilePicture ? imageUrl : '',
-        defaultProfilePicture: defaultProfilePicture,
-        hasProfilePicture: hasProfilePicture,
+        defaultProfilePicture,
+        hasProfilePicture
       },
       { new: true },
     );
