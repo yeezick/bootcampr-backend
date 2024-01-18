@@ -128,7 +128,9 @@ export const deleteEvent = async (req, res) => {
       singleEvents: true,
       fields: 'items(id)',
     });
-    const deletedEvent = await events.filter(event => event.eventId !== eventId)
+    // const deletedEvent = await calendar.events.delete({
+    //   eventId: event.id,
+    // });
 
     if (deletedEvent) {
       return res.status(200).send('Event deleted.');
