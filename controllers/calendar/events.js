@@ -120,24 +120,15 @@ export const deleteCalendarEvents = async (req, res) => {
 export const deleteEvent = async (req, res) => {
   try {
     const { calendarId, eventId } = req.params;
-    const formattedCalendarId = formatCalendarId(calendarId);
-    const {
-      data: { items: events },
-    } = await calendar.events.list({
-      calendarId: formattedCalendarId,
-      singleEvents: true,
-      fields: 'items(id)',
-    });
-    // const deletedEvent = await calendar.events.delete({
-    //   eventId: event.id,
-    // });
 
-    if (deletedEvent) {
-      return res.status(200).send('Event deleted.');
-    }
-    throw new Error('Event not found.');
+    const deletedEvent = await calendar.events.delete({
+      calendarId: formatCalendarId(calendarId),
+      eventId,
+    });
+  
+    res.status(200).send('Event deleted.');
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: error.message });
+    console.log('Error deleting event:', error);
+    res.status(400).send(error);
   }
 };
