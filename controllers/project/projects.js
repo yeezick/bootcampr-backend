@@ -29,10 +29,10 @@ export const getOneProject = async (req, res) => {
       .populate([
         { path: 'members.engineers' },
         { path: 'members.designers' },
-        { path: 'projectTracker.toDo', select: '-projectTracker', populate: { path: 'createdBy assignee' } },
-        { path: 'projectTracker.inProgress', select: '-projectTracker', populate: { path: 'createdBy assignee' } },
-        { path: 'projectTracker.underReview', select: '-projectTracker', populate: { path: 'createdBy assignee' } },
-        { path: 'projectTracker.completed', select: '-projectTracker', populate: { path: 'createdBy assignee' } },
+        { path: 'projectTracker.toDo', select: '-projectTracker' },
+        { path: 'projectTracker.inProgress', select: '-projectTracker' },
+        { path: 'projectTracker.underReview', select: '-projectTracker' },
+        { path: 'projectTracker.completed', select: '-projectTracker' },
         { path: 'completedInfo.participatingMembers.user', select: 'firstName lastName role' },
       ])
       .exec();

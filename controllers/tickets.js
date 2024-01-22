@@ -6,10 +6,9 @@ export const createTicket = async (req, res) => {
     const newTicket = new Ticket(req.body);
     await newTicket.save();
     const project = await Project.findById(req.body.projectId);
-    const statusString = req.body.status;
-    const concatenatedString = statusString.replace(/\s+/g, '');
-    project.projectTracker[concatenatedString].push(newTicket);
-    await project.save({ validateBeforeSave: false });
+    const concatenatedStatus = req.body.status.replace(/\s+/g, '');
+    project.projectTracker[concatenatedStatus].push(newTicket);
+    await project.save();
     res.status(200).send(newTicket);
   } catch (err) {
     console.error(err);
