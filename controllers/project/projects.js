@@ -32,7 +32,6 @@ export const getOneProject = async (req, res) => {
         { path: 'projectTracker.inProgress', select: '-projectTracker' },
         { path: 'projectTracker.underReview', select: '-projectTracker' },
         { path: 'projectTracker.completed', select: '-projectTracker' },
-        { path: 'completedInfo.participatingMembers.user', select: 'firstName lastName role' },
       ])
       .exec();
 
