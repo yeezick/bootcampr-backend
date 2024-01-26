@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import User from '../../models/user.js';
 import PrivateChat from '../../models/chat/privateChat.js';
 import GroupChat from '../../models/chat/groupChat.js';
+import { updatingImage } from './addingImage.js';
 
 // ORIGINAL CODE
 
@@ -164,7 +165,7 @@ export const updateUserInfo = async (req, res) => {
         onboarded,
         profilePicture: hasProfilePicture ? imageUrl : '',
         defaultProfilePicture,
-        hasProfilePicture
+        hasProfilePicture,
       },
       { new: true },
     );
@@ -172,6 +173,9 @@ export const updateUserInfo = async (req, res) => {
       console.log('User not found.');
       return res.status(404).json({ error: 'User not found.' });
     }
+
+    await updatingImage(id);
+
     res.status(200).send(user);
   } catch (error) {
     console.log('Error message: ', error.message);
