@@ -27,6 +27,7 @@ export const createEvent = async (req, res) => {
     }
 
     const { data: googleEvent } = await calendar.events.insert(preparedEvent);
+    console.log(googleEvent)
     const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
     res.status(200).send(convertedEvent[0]);
   } catch (error) {
@@ -84,6 +85,7 @@ export const fetchEvent = async (req, res) => {
     });
     const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
     res.status(200).send(convertedEvent[0]);
+   
   } catch (error) {
     console.error('Error fetching event:', error);
     res.status(400).send(error);
