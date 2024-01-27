@@ -91,3 +91,5 @@ httpServer.listen(PORT, async () => {
     console.error('Error scheduling email notification job:', error.message);
   }
 });
+
+export default app;
