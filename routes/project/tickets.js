@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createTicket, updateTicketInformationAndStatus, deleteTicket } from '../../controllers/tickets.js';
+import { createTicket, updateTicket, deleteTicket } from '../../controllers/tickets.js';
 import {
   createComment,
   deleteComment,
@@ -11,10 +11,10 @@ import {
 
 const router = Router();
 
-// roles
+// tickets
 router.post('/tickets/create', createTicket);
-router.put('/tickets/:ticketId', updateTicketInformationAndStatus);
-router.post('/tickets/:ticketId', deleteTicket);
+router.put('/tickets/:ticketId', updateTicket);
+router.delete('/tickets/:ticketId', deleteTicket);
 
 // comments
 router.get('/comments', getAllComments);

@@ -16,24 +16,24 @@ export const createTicket = async (req, res) => {
   }
 };
 
-export const updateTicketInformationAndStatus = async (req, res) => {
+export const updateTicket = async (req, res) => {
   try {
-    const { link, newStatus, oldStatus, ticketId, projectId, description, date, assignee, title } = req.body;
+    const { assignee, description, dueDate, link, oldStatus, projectId, status, title, _id: ticketId } = req.body;
 
     const ticket = await Ticket.findByIdAndUpdate(
       ticketId,
       {
-        description: description,
-        link: link,
-        date: date,
-        title: title,
-        assignee: assignee,
-        status: newStatus,
+        assignee,
+        description,
+        dueDate,
+        link,
+        status,
+        title,
       },
       { new: true },
     );
-    if (newStatus && oldStatus) {
-      await updateTicketStatus({ oldStatus, newStatus, ticketId, projectId });
+    if (status !== oldStatus) {
+      await updateTicketStatus({ oldStatus, status, ticketId, projectId });
     }
     res.status(200).send(ticket);
   } catch (err) {
