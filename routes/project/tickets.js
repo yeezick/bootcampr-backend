@@ -14,7 +14,7 @@ const router = Router();
 // tickets
 router.post('/tickets/create', createTicket);
 router.put('/tickets/:ticketId', updateTicket);
-router.delete('/tickets/:ticketId', deleteTicket);
+router.put('/tickets/delete/:ticketId', deleteTicket);
 
 // comments
 router.get('/comments', getAllComments);

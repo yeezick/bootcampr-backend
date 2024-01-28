@@ -32,8 +32,8 @@ export const updateTicket = async (req, res) => {
       },
       { new: true },
     );
-    if (status !== oldStatus) {
-      await updateTicketStatus({ oldStatus, status, ticketId, projectId });
+    if (oldStatus && status !== oldStatus) {
+      await updateTicketStatus(oldStatus, status, ticketId, projectId);
     }
     res.status(200).send(ticket);
   } catch (err) {
@@ -42,7 +42,7 @@ export const updateTicket = async (req, res) => {
   }
 };
 
-const updateTicketStatus = async ({ oldStatus, newStatus, ticketId, projectId }) => {
+const updateTicketStatus = async (oldStatus, newStatus, ticketId, projectId) => {
   await Project.findByIdAndUpdate(
     projectId,
     {
@@ -55,12 +55,13 @@ const updateTicketStatus = async ({ oldStatus, newStatus, ticketId, projectId })
 
 export const deleteTicket = async (req, res) => {
   try {
-    const { ticketsStatus, ticketId, projectId } = req.body;
-
-    await Ticket.findOneAndRemove({ _id: ticketId });
+    const { ticketId } = req.params;
+    const { ticketStatus, projectId } = req.body;
+    await Ticket.findByIdAndDelete(ticketId);
     await Project.findByIdAndUpdate(projectId, {
-      $pull: { [`projectTracker.${ticketsStatus}`]: ticketId },
+      $pull: { [`projectTracker.${ticketStatus}`]: ticketId },
     });
+    // TODO: Delete all comments
     res.sendStatus(200);
   } catch (error) {
     console.log(error);
