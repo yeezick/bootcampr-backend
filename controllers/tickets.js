@@ -19,19 +19,30 @@ export const createTicket = async (req, res) => {
 export const updateTicket = async (req, res) => {
   try {
     const { assignee, description, dueDate, link, oldStatus, projectId, status, title, _id: ticketId } = req.body;
-
-    const ticket = await Ticket.findByIdAndUpdate(
-      ticketId,
-      {
+    let updatePayload;
+    if (!assignee || assignee === 'Unassigned') {
+      updatePayload = {
+        $unset: { assignee: '' },
+        $set: {
+          description,
+          dueDate,
+          link,
+          status,
+          title,
+        },
+      };
+    } else {
+      updatePayload = {
         assignee,
         description,
         dueDate,
         link,
         status,
         title,
-      },
-      { new: true },
-    );
+      };
+    }
+
+    const ticket = await Ticket.findByIdAndUpdate(ticketId, updatePayload, { new: true });
     if (oldStatus && status !== oldStatus) {
       await updateTicketStatus(oldStatus, status, ticketId, projectId);
     }
