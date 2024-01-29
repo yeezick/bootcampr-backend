@@ -1,6 +1,7 @@
 import { calendar } from '../../server.js';
 import { formatCalendarId } from '../../utils/helperFunctions.js';
 import Project from '../../models/project.js';
+import { convertGoogleEventsForCalendar } from '../../utils/helpers/calendarHelpers.js';
 /**
  * There are usage limits to this API. (https://developers.google.com/calendar/api/guides/quota)
  * Ex: only 60 calendars can be created within an hour
@@ -15,7 +16,8 @@ export const fetchCalendar = async (req, res) => {
       orderBy: 'startTime',
     });
 
-    res.status(200).send(allEvents.data);
+    const convertedEvents = convertGoogleEventsForCalendar(allEvents.data);
+    res.status(200).send(convertedEvents);
   } catch (error) {
     console.error('Error fetching event:', error);
     res.status(400).send(error);
@@ -41,8 +43,8 @@ export const fetchUserCalendar = async (req, res) => {
         }
       }
     });
-
-    res.status(200).send(userEvents);
+    const convertedUserEvents = convertGoogleEventsForCalendar(userEvents);
+    res.status(200).send(convertedUserEvents);
   } catch (error) {
     console.error('Error fetching event:', error);
     res.status(400).send(error);

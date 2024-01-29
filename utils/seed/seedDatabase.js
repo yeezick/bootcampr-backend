@@ -8,8 +8,7 @@ import { addCalendarToProject, generateProject, fillProjectWithUsers } from './u
 import axios from 'axios';
 
 const reSeedDatabase = async () => {
-  console.log('Reseeding database');
-
+  console.log('Re-seeding database.');
   // Remove all data from database
   await db.dropDatabase();
   // TODO: remove or restrict access to this endpoint before deployment

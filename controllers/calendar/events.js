@@ -1,37 +1,34 @@
 import { formatCalendarId } from '../../utils/helperFunctions.js';
 import { calendar } from '../../server.js';
-
-// Potential New Controllers for Meetings
-// Update Single User Attendence
-// Update Duration
-// Update Start time
-// Get All Project Meetings
-// Get All Project Meetings for 'x' number of days
+import { produce } from 'immer';
+import { addConferenceDataToGoogleEvent, convertGoogleEventsForCalendar } from '../../utils/helpers/calendarHelpers.js';
 
 export const createEvent = async (req, res) => {
   const { calendarId } = req.params;
+  const { googleMeetingInfo, projectId, ...eventInfo } = req.body;
 
   try {
-    const preparedEvent = {
+    let preparedEvent = {
       calendarId: `${calendarId}@group.calendar.google.com`,
-      conferenceDataVersion: 1,
-      resource: {
-        ...req.body,
-        // Todo: Enables google meets events
-        // conferenceData: {
-        //   createRequest: {
-        //     requestId: 'tessldahli',
-        //     conferenceSolutionKey: {
-        //       type: 'hangoutsMeet',
-        //     },
-        //   },
-        // },
-      },
+      resource: {},
       sendUpdates: 'all',
     };
 
-    const event = await calendar.events.insert(preparedEvent);
-    res.status(200).send(event);
+    if (googleMeetingInfo.enabled) {
+      preparedEvent = produce(preparedEvent, (draft) => {
+        draft = { ...draft, ...addConferenceDataToGoogleEvent(projectId, eventInfo.summary, true) };
+        draft.resource = { ...eventInfo, ...draft.resource };
+        return draft;
+      });
+    } else {
+      preparedEvent = produce(preparedEvent, (draft) => {
+        draft.resource = eventInfo;
+      });
+    }
+
+    const { data: googleEvent } = await calendar.events.insert(preparedEvent);
+    const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
+    res.status(200).send(convertedEvent[0]);
   } catch (error) {
     console.error(`Error creating event for calendar (${calendarId})`, error);
     res.status(400).send(error);
@@ -40,17 +37,38 @@ export const createEvent = async (req, res) => {
 
 export const updateEvent = async (req, res) => {
   const { calendarId, eventId } = req.params;
+  const { googleMeetingInfo, projectId, ...eventInfo } = req.body;
 
   try {
-    const preparedEvent = {
+    let preparedEvent = {
       calendarId: `${calendarId}@group.calendar.google.com`,
       eventId,
-      resource: req.body,
       sendUpdates: 'all',
     };
 
-    const event = await calendar.events.update(preparedEvent);
-    res.status(200).send(event);
+    if (googleMeetingInfo.enabled) {
+      if (!googleMeetingInfo.hangoutLink) {
+        preparedEvent = produce(preparedEvent, (draft) => {
+          draft = { ...draft, ...addConferenceDataToGoogleEvent(projectId, eventInfo.summary, true) };
+          draft.resource = { ...eventInfo, ...draft.resource };
+          return draft;
+        });
+      } else {
+        preparedEvent = produce(preparedEvent, (draft) => {
+          draft.resource = eventInfo;
+        });
+      }
+    } else {
+      preparedEvent = produce(preparedEvent, (draft) => {
+        draft = { ...draft, ...addConferenceDataToGoogleEvent(projectId, eventInfo.summary, false) };
+        draft.resource = { ...eventInfo, ...draft.resource };
+        return draft;
+      });
+    }
+
+    const { data: googleEvent } = await calendar.events.update(preparedEvent);
+    const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
+    res.status(200).send(convertedEvent[0]);
   } catch (error) {
     console.error(`Error creating event for calendar (${calendarId})`, error);
     res.status(400).send(error);
@@ -60,11 +78,12 @@ export const updateEvent = async (req, res) => {
 export const fetchEvent = async (req, res) => {
   try {
     const { calendarId, eventId } = req.params;
-    const event = await calendar.events.get({
+    const { data: googleEvent } = await calendar.events.get({
       calendarId: formatCalendarId(calendarId),
       eventId,
     });
-    res.status(200).send(event);
+    const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
+    res.status(200).send(convertedEvent[0]);
   } catch (error) {
     console.error('Error fetching event:', error);
     res.status(400).send(error);
@@ -97,27 +116,3 @@ export const deleteCalendarEvents = async (req, res) => {
     res.status(400).send(error);
   }
 };
-
-/*
-const sampleNewEvent = {
-    "calendarId": "{{CALENDAR_ID}}@group.calendar.google.com",
-    "resource": {
-        "description": "description",
-        "summary": "1",
-        "start": {
-            "dateTime": "2023-05-29T16:00:00Z",
-            "timeZone": "America/New_York"
-        },
-        "end": {
-            "dateTime": "2023-05-29T17:00:00Z",
-            "timeZone": "America/New_York"
-        },
-        "attendees": [
-            {
-                "email": "{{USER_EMAIL}}@gmail.com"
-            }
-        ]
-    },
-    "sendUpdates": "all"
-};
-*/

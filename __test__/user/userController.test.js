@@ -160,13 +160,51 @@ describe('updateUserInfo', () => {
   });
 
   it('should update user info', async () => {
+    const userId = '65b425894495d91f51b89fbf';
     const req = {
-      params: { id: 'testUserId' },
-      body: { name: 'New Name' },
+      params: { id: userId },
+      body: {
+        role: 'expectedRole',
+        availability: 'expectedAvailability',
+        firstName: 'New Name',
+        lastName: 'New Last Name',
+        bio: 'New Bio',
+        links: { website: 'https://example.com' },
+        onboarded: true,
+        profilePicture: `https://bootcampruserimage.s3.amazonaws.com/${userId}`,
+        defaultProfilePicture: 'https://default-image.com/default.jpg',
+        hasProfilePicture: true,
+      },
     };
-    const expectedResponse = { image: 'updated-image-url' };
-    updateUserInfoMock.mockReturnValueOnce({ name: 'New Name' });
-    updatingImageMock.mockReturnValueOnce(expectedResponse);
+
+    const expectedResponse = {
+      availability: 'expectedAvailability',
+      bio: 'New Bio',
+      defaultProfilePicture: 'https://default-image.com/default.jpg',
+      firstName: 'New Name',
+      hasProfilePicture: true,
+      lastName: 'New Last Name',
+      links: {
+        website: 'https://example.com',
+      },
+      onboarded: true,
+      profilePicture: `https://bootcampruserimage.s3.amazonaws.com/65b425894495d91f51b89fbf`,
+      role: 'expectedRole',
+    };
+
+    updateUserInfoMock.mockReturnValueOnce({
+      role: 'expectedRole',
+      availability: 'expectedAvailability',
+      firstName: 'New Name',
+      lastName: 'New Last Name',
+      bio: 'New Bio',
+      links: { website: 'https://example.com' },
+      onboarded: true,
+      profilePicture: `https://bootcampruserimage.s3.amazonaws.com/${userId}`,
+      defaultProfilePicture: 'https://default-image.com/default.jpg',
+      hasProfilePicture: true,
+    });
+    updatingImageMock.mockReturnValueOnce(userId);
 
     const res = {
       status: jest.fn().mockReturnThis(),
@@ -174,9 +212,23 @@ describe('updateUserInfo', () => {
     };
 
     await updateUserInfo(req, res);
-
-    expect(updateUserInfoMock).toHaveBeenCalledWith('testUserId', { name: 'New Name' }, { new: true });
-    expect(updatingImageMock).toHaveBeenCalledWith('testUserId');
+    expect(updateUserInfoMock).toHaveBeenCalledWith(
+      userId,
+      {
+        role: 'expectedRole',
+        availability: 'expectedAvailability',
+        firstName: 'New Name',
+        lastName: 'New Last Name',
+        bio: 'New Bio',
+        links: { website: 'https://example.com' },
+        onboarded: true,
+        profilePicture: `https://bootcampruserimage.s3.amazonaws.com/${userId}`,
+        defaultProfilePicture: 'https://default-image.com/default.jpg',
+        hasProfilePicture: true,
+      },
+      { new: true },
+    );
+    expect(updatingImageMock).toHaveBeenCalledWith(userId);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.send).toHaveBeenCalledWith(expectedResponse);
   });

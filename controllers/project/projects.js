@@ -8,7 +8,6 @@
  */
 import Project from '../../models/project.js';
 import User from '../../models/user.js';
-import PushNotifications from '../../models/notifications.js';
 import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
 
 //basic CRUD functions:
@@ -33,7 +32,6 @@ export const getOneProject = async (req, res) => {
         { path: 'projectTracker.inProgress', select: '-projectTracker' },
         { path: 'projectTracker.underReview', select: '-projectTracker' },
         { path: 'projectTracker.completed', select: '-projectTracker' },
-        { path: 'completedInfo.participatingMembers.user', select: 'firstName lastName role' },
       ])
       .exec();
 
@@ -120,27 +118,6 @@ export const updateUserAndProject = async (req, res) => {
     res.status(200).json({ message: 'Success!', user, project });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-export const getProjectByUserId = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const existingProject = await Project.find({
-      $or: [{ 'members.engineers': userId }, { 'members.designers': userId }],
-    })
-      .populate({ path: 'members.engineers', select: 'firstName lastName email role profilePicture' })
-      .populate({ path: 'members.designers', select: 'firstName lastName email role profilePicture' });
-
-    if (existingProject.length === 0) {
-      return res
-        .status(404)
-        .json({ existingProject, message: `User with ID ${userId} is currently not assigned to any project.` });
-    }
-    res.status(200).json({ existingProject, message: `Successfully retrieved project for user with ID ${userId}.` });
-  } catch (error) {
-    console.error(error.message);
     res.status(500).json({ error: error.message });
   }
 };

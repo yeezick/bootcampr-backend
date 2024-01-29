@@ -195,20 +195,19 @@ export const resendNewEmailLink = async (req, res) => {
 
 export const verifyUniqueEmail = async (req, res) => {
   try {
-    // check if user exists
     const email = req.params.email.toLowerCase();
-    const user = await User.findOne({ email });
-
-    // validate email format
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
     const validFormat = emailRegex.test(email);
 
     if (!validFormat) {
       throw new Error('Invalid email.');
-    } else if (user) {
-      throw new Error('Email address already exists.');
     } else {
-      res.status(200).json({ message: 'Email is valid and unique.' });
+      const user = await User.findOne({ email });
+      if (user) {
+        throw new Error('Email address already exists.');
+      } else {
+        res.status(200).json({ message: 'Email is valid and unique.' });
+      }
     }
   } catch (error) {
     let statusCode = 400;
