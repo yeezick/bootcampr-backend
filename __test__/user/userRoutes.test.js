@@ -313,6 +313,70 @@ describe('User Routes', () => {
       expect(response.body.error).toBe('Failed to update user profile.');
     });
   });
+  describe('DELETE /users/:id', () => {
+    it('should delete user successfully', async () => {
+      await User.deleteMany();
+  
+      const user = await User.create({
+        role: 'Software Engineer',
+        availability: ['Monday', 'Tuesday'],
+        firstName: 'Felix',
+        lastName: 'Owolabi',
+        email: 'felix@example.com',
+        passwordDigest: 'hashedPassword',
+        bio: 'Bio for deletion',
+        links: { website: 'https://example.com' },
+      });
+  
+      const response = await supertest(app).delete(`/users/${user._id}`);
+  
+      expect(response.status).toBe(200);
+      expect(response.body.deletionStatus).toBe(true);
+      expect(response.body.message).toBe('User deleted.');
+  
+      // Check if the user is actually deleted from the database
+      const deletedUser = await User.findById(user._id);
+      expect(deletedUser).toBeNull();
+    });
+  
+    it('should handle the case where the user is not found during deletion', async () => {
+      const nonExistentUserId = new ObjectId();
+  
+      const response = await supertest(app).delete(`/users/${nonExistentUserId}`);
+  
+      expect(response.status).toBe(500);
+      expect(response.body.deletionStatus).toBe(false);
+      expect(response.body.error).toBe('User not found.');
+    });
+  
+    it('should handle errors during the deletion operation', async () => {
+      const user = await User.create({
+        role: 'UX Designer',
+        availability: ['Monday', 'Tuesday'],
+        firstName: 'Hector',
+        lastName: 'Ilarraza',
+        email: 'hector@example.com',
+        passwordDigest: 'hashedpassword1',
+        bio: 'Designer bio',
+        links: { website: 'https://example.com' },
+      });
+  
+      const mockedError = 'Mocked deletion error';
+  
+      // Mock a method that will throw an error during deletion
+      jest.spyOn(User, 'findByIdAndDelete').mockImplementationOnce(() => {
+        throw new Error(mockedError);
+      });
+  
+      const response = await supertest(app).delete(`/users/${user._id}`);
+  
+      expect(response.status).toBe(500);
+      expect(response.body.deletionStatus).toBe(false);
+      expect(response.body.error).toBe(mockedError);
+    });
+  });
+  
+  
   
 });
 
