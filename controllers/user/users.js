@@ -63,7 +63,7 @@ export const getOneUser = async (req, res) => {
     }
   } catch (error) {
     console.error(error.message);
-    return res.status(500).json({ message: 'Error occured while fetching user', error: error.message });
+    return res.status(500).json({ message: 'Error occurred while fetching user', error: error.message });
   }
 };
 
