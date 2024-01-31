@@ -88,6 +88,54 @@ describe('User Routes', () => {
       });
     });
   });
+  describe('GET /users/email/:email', () => {
+    it('should retrieve a user by email', async () => {
+      await User.deleteMany()
+
+      const userEmail = 'john@example.com';
+      const user = {
+        firstName: 'John',
+        lastName: 'Doe',
+        email: userEmail,
+        passwordDigest: 'hashedPassword',
+      };
+  
+     const createdUser = await User.create(user);
+  
+      const response = await supertest(app).get(`/users/email/${userEmail}`);
+  
+      expect(response.status).toBe(200);
+      expect(response.body.id).toBe(String(createdUser._id));
+    });
+  
+    it('should handle the case where the user is not found by email', async () => {
+      const nonExistentUserEmail = 'nonexistent@example.com';
+  
+      const response = await supertest(app).get(`/users/email/${nonExistentUserEmail}`);
+  
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({
+        message: 'User not found.',
+        error: `No user found with email ${nonExistentUserEmail}.`,
+      });
+    });
+  
+    it('should handle errors during the fetch operation', async () => {
+      const errorEmail = 'error@example.com';
+  
+      jest.spyOn(User, 'findOne').mockImplementationOnce(() => {
+        throw new Error('Mocked fetch error');
+      });
+  
+      const response = await supertest(app).get(`/users/email/${errorEmail}`);
+  
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        message: 'Error occurred while fetching user',
+        error: 'Mocked fetch error',
+      });
+    });
+  });
   
 
 });
