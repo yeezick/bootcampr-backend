@@ -572,7 +572,6 @@ describe('User Routes', () => {
         .post(`/users/${userId}/updateEmailPreferences`)
         .send(updatedPreferences);
   
-      // Assertions
       expect(response.status).toBe(400);
       expect(response.body).toEqual({ status: false, message: 'Mocked update error' });
     });
