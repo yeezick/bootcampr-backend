@@ -235,6 +235,84 @@ describe('User Routes', () => {
       expect(response.body).toEqual({ error: 'Mocked update error' });
     });
   });
+  describe('POST /onboarding/:id', () => {
+    it('should update user profile successfully', async () => {
+      await User.deleteMany()
+
+      const user = await User.create({
+        role: 'Software Engineer',
+        availability: ['Monday', 'Tuesday'],
+        firstName: 'Felix',
+        lastName: 'Owolabi',
+        email:'felix@example.com',
+        passwordDigest:'hashedPassword',
+        bio: 'Onboarding bio',
+        links: { githubUrl: 'https://github.com/felix' },
+      });
+  
+      const updatedData = {
+        role: 'UX Designer',
+        availability: ['Monday', 'Wednesday'],
+        firstName: 'FelixDev',
+        lastName: 'Owolabi',
+        bio: 'New bio',
+        links: { githubUrl: 'https://github.com/felixdev' },
+      };
+  
+      const response = await supertest(app).post(`/onboarding/${user._id}`).send(updatedData);
+  
+      expect(response.status).toBe(201);
+      expect(response.body.message).toBe('User profile updated successfully.');
+    });
+  
+    it('should handle the case where the user profile is not found', async () => {
+      const nonExistentUserId = new ObjectId();
+  
+      const response = await supertest(app).post(`/onboarding/${nonExistentUserId}`).send({
+        role: 'Software Engineer',
+        availability: ['Monday', 'Wednesday'],
+        firstName: 'John',
+        lastName: 'Doe',
+        bio: 'New Bio',
+        links: { website: 'https://example.com' },
+      });
+  
+      expect(response.status).toBe(404);
+      expect(response.body.error).toBe('User Profile not found.');
+    });
+  
+    it('should handle errors during the update operation', async () => {
+      const user = await User.create({
+        role: 'UX Designer',
+        availability: ['Monday', 'Tuesday'],
+        firstName: 'Hector',
+        lastName: 'Ilarraza',
+        email:'hector@example.com',
+        passwordDigest:'hashedpassword1',
+        bio: 'Designer bio',
+        links: { website: 'https://example.com' },
+      });
+  
+      const mockedError = 'Mocked update error';
+  
+      // Mock a method that will throw an error during update
+      jest.spyOn(User, 'findByIdAndUpdate').mockImplementationOnce(() => {
+        throw new Error(mockedError);
+      });
+  
+      const response = await supertest(app).post(`/onboarding/${user._id}`).send({
+        role: 'Software Engineer',
+        availability: ['Monday', 'Wednesday'],
+        firstName: 'Hector',
+        lastName: 'Ilarraza',
+        bio: 'Engineer Bio',
+        links: { website: 'https://example.com' },
+      });
+  
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe('Failed to update user profile.');
+    });
+  });
   
 });
 
