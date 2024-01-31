@@ -45,6 +45,7 @@ describe('User Routes', () => {
   });
   describe('GET /users/:id', () => {
     it('should retrieve a single user by ID', async () => {
+      await User.deleteMany()
       const user = {
         firstName: 'John',
         lastName: 'Doe',
@@ -136,6 +137,105 @@ describe('User Routes', () => {
       });
     });
   });
+  describe('POST /users/:id', () => {
+    it('should update user information successfully', async () => {
+      const user = {
+        role: 'Software Engineer',
+        availability: ['Monday', 'Wednesday'],
+        firstName: 'Felix',
+        lastName: 'Owolabi',
+        email: 'felix@example.com',
+        passwordDigest: 'hashedPassword',
+        bio: 'Test bio',
+        links: ['https://github.com/felix', 'https://linkedin.com/in/felix'],
+        onboarded: true,
+        profilePicture: 'https://example.com/profile.jpg',
+        defaultProfilePicture: 'https://example.com/default.jpg',
+        hasProfilePicture: true,
+
+      };
+  
+     const createdUser = await User.create(user);
+  
+      const updatedInfo = {
+        role: 'UX Designer',
+        availability: ['Monday', 'Tuesday', 'Thursday'],
+        firstName: 'Hector',
+        lastName: 'Ilarraza',
+        bio: 'Updated bio',
+        links: ['https://github.com/hector', 'https://linkedin.com/in/hector'],
+        onboarded: false,
+        profilePicture: 'https://example.com/new-profile.jpg',
+        defaultProfilePicture: 'https://example.com/new-default.jpg',
+        hasProfilePicture: false,
+      };
+  
+      const response = await supertest(app)
+        .post(`/users/${createdUser._id}`)
+        .send(updatedInfo);
+  
+      expect(response.status).toBe(200);
+      expect(response.body.role).toBe(updatedInfo.role);
+      expect(response.body.availability).toEqual(updatedInfo.availability);
+      expect(response.body.firstName).toBe(updatedInfo.firstName);
+      expect(response.body.lastName).toBe(updatedInfo.lastName);
+      expect(response.body.bio).toBe(updatedInfo.bio);
+      expect(response.body.links).toEqual(updatedInfo.links);
+      expect(response.body.onboarded).toBe(updatedInfo.onboarded);
+      expect(response.body.profilePicture).toBe(updatedInfo.hasProfilePicture ? user.profilePicture : '');
+      expect(response.body.defaultProfilePicture).toBe(updatedInfo.defaultProfilePicture);
+      expect(response.body.hasProfilePicture).toBe(updatedInfo.hasProfilePicture);
+    });
+  
+    it('should handle the case where the user is not found during update', async () => {
+      const nonExistentUserId = new ObjectId();
+  
+      const response = await supertest(app)
+        .post(`/users/${nonExistentUserId}`)
+        .send({
+          role: 'Software Engineer',
+          availability: ['Monday', 'Wednesday'],
+          firstName: 'John',
+          lastName: 'Doe',
+          bio: 'Test bio',
+          links: ['https://github.com/johndoe', 'https://linkedin.com/in/johndoe'],
+          onboarded: true,
+          profilePicture: 'https://example.com/profile.jpg',
+          defaultProfilePicture: 'https://example.com/default.jpg',
+          hasProfilePicture: true,
+        });
+  
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ error: 'User not found.' });
+    });
+  
+    it('should handle errors during the update operation', async () => {
+      const errorId = new ObjectId();
+  
+      jest.spyOn(User, 'findByIdAndUpdate').mockImplementationOnce(() => {
+        throw new Error('Mocked update error');
+      });
+  
+      const response = await supertest(app)
+        .post(`/users/${errorId}`)
+        .send({
+          role: 'Developer',
+          availability: ['Monday', 'Wednesday'],
+          firstName: 'John',
+          lastName: 'Doe',
+          bio: 'Test bio',
+          links: ['https://github.com/johndoe', 'https://linkedin.com/in/johndoe'],
+          onboarded: true,
+          profilePicture: 'https://example.com/profile.jpg',
+          defaultProfilePicture: 'https://example.com/default.jpg',
+          hasProfilePicture: true,
+        });
+  
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ error: 'Mocked update error' });
+    });
+  });
+  
 });
 
 
