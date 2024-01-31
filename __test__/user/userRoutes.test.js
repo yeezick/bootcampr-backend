@@ -499,6 +499,87 @@ describe('User Routes', () => {
       expect(response.body).toEqual({ message: 'Mocked fetch error' });
     });
   });
+  describe('POST /users/:userId/updateEmailPreferences', () => {
+    it('should update email preferences for a user', async () => {
+      await User.deleteMany();
+  
+      const userPreferences = {
+        emailPreferences: {
+          bootcamprUpdates: true,
+          newsletters: true,
+          projectUpdates: true,
+          eventInvitations: true,
+        },
+      };
+  
+      const user = await User.create({
+        role: 'Software Engineer',
+        availability: ['Monday', 'Tuesday'],
+        firstName: 'Felix',
+        lastName: 'Owolabi',
+        email: 'felix@example.com',
+        passwordDigest: 'hashedPassword',
+        bio: 'Bio for deletion',
+        links: { website: 'https://example.com' },
+        ...userPreferences,
+      });
+  
+      const updatedPreferences = {
+        bootcamprUpdates: false,
+        newsletters: true,
+        projectUpdates: false,
+        eventInvitations: true,
+      };
+  
+      const response = await supertest(app)
+        .post(`/users/${user._id}/updateEmailPreferences`)
+        .send(updatedPreferences);
+  
+      // Assertions
+      expect(response.status).toBe(201);
+      expect(response.body).toEqual(updatedPreferences);
+    });
+  
+    it('should handle the case where the user is not found', async () => {
+      const nonExistentUserId = new ObjectId();
+      const updatedPreferences = {
+        bootcamprUpdates: false,
+        newsletters: true,
+        projectUpdates: false,
+        eventInvitations: true,
+      };
+  
+      const response = await supertest(app)
+        .post(`/users/${nonExistentUserId}/updateEmailPreferences`)
+        .send(updatedPreferences);
+  
+      expect(response.status).toBe(400);
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ msg: 'Error updating user email preferences' });
+    });
+  
+    it('should handle errors during the update operation', async () => {
+      const userId = new ObjectId();
+      const updatedPreferences = {
+        bootcamprUpdates: false,
+        newsletters: true,
+        projectUpdates: false,
+        eventInvitations: true,
+      };
+  
+      jest.spyOn(User, 'findByIdAndUpdate').mockImplementationOnce(() => {
+        throw new Error('Mocked update error');
+      });
+  
+      const response = await supertest(app)
+        .post(`/users/${userId}/updateEmailPreferences`)
+        .send(updatedPreferences);
+  
+      // Assertions
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ status: false, message: 'Mocked update error' });
+    });
+  });
   
   
   
