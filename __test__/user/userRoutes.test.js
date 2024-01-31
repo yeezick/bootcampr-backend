@@ -2,6 +2,22 @@ import supertest from 'supertest';
 import app from '../../server';
 import User from '../../models/user';
 import mongoose from 'mongoose';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+// import bootcamprImage from "../Group.png"
+
+// AWS S3 REQUIRED ENV VARIABLES
+// const bucketName = process.env.BUCKET_NAME;
+const region = process.env.BUCKET_REGION;
+const accessKey = process.env.ACCESS_KEY;
+const secretAccessKey = process.env.SECRET_ACCESS_KEY;
+
+const s3 = new S3Client({
+  region,
+  credentials: {
+    accessKeyId: accessKey,
+    secretAccessKey: secretAccessKey,
+  },
+});
 
 const { ObjectId } = mongoose.Types;
 
@@ -373,6 +389,114 @@ describe('User Routes', () => {
       expect(response.status).toBe(500);
       expect(response.body.deletionStatus).toBe(false);
       expect(response.body.error).toBe(mockedError);
+    });
+  });
+  // describe('POST /users/:id/addImage', () => {
+  //   it('should successfully add image to S3 bucket and update user schema', async () => {
+  //     // Create a user to test with
+  //     const user = await User.create({
+  //       role: 'Software Engineer',
+  //       availability: ['Monday', 'Tuesday'],
+  //       firstName: 'John',
+  //       lastName: 'Doe',
+  //       email: 'john@example.com',
+  //       passwordDigest: 'hashedPassword',
+  //       bio: 'User bio',
+  //       links: { githubUrl: 'https://github.com/john' },
+  //     });
+  
+  //     // Use supertest to make a request to the addImage endpoint
+  //     const response = await supertest(app)
+  //       .post(`/users/${user._id}/addImage`)
+  //       .attach('image', bootcamprImage); // Replace with the actual path
+  
+  //     // Assertions
+  //     expect(response.status).toBe(200);
+  //     expect(response.body).toEqual({ success: 'image sent successfully' });
+  
+  //     // Additional assertions if needed, check if the image is added to S3 and user schema is updated
+  //   });
+  
+  //   it('should handle errors during image upload', async () => {
+  //     // Create a user to test with
+  //     const user = await User.create({
+  //       role: 'Software Engineer',
+  //       availability: ['Monday', 'Tuesday'],
+  //       firstName: 'Jane',
+  //       lastName: 'Doe',
+  //       email: 'jane@example.com',
+  //       passwordDigest: 'hashedPassword',
+  //       bio: 'User bio',
+  //       links: { website: 'https://example.com' },
+  //     });
+  
+  //     // Mock an error during image upload
+  //     jest.spyOn(s3, 'send').mockImplementationOnce(() => {
+  //       throw new Error('Mocked image upload error');
+  //     });
+  
+  //     // Use supertest to make a request to the addImage endpoint
+  //     const response = await supertest(app)
+  //       .post(`/users/${user._id}/addImage`)
+  //       .attach('image', bootcamprImage); // Replace with the actual path
+  
+  //     // Assertions
+  //     expect(response.status).toBe(500);
+  //     expect(response.error.text).toContain('Mocked image upload error');
+  //   });
+  // });
+  
+  describe('GET /users/:userId/emailPreferences', () => {
+    it('should retrieve email preferences for a user', async () => {
+      await User.deleteMany();
+
+      const userPreferences = {
+        emailPreferences: {
+        bootcamprUpdates: true,
+        newsletters: true,
+        projectUpdates: true,
+        eventInvitations: true,
+        },
+      };
+      
+      const user = await User.create({
+        role: 'Software Engineer',
+        availability: ['Monday', 'Tuesday'],
+        firstName: 'Felix',
+        lastName: 'Owolabi',
+        email: 'felix@example.com',
+        passwordDigest: 'hashedPassword',
+        bio: 'Bio for deletion',
+        links: { website: 'https://example.com' },
+        ...userPreferences
+      });
+      const response = await supertest(app).get(`/users/${user._id}/emailPreferences`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.emailPreferences).toEqual( userPreferences.emailPreferences
+      );
+      expect(response.body).toHaveProperty('emailPreferences.bootcamprUpdates', true);
+      expect(response.body).toHaveProperty('emailPreferences.newsletters', true);
+      expect(response.body).toHaveProperty('emailPreferences.projectUpdates', true);
+      expect(response.body).toHaveProperty('emailPreferences.eventInvitations', true);
+    });
+
+    it('should handle the case where the user is not found', async () => {
+      const nonExistentUserId = new ObjectId();
+
+      const response = await supertest(app).get(`/users/${nonExistentUserId}/emailPreferences`);
+      expect(response.status).toBe(204);
+      expect(response.body).toEqual({});
+    });
+
+    it('should handle errors during the fetch operation', async () => {
+      const userId = new ObjectId();
+      jest.spyOn(User, 'findById').mockImplementationOnce(() => {
+        throw new Error('Mocked fetch error');
+      });
+      const response = await supertest(app).get(`/users/${userId}/emailPreferences`);
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ message: 'Mocked fetch error' });
     });
   });
   
