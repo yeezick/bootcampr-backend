@@ -9,8 +9,7 @@ import mediaRoutes from './chat/media.js';
 import notificationRoutes from './user/notifications.js';
 import privateChatRoutes from './chat/privateChat.js';
 import projectRoutes from './project/projects.js';
-import taskRoutes from './project/tasks.js';
-import ticketsRoutes from './tickets.js';
+import ticketRoutes from './project/tickets.js';
 import userRoutes from './user/users.js';
 const router = Router();
 
@@ -27,8 +26,7 @@ router.use('/', mediaRoutes);
 router.use('/', notificationRoutes);
 router.use('/', privateChatRoutes);
 router.use('/', projectRoutes);
-router.use('/', taskRoutes);
-router.use('/', ticketsRoutes);
+router.use('/', ticketRoutes);
 router.use('/', userRoutes);
 
 export default router;
