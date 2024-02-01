@@ -5,8 +5,11 @@ const PrivateChat = new Schema(
   {
     participants: [
       {
-        type: mongoose.Types.ObjectId,
-        ref: 'User',
+        participant: {
+          type: mongoose.Types.ObjectId,
+          ref: 'User',
+        },
+        hasUnreadMessage: { type: Boolean, default: false },
       },
     ],
     typingUsers: [{ type: mongoose.Types.ObjectId, ref: 'User' }],
@@ -24,6 +27,12 @@ const PrivateChat = new Schema(
     ],
     media: [{ type: mongoose.Types.ObjectId, ref: 'Media' }],
     lastActive: { type: Date, default: Date.now },
+    chatType: { type: String, default: 'private', immutable: true },
+    lastMessage: {
+      text: { type: String, default: '' },
+      sender: { type: mongoose.Types.ObjectId, ref: 'User' },
+      timestamp: { type: Date, default: Date.now },
+    },
   },
   { timestamps: true },
 );
@@ -40,4 +49,4 @@ PrivateChat.pre('save', function (next) {
 
 PrivateChat.index({ participants: 1 });
 
-export default mongoose.model('PrivateChat', PrivateChat);
+export default mongoose.model('PrivateChat', PrivateChat, 'privatechats');

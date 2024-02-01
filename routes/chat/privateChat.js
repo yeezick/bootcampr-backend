@@ -2,18 +2,16 @@ import { Router } from 'express';
 import { createMediaMessage, getChatMediaByFileType, getMediaMessage } from '../../controllers/chat/media.js';
 import {
   createPrivateChatMessage,
-  createPrivateChatRoom,
+  createOrGetPrivateChatRoom,
   deleteMessageThread,
-  getAllMessageThreads,
-  getAllPrivateMessages,
+  getPrivateMessages,
 } from '../../controllers/chat/privateChat.js';
 const router = Router();
 
-router.post('/:userId/privateChats', createPrivateChatRoom);
-router.post('/:userId/privateChats/:privateChatId', createPrivateChatMessage);
-router.get('/:userId/privateChats', getAllMessageThreads);
-router.get('/:userId/privateChats/:privateChatId', getAllPrivateMessages);
-router.delete('/:userId/privateChats/:privateChatId', deleteMessageThread);
+router.get('/privateChats/:privateChatId/messages', getPrivateMessages);
+router.post('/privateChats', createOrGetPrivateChatRoom);
+router.post('/privateChats/:privateChatId/messages', createPrivateChatMessage);
+// router.delete('/:userId/privateChats/:privateChatId', deleteMessageThread);
 
 // Media Messages
 router.post('/:userId/privateChats/:privateChatId/media', createMediaMessage);
