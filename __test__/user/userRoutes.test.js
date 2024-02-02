@@ -2,6 +2,7 @@ import supertest from 'supertest';
 import fs from 'fs';
 import app from '../../server';
 import User from '../../models/user';
+import PrivateChat from '../../models/chat/privateChat';
 import mongoose from 'mongoose';
 // import { S3Client} from '@aws-sdk/client-s3';
 import * as S3ClientModule from '@aws-sdk/client-s3';
@@ -451,8 +452,64 @@ describe('User Routes', () => {
     expect(response.status).toBe(404);
     expect(response.body).toEqual({ error: 'User not found' });
   });
-  
 });
+
+describe('GET /users/:userId/messages', () => {
+  it('should retrieve all chat threads for a user with threads', async () => {
+    await User.deleteMany()
+    const user = await User.create({
+      role: 'Software Engineer',
+      availability: ['Monday', 'Tuesday'],
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+      passwordDigest: 'hashedPassword',
+      bio: 'User bio',
+      links: { githubUrl: 'https://github.com/john' },
+    });
+   const privateChat = await PrivateChat.create({
+      participants: [user._id, mongoose.Types.ObjectId()],
+      messages: [
+        {
+          text: 'Hello from participant1',
+          sender: mongoose.Types.ObjectId(),
+        },
+      ],
+    });
+
+    const response = await supertest(app).get(`/users/${user._id}/messages`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('combinedThreads');
+    expect(response.body).toHaveProperty('message', `Successfully retrieved all chat threads for user with ID ${user._id}.`);
+
+    expect(response.body.combinedThreads.length).toBeGreaterThan(0);
+    expect(response.body.combinedThreads[0].lastMessage.text).toBe('Hello from participant1');
+  });
+
+  it('should handle the case where there are no chat threads for a user', async () => {
+    await User.deleteMany()
+
+    const user = await User.create({
+      role: 'Software Engineer',
+      availability: ['Monday', 'Tuesday'],
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+      passwordDigest: 'hashedPassword',
+      bio: 'User bio',
+      links: { githubUrl: 'https://github.com/john' },
+    });
+
+    const response = await supertest(app).get(`/users/${user._id}/messages`);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty('combinedThreads');
+    expect(response.body).toHaveProperty('message', `No conversation threads found for user with ID ${user._id}.`);
+  });
+
+});
+
 
   describe('GET /users/:userId/emailPreferences', () => {
     it('should retrieve email preferences for a user', async () => {
