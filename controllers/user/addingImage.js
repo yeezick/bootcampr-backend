@@ -32,6 +32,7 @@ export const addImagesToS3Bucket = async (req, res) => {
     res.status(200).json({ success: 'image sent successfully' });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ error: 'Failed to upload image' });
   }
 };
 
