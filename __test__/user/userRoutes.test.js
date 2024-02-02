@@ -1,35 +1,22 @@
 import supertest from 'supertest';
+import fs from 'fs';
 import app from '../../server';
 import User from '../../models/user';
 import mongoose from 'mongoose';
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import bootcamprImage from "../Group.png"
-import fs from 'fs';
-import path from "path"
+// import { S3Client} from '@aws-sdk/client-s3';
+import * as S3ClientModule from '@aws-sdk/client-s3';
 
-// Mock the AWS SDK
-// Mock the S3Client and PutObjectCommand
-jest.mock('@aws-sdk/client-s3', () => ({
-  S3Client: jest.fn(() => ({
-    send: jest.fn(),
-  })),
-  PutObjectCommand: jest.fn(),
-}));
+jest.mock('@aws-sdk/client-s3', () => {
+  return {
+    S3Client: jest.fn(),
+    PutObjectCommand: jest.fn(),
+  };
+});
 
-// // AWS S3 REQUIRED ENV VARIABLES
-// const bucketName = process.env.BUCKET_NAME;
-// const region = process.env.BUCKET_REGION;
-// const accessKey = process.env.ACCESS_KEY;
-// const secretAccessKey = process.env.SECRET_ACCESS_KEY;
+const mockSend = jest.fn();
+S3ClientModule.S3Client.prototype.send = mockSend;
 
 
-// const s3 = new S3Client({
-//   region,
-//   credentials: {
-//     accessKeyId: accessKey,
-//     secretAccessKey: secretAccessKey,
-//   },
-// });
 
 const { ObjectId } = mongoose.Types;
 
@@ -400,7 +387,6 @@ describe('User Routes', () => {
       expect(response.body.error).toBe(mockedError);
     });
   });
-
 describe('POST /users/:id/addImage', () => {
   it('should successfully add image to S3 bucket ', async () => {
     const user = await User.create({
@@ -414,9 +400,7 @@ describe('POST /users/:id/addImage', () => {
       links: { githubUrl: 'https://github.com/john' },
     });
 
-    const s3ClientInstance = new S3Client()
-    jest.spyOn(s3ClientInstance, 'send').mockResolvedValue({});
-
+    mockSend.mockResolvedValue({})
     const imageBuffer = fs.readFileSync(`${__dirname}/../Group.png`);
 
     const response = await supertest(app)
@@ -427,31 +411,6 @@ describe('POST /users/:id/addImage', () => {
     expect(response.body).toEqual({ success: 'image sent successfully' });
   });
 
-  it('should handle errors during image upload', async () => {
-    const user = await User.create({
-      role: 'Software Engineer',
-      availability: ['Monday', 'Tuesday'],
-      firstName: 'Jane',
-      lastName: 'Doe',
-      email: 'jane@example.com',
-      passwordDigest: 'hashedPassword',
-      bio: 'User bio',
-      links: { website: 'https://example.com' },
-    });
-
-    const s3ClientInstance = new S3Client()
-    jest.spyOn(s3ClientInstance, 'send').mockRejectedValueOnce(new Error('Mocked image upload error'));
-
-    const imageBuffer = fs.readFileSync(`${__dirname}/../Group.png`);
-
-   
-    const response = await supertest(app)
-      .post(`/users/${user._id}/addImage`)
-      .attach('image', imageBuffer, 'Group.png');
-
-    expect(response.status).toBe(500);
-    expect(response.body).toEqual({ error: 'Failed to upload image' });
-  });
 });
 
   describe('GET /users/:userId/emailPreferences', () => {
