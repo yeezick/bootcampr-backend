@@ -10,6 +10,7 @@ jest.mock('@aws-sdk/client-s3', () => {
   return {
     S3Client: jest.fn(),
     PutObjectCommand: jest.fn(),
+    DeleteObjectCommand: jest.fn()
   };
 });
 
@@ -387,8 +388,35 @@ describe('User Routes', () => {
       expect(response.body.error).toBe(mockedError);
     });
   });
-describe('POST /users/:id/addImage', () => {
-  it('should successfully add image to S3 bucket ', async () => {
+  describe('POST /users/:id/addImage', () => {
+    it('should successfully add image to S3 bucket ', async () => {
+      const user = await User.create({
+        role: 'Software Engineer',
+        availability: ['Monday', 'Tuesday'],
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        passwordDigest: 'hashedPassword',
+        bio: 'User bio',
+        links: { githubUrl: 'https://github.com/john' },
+      });
+
+      mockSend.mockResolvedValue({})
+      const imageBuffer = fs.readFileSync(`${__dirname}/../Group.png`);
+
+      const response = await supertest(app)
+        .post(`/users/${user._id}/addImage`)
+        .attach('image', imageBuffer, 'Group.png');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ success: 'image sent successfully' });
+    });
+
+  });
+  describe('DELETE /users/:id/deleteImage',() => {
+    it('should delete image from S3 bucket and update user profilePicture', async () => {
+    await User.deleteMany()
+    // Create a user with a profilePicture to test with
     const user = await User.create({
       role: 'Software Engineer',
       availability: ['Monday', 'Tuesday'],
@@ -398,19 +426,32 @@ describe('POST /users/:id/addImage', () => {
       passwordDigest: 'hashedPassword',
       bio: 'User bio',
       links: { githubUrl: 'https://github.com/john' },
+      profilePicture: '../Group.png',
     });
 
     mockSend.mockResolvedValue({})
-    const imageBuffer = fs.readFileSync(`${__dirname}/../Group.png`);
+    // Use supertest to make a request to the deleteImage endpoint
+    const response = await supertest(app).delete(`/users/${user._id}/deleteImage`);
 
-    const response = await supertest(app)
-      .post(`/users/${user._id}/addImage`)
-      .attach('image', imageBuffer, 'Group.png');
-
+    // Assertions
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ success: 'image sent successfully' });
-  });
+    expect(response.body).toEqual({ success: 'image deleted successfully' });
+    const updatedUser = await User.findById(user._id);
+   expect(updatedUser.profilePicture).toBeNull();
 
+  });
+  it('should check if the user is not found', async () => {
+    await User.deleteMany()
+
+    const nonExistentUserId = new ObjectId();
+  
+    mockSend.mockResolvedValue({});
+    const response = await supertest(app).delete(`/users/${nonExistentUserId}/deleteImage`);
+  
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: 'User not found' });
+  });
+  
 });
 
   describe('GET /users/:userId/emailPreferences', () => {
