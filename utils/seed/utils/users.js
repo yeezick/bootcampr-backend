@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
 import User from '../../../models/user.js';
-import { generateRandomSingleDayAvailability } from '../../availability.js';
+import { generateRealisticSingleDayAvailability } from '../../availability.js';
 
 /**
  * Generate User Bio
@@ -36,31 +36,31 @@ export const generateFakeUser = async (role, customInfo) => {
     availability: {
       SUN: {
         available: true,
-        availability: generateRandomSingleDayAvailability(),
+        availability: generateRealisticSingleDayAvailability(),
       },
       MON: {
         available: true,
-        availability: generateRandomSingleDayAvailability(),
+        availability: generateRealisticSingleDayAvailability(),
       },
       TUE: {
         available: true,
-        availability: generateRandomSingleDayAvailability(),
+        availability: generateRealisticSingleDayAvailability(),
       },
       WED: {
         available: true,
-        availability: generateRandomSingleDayAvailability(),
+        availability: generateRealisticSingleDayAvailability(),
       },
       THU: {
         available: true,
-        availability: generateRandomSingleDayAvailability(),
+        availability: generateRealisticSingleDayAvailability(),
       },
       FRI: {
         available: true,
-        availability: generateRandomSingleDayAvailability(),
+        availability: generateRealisticSingleDayAvailability(),
       },
       SAT: {
         available: true,
-        availability: generateRandomSingleDayAvailability(),
+        availability: generateRealisticSingleDayAvailability(),
       },
     },
     bio: generateBio(role),

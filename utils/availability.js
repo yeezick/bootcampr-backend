@@ -1,7 +1,10 @@
 import { randomIndex } from './seed/utils/helpers.js'
 import { startTimeOptions } from "./data/defaults/availability.js"
+import { generateFakeUser } from './seed/utils/users.js';
 
-// Returns an availability array for a single day
+// TODO: swap // comments for /** */ style descriptions
+
+// Returns randomly generated availability array for a single day
 export const generateRandomSingleDayAvailability = () => {
     const availability = []
     startTimeOptions
@@ -12,13 +15,35 @@ export const generateRandomSingleDayAvailability = () => {
     return availability
 };
 
-// Samples users for testing and demo:
-export const mockUsers = ['becca', 'logan', 'tommy', 'clara', 'charles'].map((user) => {
-    return {
-        id: user,
-        availability: generateRandomSingleDayAvailability(),
-    }
-});
+// Returns a realistic availability frame for a single day
+export const generateRealisticSingleDayAvailability = () => {
+    let availability = [];
+
+    const randomSlot = commonAvailableTimeslots[randomIndex(commonAvailableTimeslots.length)]
+    availability.push(randomSlot)
+
+    return availability
+}
+
+const commonAvailableTimeslots = [
+    ['7:00 AM', '9:30 AM'],
+    ['7:00 AM', '1:00 PM'],
+    ['9:00 AM', '12:00 PM'],
+    ['9:00 AM', '9:00 PM'],
+    ['10:00 AM', '1:00 PM'],
+    ['10:00 AM', '7:00 PM']
+    ['11:00 AM', '6:30 PM'],
+    ['12:00 PM', '5:30 PM'],
+    ['1:00 AM', '6:30 PM'],
+    ['2:00 PM', '7:00 PM'],
+    ['2:00 PM', '8:30 PM'],
+    ['5:30 PM', '9:00 PM'],
+    ['8:00 PM', '11:00 PM'],
+    ['9:00 AM', '5:00 PM'],
+    ['5:00 PM', '11:00 PM'],
+    ['6:00 PM', '9:00 PM']
+]
+
 
 
 /**
@@ -43,15 +68,27 @@ const findCommonAvailability = (membersAvailabilities) => {
     const commonAvailability = {}
     startTimeOptions.forEach((timeslot) => {
         membersAvailabilities.forEach((member) => {
-            if (member.availability[timeslot] === 'yes') {
-                commonAvailability[timeslot] 
-                    ? commonAvailability[timeslot].push(member.id) 
-                    : commonAvailability[timeslot] = [member.id]
-            }
+            ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].forEach((day) => {
+                console.log(member.availability[day].availability)
+            })
+            // console.log(member.availability)
+            
+            // if (member.availability[timeslot] === 'yes') {
+            //     commonAvailability[timeslot] 
+            //         ? commonAvailability[timeslot].push(member.id) 
+            //         : commonAvailability[timeslot] = [member.id]
+            // }
         })
     })
     return commonAvailability
 };
+
+// const user1 = await generateFakeUser()
+// const user2 = await generateFakeUser()
+// const user3 = await generateFakeUser()
+
+// const commonAvailability = findCommonAvailability([user1, user2, user3])
+// console.log(commonAvailability)
 
 // const commonAvailability = findCommonAvailability(users)
 
