@@ -61,11 +61,11 @@ export const addStaticSeedData = async (projects, users) => {
     }),
   );
 
-  const boootcampr = new User(
-    await generateFakeUser('UX Designer', {
-      email: 'boootcampr@gmail.com',
-      firstName: 'Boot',
-      lastName: 'Campr',
+  const dummyUser = new User(
+    await generateFakeUser('Software Engineer', {
+      email: 'svc.jira.swe@gmail.com',
+      firstName: 'Dummy',
+      lastName: 'User',
     }),
   );
 
@@ -89,7 +89,7 @@ export const addStaticSeedData = async (projects, users) => {
     title: 'Sample title',
     description: 'Sample description',
     status: 'toDo',
-    createdBy: boootcampr._id,
+    createdBy: dummyUser._id,
     projectId: staticProject._id,
   });
   sampleTicket.save();
@@ -101,7 +101,7 @@ export const addStaticSeedData = async (projects, users) => {
     completed: [],
   };
 
-  const staticUX = [starStruck, boootcampr];
+  const staticUX = [starStruck, dummyUser];
   const staticSWE = [sillyGoose];
   await fillProjectWithUsers(staticProject, staticUX, staticSWE);
   staticProject.calendarId = await addCalendarToProject(staticProject._id);
