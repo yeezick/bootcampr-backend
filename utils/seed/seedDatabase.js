@@ -6,7 +6,7 @@ import Ticket from '../../models/tickets.js';
 import { generateFakeUser, generateFakeUsers } from './utils/users.js';
 import { addCalendarToProject, generateProject, fillProjectWithUsers } from './utils/projects.js';
 import axios from 'axios';
-import { applePieData, bootCamprData, laterGatorData, sillyGooseData, starStruckData } from '../data/mocks/users.js';
+import { applePieData, dummyUserData, laterGatorData, sillyGooseData, starStruckData } from '../data/mocks/users.js';
 
 const reSeedDatabase = async () => {
   console.log('Re-seeding database.');
@@ -60,7 +60,7 @@ export const addStaticSeedData = async (projects, users) => {
   );
 
   const boootcampr = new User(
-    await generateFakeUser('UX Designer', bootCamprData),
+    await generateFakeUser('UX Designer', dummyUserData),
   );
 
   const sillyGoose = new User(

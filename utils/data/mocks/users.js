@@ -13,7 +13,7 @@ export const starStruckData = {
     lastName: 'Struck',
 };
 
-export const bootCamprData = {
+export const dummyUserData = {
     availability: {
         SUN: { available: false, availability: [['11:00 AM', '12:00 PM'], ['4:00 PM', '6:00 PM']]},
         MON: { available: true, availability: [['8:00 AM', '12:00 PM'], ['2:00 PM', '6:00 PM']]},
