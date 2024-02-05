@@ -59,7 +59,7 @@ export const addStaticSeedData = async (projects, users) => {
     await generateFakeUser('UX Designer', starStruckData),
   );
 
-  const boootcampr = new User(
+  const dummyUser = new User(
     await generateFakeUser('UX Designer', dummyUserData),
   );
 
@@ -87,7 +87,7 @@ export const addStaticSeedData = async (projects, users) => {
     title: 'Sample title',
     description: 'Sample description',
     status: 'toDo',
-    createdBy: boootcampr._id,
+    createdBy: dummyUser._id,
     projectId: staticProject._id,
   });
   sampleTicket.save();
@@ -99,7 +99,7 @@ export const addStaticSeedData = async (projects, users) => {
     completed: [],
   };
 
-  const staticUX = [starStruck, boootcampr];
+  const staticUX = [starStruck, dummyUser];
   const staticSWE = [sillyGoose, laterGator, applePie];
 
   await fillProjectWithUsers(staticProject, staticUX, staticSWE);
