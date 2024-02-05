@@ -23,9 +23,9 @@ export const bootCamprData = {
         FRI: { available: true, availability: [['8:00 AM', '12:00 PM'], ['2:00 PM', '6:00 PM']]},
         SAT: { available: true, availability: [['11:00 AM', '4:00 PM']]},
     },
-    email: 'boootcampr@gmail.com',
-    firstName: 'Boot',
-    lastName: 'Campr',
+    email: 'svc.jira.swe@gmail.com',
+    firstName: 'Dummy',
+    lastName: 'User',
 };
 
 export const sillyGooseData = {
