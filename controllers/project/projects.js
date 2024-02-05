@@ -141,7 +141,7 @@ export const getTeamCommonAvailability = async (req, res) => {
     }
     res.status(404).json({ message: 'Project not found.' });
   } catch (error) {
-    console.log(error.message);
+    console.error(error.message);
     res.status(500).json({ error: error.message });
   }
 };
