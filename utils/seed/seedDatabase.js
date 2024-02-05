@@ -6,6 +6,7 @@ import Ticket from '../../models/tickets.js';
 import { generateFakeUser, generateFakeUsers } from './utils/users.js';
 import { addCalendarToProject, generateProject, fillProjectWithUsers } from './utils/projects.js';
 import axios from 'axios';
+import { applePieData, bootCamprData, laterGatorData, sillyGooseData, starStruckData } from '../data/mocks/users.js';
 
 const reSeedDatabase = async () => {
   console.log('Re-seeding database.');
@@ -53,29 +54,26 @@ reSeedDatabase()
 // Todo: move to a util file, project import currently fails script
 export const addStaticSeedData = async (projects, users) => {
   const staticProject = new Project(await generateProject());
+
   const starStruck = new User(
-    await generateFakeUser('UX Designer', {
-      email: 'star@struck.com',
-      firstName: 'Star',
-      lastName: 'Struck',
-    }),
+    await generateFakeUser('UX Designer', starStruckData),
   );
 
   const boootcampr = new User(
-    await generateFakeUser('UX Designer', {
-      email: 'boootcampr@gmail.com',
-      firstName: 'Boot',
-      lastName: 'Campr',
-    }),
+    await generateFakeUser('UX Designer', bootCamprData),
   );
 
   const sillyGoose = new User(
-    await generateFakeUser('Software Engineer', {
-      email: 'silly@goose.com',
-      firstName: 'Silly',
-      lastName: 'Goose',
-    }),
+    await generateFakeUser('Software Engineer', sillyGooseData),
   );
+
+  const laterGator = new User(
+    await generateFakeUser('Software Engineer', laterGatorData)
+  );
+
+  const applePie = new User(
+    await generateFakeUser('Software Engineer', applePieData)
+  )
 
   const noProjectUX = new User(
     await generateFakeUser('Software Engineer', {
@@ -102,10 +100,13 @@ export const addStaticSeedData = async (projects, users) => {
   };
 
   const staticUX = [starStruck, boootcampr];
-  const staticSWE = [sillyGoose];
+  const staticSWE = [sillyGoose, laterGator, applePie];
+
   await fillProjectWithUsers(staticProject, staticUX, staticSWE);
+
   staticProject.calendarId = await addCalendarToProject(staticProject._id);
   staticProject.projectTracker = sampleTaskBoard;
+
   projects.push(staticProject);
   users.push(...staticUX, ...staticSWE, noProjectUX);
 };
