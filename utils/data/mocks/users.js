@@ -11,8 +11,7 @@ export const starStruckData = {
     email: 'star@struck.com',
     firstName: 'Star',
     lastName: 'Struck',
-    
-}
+};
 
 export const bootCamprData = {
     availability: {
@@ -27,7 +26,7 @@ export const bootCamprData = {
     email: 'boootcampr@gmail.com',
     firstName: 'Boot',
     lastName: 'Campr',
-}
+};
 
 export const sillyGooseData = {
     availability: {
@@ -42,7 +41,7 @@ export const sillyGooseData = {
     email: 'silly@goose.com',
     firstName: 'Silly',
     lastName: 'Goose',
-}
+};
 
 export const laterGatorData = {
     availability: {
@@ -57,7 +56,7 @@ export const laterGatorData = {
     email: 'later@gator.com',
     firstName: 'Later',
     lastName: 'Gator',
-}
+};
 
 export const applePieData = {
     availability: {
@@ -72,4 +71,4 @@ export const applePieData = {
     email: 'apple@pie.com',
     firstName: 'Apple',
     lastName: 'Pie',
-}
+};
