@@ -1,15 +1,10 @@
-import { applePieData, bootCamprData, laterGatorData, sillyGooseData, starStruckData } from './data/mocks/users.js';
 import { randomIndex } from './seed/utils/helpers.js'
 
 /**
  * Uses realistic time slot options to generate random availability for a single day
  */
 export const generateRealisticSingleDayAvailability = () => {
-    let availability = [];
-    const randomSlot = commonAvailableTimeslots[randomIndex(commonAvailableTimeslots.length)]
-    availability.push(randomSlot)
-
-    return availability
+    return [commonAvailableTimeslots[randomIndex(commonAvailableTimeslots.length)]]
 }
 
 /**
@@ -106,7 +101,7 @@ const weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
  */
 const convertLogicalToUserFriendly = (logical) => {
     let userFriendly = [userFriendlyTimes[logical[0]]]
-  
+
     for (let i = 1; i < logical.length; i++) {
       if (logical[i] - logical[i - 1] === 1) {
         if (i === logical.length - 1) {
@@ -114,23 +109,23 @@ const convertLogicalToUserFriendly = (logical) => {
         }
       } else {
         const indexBefore = logical[i - 1]
-  
+
         userFriendly.push(userFriendlyTimes[indexBefore + 1])
         userFriendly.push(userFriendlyTimes[logical[i]])
-  
+
         if (i === logical.length - 1) {
           userFriendly.push(userFriendlyTimes[logical[i] + 1])
         }
       }
     }
     const convertedUserFriendly = []
-  
+
     for (let i = 0; i < userFriendly.length; i += 2) {
       convertedUserFriendly.push([userFriendly[i], userFriendly[i + 1]])
     }
-  
+
     return convertedUserFriendly
-  }
+}
 
 
 
@@ -144,10 +139,11 @@ export const findCommonAvailability = (members) => {
 
     const logicalAvails = members.map((member) => {
         const logicalAvail = {}
-        weekdays.forEach((weekday) => {
 
-            const memberDayAvail = member.availability[weekday].availability
-            const wholeDay = []
+        weekdays.forEach((weekday) => {
+            const memberDayAvail = member.availability[weekday].availability;
+            const wholeDay = [];
+
             memberDayAvail.forEach((timeslot) => {
                 if (timeslot) {
                     const logicalSlot = convertUserFriendlyTimeSlotToLogical(...timeslot)
@@ -158,21 +154,15 @@ export const findCommonAvailability = (members) => {
         })
 
         return logicalAvail
-        
     })
 
     const logicalCommonAvailability = {};
 
     weekdays.forEach((day) => {
-        let sharedDayAvail = []
+        let sharedDayAvail = [];
 
         for (let i = 0; i < userFriendlyTimes.length; i++) {
-
-            if (logicalAvails[0][day] && logicalAvails[0][day].includes(i) 
-            && logicalAvails[1][day] && logicalAvails[1][day].includes(i) 
-            && logicalAvails[2][day] && logicalAvails[2][day].includes(i) 
-            && logicalAvails[3][day] && logicalAvails[3][day].includes(i) 
-            && logicalAvails[4][day] && logicalAvails[4][day].includes(i)) {
+            if (allMembersAvailable(logicalAvails, day, i)) {
                 sharedDayAvail.push(i)
             }
         }
@@ -188,4 +178,16 @@ export const findCommonAvailability = (members) => {
     })
 
     return commonAvailability
+}
+
+const allMembersAvailable = (avail, day, i) => {
+    let allAvail = true;
+
+    avail.forEach(member => {
+        if (!member[day] || !member[day].includes(i)) {
+            allAvail = false
+        }
+    })
+
+    return allAvail
 }
