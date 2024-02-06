@@ -7,6 +7,7 @@ import Media from "../../models/chat/media";
 import mongoose from 'mongoose';
 // import { S3Client} from '@aws-sdk/client-s3';
 import * as S3ClientModule from '@aws-sdk/client-s3';
+import cleanupUserData from './cleanup';
 
 jest.mock('@aws-sdk/client-s3', () => {
   return {
@@ -16,20 +17,17 @@ jest.mock('@aws-sdk/client-s3', () => {
   };
 });
 
-
 const mockSend = jest.fn();
 S3ClientModule.S3Client.prototype.send = mockSend;
-
-
-
 const { ObjectId } = mongoose.Types;
 
+afterEach(async()=>{
+  await cleanupUserData()
+})
 
 describe('User Routes', () => {
   describe('GET /users', () => {
     it('should retrieve a list of all users', async () => {
-      await User.deleteMany();
-
       const users = [
         { firstName: 'Felix', lastName:'Owolabi', email: 'felix@example.com', passwordDigest: 'hashedPassword1' },
         { firstName: 'Hector', lastName:'Ilarraza', email: 'hector@example.com', passwordDigest: 'hashedPassword2' },
@@ -43,8 +41,6 @@ describe('User Routes', () => {
     });
 
     it('should handle the case where no users are found', async () => {
-      await User.deleteMany();
-
       const response = await supertest(app).get('/users');
       expect(response.status).toBe(404);
       expect(response.body).toEqual({ message: 'All User not found.', error: 'No users found in the database.' });
@@ -64,7 +60,6 @@ describe('User Routes', () => {
   });
   describe('GET /users/:id', () => {
     it('should retrieve a single user by ID', async () => {
-      await User.deleteMany()
       const user = {
         firstName: 'John',
         lastName: 'Doe',
@@ -110,8 +105,6 @@ describe('User Routes', () => {
   });
   describe('GET /users/email/:email', () => {
     it('should retrieve a user by email', async () => {
-      await User.deleteMany()
-
       const userEmail = 'john@example.com';
       const user = {
         firstName: 'John',
@@ -256,8 +249,6 @@ describe('User Routes', () => {
   });
   describe('POST /onboarding/:id', () => {
     it('should update user profile successfully', async () => {
-      await User.deleteMany()
-
       const user = await User.create({
         role: 'Software Engineer',
         availability: ['Monday', 'Tuesday'],
@@ -332,9 +323,7 @@ describe('User Routes', () => {
     });
   });
   describe('DELETE /users/:id', () => {
-    it('should delete user successfully', async () => {
-      await User.deleteMany();
-  
+    it('should delete user successfully', async () => {  
       const user = await User.create({
         role: 'Software Engineer',
         availability: ['Monday', 'Tuesday'],
@@ -418,7 +407,6 @@ describe('User Routes', () => {
   });
   describe('DELETE /users/:id/deleteImage',() => {
     it('should delete image from S3 bucket and update user profilePicture', async () => {
-    await User.deleteMany()
     // Create a user with a profilePicture to test with
     const user = await User.create({
       role: 'Software Engineer',
@@ -457,7 +445,6 @@ describe('User Routes', () => {
 });
   describe('GET /users/:userId/messages', () => {
     it('should retrieve all chat threads for a user with threads', async () => {
-      await User.deleteMany()
       const user = await User.create({
         role: 'Software Engineer',
         availability: ['Monday', 'Tuesday'],
@@ -512,7 +499,6 @@ describe('User Routes', () => {
   });
   describe('GET /users/:userId/media', () => {
     it('should retrieve media messages for a user with messages', async () => {
-      await User.deleteMany()
       // Create a user with a real ID
       const user = await User.create({
         role: 'Software Engineer',
@@ -543,7 +529,6 @@ describe('User Routes', () => {
     });
   
     it('should handle the case where there are no media messages for a user', async () => {
-      await User.deleteMany()
       // Create a user with a real ID
       const user = await User.create({
         role: 'Software Engineer',
@@ -568,7 +553,6 @@ describe('User Routes', () => {
   });
   describe('POST /messages/setUnreadMessages', () => {
     it('should set unread messages for specified users', async () => {
-      await User.deleteMany()
       const requestBody = {
         chatId: 'mockedChatId',
         usersArray: [],
@@ -616,9 +600,6 @@ describe('User Routes', () => {
   
   });
   describe('POST /users/:userId/messages/markConversationAsRead', () => {
-    beforeEach(async () => {
-      await User.deleteMany();
-    });
   
     it('should mark a conversation as read when there are unread messages', async () => {
       const user = await User.create({
@@ -712,8 +693,6 @@ describe('User Routes', () => {
   });
   describe('GET /users/:userId/emailPreferences', () => {
     it('should retrieve email preferences for a user', async () => {
-      await User.deleteMany();
-
       const userPreferences = {
         emailPreferences: {
         bootcamprUpdates: true,
@@ -765,8 +744,6 @@ describe('User Routes', () => {
   });
   describe('POST /users/:userId/updateEmailPreferences', () => {
     it('should update email preferences for a user', async () => {
-      await User.deleteMany();
-  
       const userPreferences = {
         emailPreferences: {
           bootcamprUpdates: true,
