@@ -3,6 +3,7 @@ import fs from 'fs';
 import app from '../../server';
 import User from '../../models/user';
 import PrivateChat from '../../models/chat/privateChat';
+import Media from "../../models/chat/media";
 import mongoose from 'mongoose';
 // import { S3Client} from '@aws-sdk/client-s3';
 import * as S3ClientModule from '@aws-sdk/client-s3';
@@ -14,6 +15,7 @@ jest.mock('@aws-sdk/client-s3', () => {
     DeleteObjectCommand: jest.fn()
   };
 });
+
 
 const mockSend = jest.fn();
 S3ClientModule.S3Client.prototype.send = mockSend;
@@ -287,7 +289,7 @@ describe('User Routes', () => {
   
       const response = await supertest(app).post(`/onboarding/${nonExistentUserId}`).send({
         role: 'Software Engineer',
-        availability: ['Monday', 'Wednesday'],
+        // availability: ['Monday', 'Wednesday'],
         firstName: 'John',
         lastName: 'Doe',
         bio: 'New Bio',
@@ -453,64 +455,261 @@ describe('User Routes', () => {
     expect(response.body).toEqual({ error: 'User not found' });
   });
 });
+  describe('GET /users/:userId/messages', () => {
+    it('should retrieve all chat threads for a user with threads', async () => {
+      await User.deleteMany()
+      const user = await User.create({
+        role: 'Software Engineer',
+        availability: ['Monday', 'Tuesday'],
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        passwordDigest: 'hashedPassword',
+        bio: 'User bio',
+        links: { githubUrl: 'https://github.com/john' },
+      });
+    const privateChat = await PrivateChat.create({
+        participants: [user._id, mongoose.Types.ObjectId()],
+        messages: [
+          {
+            text: 'Hello from participant1',
+            sender: mongoose.Types.ObjectId(),
+          },
+        ],
+      });
 
-describe('GET /users/:userId/messages', () => {
-  it('should retrieve all chat threads for a user with threads', async () => {
-    await User.deleteMany()
-    const user = await User.create({
-      role: 'Software Engineer',
-      availability: ['Monday', 'Tuesday'],
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john@example.com',
-      passwordDigest: 'hashedPassword',
-      bio: 'User bio',
-      links: { githubUrl: 'https://github.com/john' },
+      const response = await supertest(app).get(`/users/${user._id}/messages`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('combinedThreads');
+      expect(response.body).toHaveProperty('message', `Successfully retrieved all chat threads for user with ID ${user._id}.`);
+
+      expect(response.body.combinedThreads.length).toBeGreaterThan(0);
+      expect(response.body.combinedThreads[0].lastMessage.text).toBe('Hello from participant1');
     });
-   const privateChat = await PrivateChat.create({
-      participants: [user._id, mongoose.Types.ObjectId()],
-      messages: [
-        {
-          text: 'Hello from participant1',
-          sender: mongoose.Types.ObjectId(),
-        },
-      ],
+
+    it('should handle the case where there are no chat threads for a user', async () => {
+      await User.deleteMany()
+
+      const user = await User.create({
+        role: 'Software Engineer',
+        availability: ['Monday', 'Tuesday'],
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        passwordDigest: 'hashedPassword',
+        bio: 'User bio',
+        links: { githubUrl: 'https://github.com/john' },
+      });
+
+      const response = await supertest(app).get(`/users/${user._id}/messages`);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty('combinedThreads');
+      expect(response.body).toHaveProperty('message', `No conversation threads found for user with ID ${user._id}.`);
     });
 
-    const response = await supertest(app).get(`/users/${user._id}/messages`);
-
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('combinedThreads');
-    expect(response.body).toHaveProperty('message', `Successfully retrieved all chat threads for user with ID ${user._id}.`);
-
-    expect(response.body.combinedThreads.length).toBeGreaterThan(0);
-    expect(response.body.combinedThreads[0].lastMessage.text).toBe('Hello from participant1');
   });
-
-  it('should handle the case where there are no chat threads for a user', async () => {
-    await User.deleteMany()
-
-    const user = await User.create({
-      role: 'Software Engineer',
-      availability: ['Monday', 'Tuesday'],
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john@example.com',
-      passwordDigest: 'hashedPassword',
-      bio: 'User bio',
-      links: { githubUrl: 'https://github.com/john' },
+  describe('GET /users/:userId/media', () => {
+    it('should retrieve media messages for a user with messages', async () => {
+      await User.deleteMany()
+      // Create a user with a real ID
+      const user = await User.create({
+        role: 'Software Engineer',
+        availability: ['Monday', 'Tuesday'],
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        passwordDigest: 'hashedPassword',
+        bio: 'User bio',
+        links: { githubUrl: 'https://github.com/john' },
+      });
+  
+      // Create a media message for the user
+      const mediaMessage = await Media.create({
+        sender: user._id,
+        fileUrl: 'https://res.cloudinary.com/dljgkzwfz/image/upload/v1706894350/Group_ozdvco.png', // Add other media message details as needed...
+      });
+  
+      // Use supertest to make a request to the getMediaByUserId endpoint
+      const response = await supertest(app).get(`/users/${user._id}/media`);
+  
+      // Assertions
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('mediaMessages');
+      expect(response.body.mediaMessages.length).toBeGreaterThan(0);
+      expect(response.body.message).toBe(`Successfully found media messages for user with ID ${user._id}.`);
+      expect(response.body.mediaMessages[0].sender.email).toBe(user.email);
     });
-
-    const response = await supertest(app).get(`/users/${user._id}/messages`);
-
-    expect(response.status).toBe(404);
-    expect(response.body).toHaveProperty('combinedThreads');
-    expect(response.body).toHaveProperty('message', `No conversation threads found for user with ID ${user._id}.`);
+  
+    it('should handle the case where there are no media messages for a user', async () => {
+      await User.deleteMany()
+      // Create a user with a real ID
+      const user = await User.create({
+        role: 'Software Engineer',
+        availability: ['Monday', 'Tuesday'],
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        passwordDigest: 'hashedPassword',
+        bio: 'User bio',
+        links: { githubUrl: 'https://github.com/john' },
+        // Add other user details as needed...
+      });
+  
+      // Use supertest to make a request to the getMediaByUserId endpoint
+      const response = await supertest(app).get(`/users/${user._id}/media`);
+  
+      // Assertions
+      expect(response.status).toBe(404);
+      expect(response.body).not.toHaveProperty('mediaMessages');
+      expect(response.body.message).toBe(`No media messages found for user with ID ${user._id}.`);
+    });
   });
+  describe('POST /messages/setUnreadMessages', () => {
+    it('should set unread messages for specified users', async () => {
+      await User.deleteMany()
+      const requestBody = {
+        chatId: 'mockedChatId',
+        usersArray: [],
+      };
+  
+      const user1 = await User.create({
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        passwordDigest: 'hashedPassword',
+      });
+      const user2 = await User.create({
+        firstName: 'Jane',
+        lastName: 'Doe',
+        email: 'jane@example.com',
+        passwordDigest: 'hashedPassword1'
+      });
+  
+      requestBody.usersArray = [user1._id, user2._id];
+  
+      const response = await supertest(app)
+        .post('/messages/setUnreadMessages')
+        .send(requestBody);
+  
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('message', 'Unread messages updated for users successfully.');
+  
+      const updatedUser1 = await User.findById(user1._id);
+      const updatedUser2 = await User.findById(user2._id);
+  
+      expect(updatedUser1.unreadMessages.get(requestBody.chatId)).toBe(true);
+      expect(updatedUser2.unreadMessages.get(requestBody.chatId)).toBe(true);
+    });
+  
+    it('should handle errors gracefully', async () => {
+      const invalidRequestBody = {};
+  
+      const response = await supertest(app)
+        .post('/messages/setUnreadMessages')
+        .send(invalidRequestBody);
+  
+      expect(response.status).toBe(500); 
+      expect(response.body).toHaveProperty('error');
+    });
+  
+  });
+  describe('POST /users/:userId/messages/markConversationAsRead', () => {
+    beforeEach(async () => {
+      await User.deleteMany();
+    });
+  
+    it('should mark a conversation as read when there are unread messages', async () => {
+      const user = await User.create({
+        role: 'Software Engineer',
+        availability: ['Monday', 'Tuesday'],
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        passwordDigest: 'hashedPassword',
+        bio: 'User bio',
+        links: { githubUrl: 'https://github.com/john' },
+        unreadMessages: new Map([['chatId1', true]]),
+      });
+  
+      const requestBody = {
+        chatId: 'chatId1',
+      };
+  
+      const response = await supertest(app)
+        .post(`/users/${user._id}/messages/markConversationAsRead`)
+        .send(requestBody);
+  
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('message', 'Conversation marked as read successfully.');
+  
+      const updatedUser = await User.findById(user._id);
+      expect(updatedUser.unreadMessages.has('chatId1')).toBe(false);
+    });
+    it('should mark a conversation as read when there are no unread messages', async () => {
+      const user = await User.create({
+        role: 'Software Engineer',
+        availability: ['Monday', 'Tuesday'],
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        passwordDigest: 'hashedPassword',
+        bio: 'User bio',
+        links: { githubUrl: 'https://github.com/john' },
+      });
+  
+      const requestBody = {
+        chatId: 'chatId1', 
+      };
+  
+      const response = await supertest(app)
+        .post(`/users/${user._id}/messages/markConversationAsRead`)
+        .send(requestBody);
+  
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('message', 'Conversation is already marked as read.');
+    });
+  
+    it('should handle the case when the user is not found', async () => {
 
-});
-
-
+      const nonExistentUserId = new ObjectId();
+      const requestBody = {
+        chatId: 'chatId1',
+      };
+  
+      const response = await supertest(app)
+        .post(`/users/${nonExistentUserId}/messages/markConversationAsRead`)
+        .send(requestBody);
+        expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty('error', 'User not found.');
+    });
+  
+    it('should handle errors gracefully when chatId is missing', async () => {
+      jest.spyOn(User, 'findOne').mockImplementationOnce(() => {
+        throw new Error('Mocked database error');
+      });
+    
+      const user = await User.create({
+        role: 'Software Engineer',
+        availability: ['Monday', 'Tuesday'],
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        passwordDigest: 'hashedPassword',
+        bio: 'User bio',
+        links: { githubUrl: 'https://github.com/john' },
+      });
+    
+      const response = await supertest(app)
+        .post(`/users/${user._id}/messages/markConversationAsRead`)
+        .send({});
+          expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('error', 'Mocked database error');
+    });
+    
+  
+  });
   describe('GET /users/:userId/emailPreferences', () => {
     it('should retrieve email preferences for a user', async () => {
       await User.deleteMany();
@@ -644,8 +843,6 @@ describe('GET /users/:userId/messages', () => {
       expect(response.body).toEqual({ status: false, message: 'Mocked update error' });
     });
   });
-  
-  
   
 });
 
