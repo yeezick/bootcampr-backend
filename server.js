@@ -10,7 +10,7 @@ import { Server } from 'socket.io';
 import http from 'http';
 import PushNotifications from './models/notifications.js';
 import User from './models/user.js';
-import { getTotalUnreadCount, getReceiverParticipants, markMessagesAsRead } from './controllers/chat/thread.js';
+import { getReceiverParticipants, markMessagesAsRead } from './controllers/chat/thread.js';
 import { newMessageNotificationEmail } from './controllers/auth/emailVerification.js';
 
 export const auth = new google.auth.GoogleAuth({
@@ -41,6 +41,10 @@ app.use(logger('dev'));
 app.use(routes);
 
 io.on('connection', (socket) => {
+  socket.on('disconnect', () => {
+    console.log('User left.');
+  });
+
   socket.on('setUserId', async (userId) => {
     if (userId) {
       const oneUser = await User.findById(userId).lean().exec();
@@ -51,19 +55,17 @@ io.on('connection', (socket) => {
         console.log(`No user with id ${userId}`);
       }
     }
-    PushNotifications.watch().on('change', async () => {
-      const notifications = await PushNotifications.find({ user: userId, read: false }).lean();
-      socket?.emit('notificationsLength', notifications.length || 0);
-    });
-    socket.on('disconnect', () => {
-      userId = null;
-    });
+    // PushNotifications.watch().on('change', async () => {
+    //   const notifications = await PushNotifications.find({ user: userId, read: false }).lean();
+    //   socket?.emit('notificationsLength', notifications.length || 0);
+    // });
   });
 
   socket.on('join-conversation', (data) => {
     socket.join(data.chatRoomId);
     console.log(`Socket: User with ID: ${data.activeUserId} joined chat room: ${data.chatRoomId}`.cyan);
   });
+
   socket.on('leave-conversation', (data) => {
     socket.leave(data.chatRoomId);
     console.log(`Socket: User with ID: ${data.activeUserId} left chat room: ${data.chatRoomId}`);
@@ -77,16 +79,19 @@ io.on('connection', (socket) => {
         receivedMessage.senderId,
         receivedMessage.chatType,
       );
+      participantIds.forEach((participantId) => {
+        io.to(participantId.toString()).emit('new-message-received', receivedMessage);
+      });
+    } catch (error) {
+      console.error('Error in socket send message: ', error);
+    }
+  });
 
-      const results = await Promise.all(
-        participantIds.map(async (participantId) => {
-          const unreadCount = await getTotalUnreadCount(participantId);
-          return { participantId, unreadCount };
-        }),
-      );
-      results.forEach(({ participantId, unreadCount }) => {
-        io.to(participantId.toString()).emit('update-unread-count', unreadCount);
-        io.to(participantId.toString()).emit('unread-message', receivedMessage);
+  socket.on('create-new-room', async (chatRoomInfo) => {
+    try {
+      const { chatRoom, receiverIds } = chatRoomInfo;
+      receiverIds.forEach((receiverId) => {
+        io.to(receiverId).emit('new-room-created', chatRoom);
       });
     } catch (error) {
       console.error('Error in socket send message: ', error);
@@ -97,15 +102,10 @@ io.on('connection', (socket) => {
     const { chatRoomId, chatType, activeUserId } = chatInfo;
     try {
       await markMessagesAsRead(chatRoomId, chatType, activeUserId);
-      const unreadCount = await getTotalUnreadCount(activeUserId);
-      io.to(activeUserId.toString()).emit('update-unread-count', unreadCount);
+      io.to(activeUserId).emit('message-read', { chatRoomId, activeUserId });
     } catch (error) {
       console.error('Error in socket mark as read: ', error);
     }
-  });
-
-  socket.on('disconnect', (socket) => {
-    console.log('User left.');
   });
 });
 
