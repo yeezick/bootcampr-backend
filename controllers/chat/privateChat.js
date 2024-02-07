@@ -1,6 +1,9 @@
 import mongoose from 'mongoose';
+import dayjs from 'dayjs';
 import PrivateChat from '../../models/chat/privateChat.js';
+import User from '../../models/user.js';
 import { getUserIdFromToken } from '../auth/auth.js';
+import { tokenVerificationChatInvite, newToken } from '../auth/emailVerification.js';
 export const createOrGetPrivateChatRoom = async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -32,13 +35,7 @@ export const createOrGetPrivateChatRoom = async (req, res) => {
           },
         },
       ],
-    })
-      .populate({ path: 'lastMessage.sender', select: 'firstName lastName' })
-      .populate({
-        path: 'participants.participant',
-        select: 'email firstName lastName profilePicture',
-      })
-      .populate({ path: 'messages.sender', select: 'email firstName lastName' });
+    }).populate({ path: 'messages.sender', select: 'email firstName lastName' });
 
     if (!existingPrivateChat) {
       // If no existing chat room, create a new one
@@ -48,10 +45,16 @@ export const createOrGetPrivateChatRoom = async (req, res) => {
           { participant: mongoose.Types.ObjectId(recipientId) },
         ],
       });
+      // const user = await User.findById(recipientId).select('email firstName lastName profilePicture');
+      // const token = newToken(user, true);
+      // if (user) {
+      //   tokenVerificationChatInvite(user, token);
+      // }
 
       await newPrivateThread.save();
       return res.status(201).json({
         chatRoom: newPrivateThread,
+        isNew: true,
         message: `Successfully created a new private chat room between users with ID ${userId} and ${recipientId}.`,
       });
     }
@@ -59,6 +62,7 @@ export const createOrGetPrivateChatRoom = async (req, res) => {
     // If a chat room already exists, return it
     return res.status(200).json({
       chatRoom: existingPrivateChat,
+      isNew: false,
       message: `Chat room between users with ID ${userId} and ${recipientId} already exists.`,
     });
   } catch (error) {
@@ -85,12 +89,12 @@ export const createPrivateChatMessage = async (req, res) => {
     existingMessageThread['messages'].push({
       text: text,
       sender: mongoose.Types.ObjectId(userId),
-      timestamp: new Date(),
+      timestamp: dayjs().toDate(),
     });
     existingMessageThread['lastMessage'] = {
       text: text,
       sender: mongoose.Types.ObjectId(userId),
-      timestamp: new Date(),
+      timestamp: dayjs().toDate(),
     };
     await existingMessageThread.save();
 
@@ -116,7 +120,7 @@ export const getPrivateMessages = async (req, res) => {
     messages.sort((a, b) => {
       const aDate = a.createdAt || a.timestamp;
       const bDate = b.createdAt || b.timestamp;
-      return new Date(aDate) - new Date(bDate);
+      return dayjs(aDate).toISOString() - dayjs(bDate).toISOString();
     });
     res.status(200).json({
       messages,
