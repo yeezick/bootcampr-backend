@@ -1,4 +1,5 @@
 import { randomIndex } from './seed/utils/helpers.js'
+import { commonAvailableTimeslots, userFriendlyTimes } from './data/defaults/availability.js'
 
 /**
  * Uses realistic time slot options to generate random availability for a single day
@@ -10,7 +11,7 @@ export const generateRealisticSingleDayAvailability = () => {
 /**
  * Convert User Friendly time slot to Logical Availability
  */
-const convertUserFriendlyTimeSlotToLogical = (startTime, endTime)=> {
+export const convertUserFriendlyTimeSlotToLogical = (startTime, endTime)=> {
     const startIndex = userFriendlyTimes.indexOf(startTime)
     const endIndex = userFriendlyTimes.indexOf(endTime)
     let logicalArray = []
@@ -115,78 +116,3 @@ const allMembersAvailable = (avail, day, i) => {
 
     return allAvail
 }
-
-const weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
-
-/**
- * Realistic Available time slots
- */
-const commonAvailableTimeslots = [
-    ['7:00 AM', '9:30 AM'],
-    ['7:00 AM', '1:00 PM'],
-    ['9:00 AM', '12:00 PM'],
-    ['9:00 AM', '9:00 PM'],
-    ['10:00 AM', '1:00 PM'],
-    ['10:00 AM', '7:00 PM']
-    ['11:00 AM', '6:30 PM'],
-    ['12:00 PM', '5:30 PM'],
-    ['1:00 AM', '6:30 PM'],
-    ['2:00 PM', '7:00 PM'],
-    ['2:00 PM', '8:30 PM'],
-    ['5:30 PM', '9:00 PM'],
-    ['8:00 PM', '11:00 PM'],
-    ['9:00 AM', '5:00 PM'],
-    ['5:00 PM', '11:00 PM'],
-    ['6:00 PM', '9:00 PM']
-]
-
-export const userFriendlyTimes = [
-    '12:00 AM',
-    '12:30 AM',
-    '1:00 AM',
-    '1:30 AM',
-    '2:00 AM',
-    '2:30 AM',
-    '3:00 AM',
-    '3:30 AM',
-    '4:00 AM',
-    '4:30 AM',
-    '5:00 AM',
-    '5:30 AM',
-    '6:00 AM',
-    '6:30 AM',
-    '7:00 AM',
-    '7:30 AM',
-    '8:00 AM',
-    '8:30 AM',
-    '9:00 AM',
-    '9:30 AM',
-    '10:00 AM',
-    '10:30 AM',
-    '11:00 AM',
-    '11:30 AM',
-    '12:00 PM',
-    '12:30 PM',
-    '1:00 PM',
-    '1:30 PM',
-    '2:00 PM',
-    '2:30 PM',
-    '3:00 PM',
-    '3:30 PM',
-    '4:00 PM',
-    '4:30 PM',
-    '5:00 PM',
-    '5:30 PM',
-    '6:00 PM',
-    '6:30 PM',
-    '7:00 PM',
-    '7:30 PM',
-    '8:00 PM',
-    '8:30 PM',
-    '9:00 PM',
-    '9:30 PM',
-    '10:00 PM',
-    '10:30 PM',
-    '11:00 PM',
-    '11:30 PM',
-]
