@@ -53,9 +53,7 @@ const convertLogicalToUserFriendly = (logical) => {
     return convertedUserFriendly
 }
 
-
 /**
- * TODO: Find Common Availability for a Set of Team Members for a Single Day
  * Takes in an array of users, returns an availability object of a the common availabilty for given users
  */
 
