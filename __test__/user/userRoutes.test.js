@@ -7,7 +7,6 @@ import Media from "../../models/chat/media";
 import mongoose from 'mongoose';
 // import { S3Client} from '@aws-sdk/client-s3';
 import * as S3ClientModule from '@aws-sdk/client-s3';
-import cleanupUserData from './cleanup';
 
 jest.mock('@aws-sdk/client-s3', () => {
   return {
@@ -21,12 +20,12 @@ const mockSend = jest.fn();
 S3ClientModule.S3Client.prototype.send = mockSend;
 const { ObjectId } = mongoose.Types;
 
-afterEach(async()=>{
-  await cleanupUserData()
-})
 
 describe('User Routes', () => {
   describe('GET /users', () => {
+    afterEach(async()=>{
+      await User.deleteMany()
+    })
     it('should retrieve a list of all users', async () => {
       const users = [
         { firstName: 'Felix', lastName:'Owolabi', email: 'felix@example.com', passwordDigest: 'hashedPassword1' },
@@ -59,6 +58,9 @@ describe('User Routes', () => {
     });
   });
   describe('GET /users/:id', () => {
+    afterEach(async()=>{
+      await User.deleteMany()
+    })
     it('should retrieve a single user by ID', async () => {
       const user = {
         firstName: 'John',
@@ -104,6 +106,9 @@ describe('User Routes', () => {
     });
   });
   describe('GET /users/email/:email', () => {
+    afterEach(async()=>{
+      await User.deleteMany()
+    })
     it('should retrieve a user by email', async () => {
       const userEmail = 'john@example.com';
       const user = {
@@ -150,6 +155,9 @@ describe('User Routes', () => {
     });
   });
   describe('POST /users/:id', () => {
+   afterEach(async()=>{
+       await User.deleteMany()
+   })
     it('should update user information successfully', async () => {
       const user = {
         role: 'Software Engineer',
@@ -248,83 +256,92 @@ describe('User Routes', () => {
     });
   });
   describe('POST /onboarding/:id', () => {
-    it('should update user profile successfully', async () => {
-      const user = await User.create({
-        role: 'Software Engineer',
-        availability: ['Monday', 'Tuesday'],
-        firstName: 'Felix',
-        lastName: 'Owolabi',
-        email:'felix@example.com',
-        passwordDigest:'hashedPassword',
-        bio: 'Onboarding bio',
-        links: { githubUrl: 'https://github.com/felix' },
-      });
-  
-      const updatedData = {
-        role: 'UX Designer',
-        availability: ['Monday', 'Wednesday'],
-        firstName: 'FelixDev',
-        lastName: 'Owolabi',
-        bio: 'New bio',
-        links: { githubUrl: 'https://github.com/felixdev' },
-      };
-  
-      const response = await supertest(app).post(`/onboarding/${user._id}`).send(updatedData);
-  
-      expect(response.status).toBe(201);
-      expect(response.body.message).toBe('User profile updated successfully.');
-    });
-  
-    it('should handle the case where the user profile is not found', async () => {
-      const nonExistentUserId = new ObjectId();
-  
-      const response = await supertest(app).post(`/onboarding/${nonExistentUserId}`).send({
-        role: 'Software Engineer',
-        // availability: ['Monday', 'Wednesday'],
-        firstName: 'John',
-        lastName: 'Doe',
-        bio: 'New Bio',
-        links: { website: 'https://example.com' },
-      });
-  
-      expect(response.status).toBe(404);
-      expect(response.body.error).toBe('User Profile not found.');
-    });
-  
-    it('should handle errors during the update operation', async () => {
-      const user = await User.create({
-        role: 'UX Designer',
-        availability: ['Monday', 'Tuesday'],
-        firstName: 'Hector',
-        lastName: 'Ilarraza',
-        email:'hector@example.com',
-        passwordDigest:'hashedpassword1',
-        bio: 'Designer bio',
-        links: { website: 'https://example.com' },
-      });
-  
-      const mockedError = 'Mocked update error';
-  
-      jest.spyOn(User, 'findByIdAndUpdate').mockImplementationOnce(() => {
-        throw new Error(mockedError);
-      });
-  
-      const response = await supertest(app).post(`/onboarding/${user._id}`).send({
-        role: 'Software Engineer',
-        availability: ['Monday', 'Wednesday'],
-        firstName: 'Hector',
-        lastName: 'Ilarraza',
-        bio: 'Engineer Bio',
-        links: { website: 'https://example.com' },
-      });
-  
-      expect(response.status).toBe(500);
-      expect(response.body.error).toBe('Failed to update user profile.');
-    });
-  });
+    afterEach(async()=>{
+      await User.deleteMany()
+    })
+     it('should update user profile successfully', async () => {
+       const user = {
+         role: 'Software Engineer',
+         availability: ['Monday', 'Tuesday'],
+         firstName: 'Felix',
+         lastName: 'Owolabi',
+         email:'felix@example.com',
+         passwordDigest:'hashedPassword',
+         bio: 'Onboarding bio',
+         links: { githubUrl: 'https://github.com/felix' },
+       };
+      
+       const createdUser = await User.create(user)
+       const updatedData = {
+         role: 'UX Designer',
+         availability: ['Monday', 'Wednesday'],
+         firstName: 'FelixDev',
+         lastName: 'Owolabi',
+         bio: 'New bio',
+         links: { githubUrl: 'https://github.com/felixdev' },
+       };
+   
+       const response = await supertest(app).post(`/onboarding/${createdUser._id}`).send(updatedData);
+   
+       expect(response.status).toBe(201);
+       expect(response.body.message).toBe('User profile updated successfully.');
+ 
+     });
+   
+     it('should handle the case where the user profile is not found', async () => {
+       const nonExistentUserId = new ObjectId();
+   
+       const response = await supertest(app).post(`/onboarding/${nonExistentUserId}`).send({
+         role: 'Software Engineer',
+         availability: ['Monday', 'Wednesday'],
+         firstName: 'John',
+         lastName: 'Doe',
+         bio: 'New Bio',
+         links: { website: 'https://example.com' },
+       });
+   
+       expect(response.status).toBe(404);
+       expect(response.body.error).toBe('User Profile not found.');
+     });
+   
+     it('should handle errors during the update operation', async () => {
+       const user = await User.create({
+         role: 'UX Designer',
+         availability: ['Monday', 'Tuesday'],
+         firstName: 'Hector',
+         lastName: 'Ilarraza',
+         email:'hector@example.com',
+         passwordDigest:'hashedpassword1',
+         bio: 'Designer bio',
+         links: { website: 'https://example.com' },
+       });
+   
+       const mockedError = 'Mocked update error';
+   
+       jest.spyOn(User, 'findByIdAndUpdate').mockImplementationOnce(() => {
+         throw new Error(mockedError);
+       });
+   
+       const response = await supertest(app).post(`/onboarding/${user._id}`).send({
+         role: 'Software Engineer',
+         availability: ['Monday', 'Wednesday'],
+         firstName: 'Hector',
+         lastName: 'Ilarraza',
+         bio: 'Engineer Bio',
+         links: { website: 'https://example.com' },
+       });
+   
+       expect(response.status).toBe(500);
+       expect(response.body.error).toBe('Failed to update user profile.');
+     });
+   });
+ 
   describe('DELETE /users/:id', () => {
+   afterEach(async()=>{
+   await User.deleteMany()
+   })
     it('should delete user successfully', async () => {  
-      const user = await User.create({
+      const user = {
         role: 'Software Engineer',
         availability: ['Monday', 'Tuesday'],
         firstName: 'Felix',
@@ -332,16 +349,17 @@ describe('User Routes', () => {
         email: 'felix@example.com',
         passwordDigest: 'hashedPassword',
         bio: 'Bio for deletion',
-        links: { website: 'https://example.com' },
-      });
+        links: { githubUrl: 'https://example.com' },
+      };
+      const createdUser = await User.create(user);
   
-      const response = await supertest(app).delete(`/users/${user._id}`);
+      const response = await supertest(app).delete(`/users/${createdUser._id}`);
   
       expect(response.status).toBe(200);
       expect(response.body.deletionStatus).toBe(true);
       expect(response.body.message).toBe('User deleted.');
   
-      const deletedUser = await User.findById(user._id);
+      const deletedUser = await User.findById(createdUser._id);
       expect(deletedUser).toBeNull();
     });
   
@@ -381,6 +399,9 @@ describe('User Routes', () => {
     });
   });
   describe('POST /users/:id/addImage', () => {
+  afterEach(async()=>{
+    await User.deleteMany()
+  })
     it('should successfully add image to S3 bucket ', async () => {
       const user = await User.create({
         role: 'Software Engineer',
@@ -406,8 +427,10 @@ describe('User Routes', () => {
 
   });
   describe('DELETE /users/:id/deleteImage',() => {
+   afterEach(async()=>{
+    await User.deleteMany()
+  })
     it('should delete image from S3 bucket and update user profilePicture', async () => {
-    // Create a user with a profilePicture to test with
     const user = await User.create({
       role: 'Software Engineer',
       availability: ['Monday', 'Tuesday'],
@@ -421,10 +444,9 @@ describe('User Routes', () => {
     });
 
     mockSend.mockResolvedValue({})
-    // Use supertest to make a request to the deleteImage endpoint
+   
     const response = await supertest(app).delete(`/users/${user._id}/deleteImage`);
 
-    // Assertions
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ success: 'image deleted successfully' });
     const updatedUser = await User.findById(user._id);
@@ -432,7 +454,6 @@ describe('User Routes', () => {
 
   });
   it('should check if the user is not found', async () => {
-    await User.deleteMany()
 
     const nonExistentUserId = new ObjectId();
   
@@ -444,6 +465,9 @@ describe('User Routes', () => {
   });
 });
   describe('GET /users/:userId/messages', () => {
+    afterEach(async()=>{
+    await User.deleteMany()
+  })
     it('should retrieve all chat threads for a user with threads', async () => {
       const user = await User.create({
         role: 'Software Engineer',
@@ -476,7 +500,6 @@ describe('User Routes', () => {
     });
 
     it('should handle the case where there are no chat threads for a user', async () => {
-      await User.deleteMany()
 
       const user = await User.create({
         role: 'Software Engineer',
@@ -498,8 +521,10 @@ describe('User Routes', () => {
 
   });
   describe('GET /users/:userId/media', () => {
+    afterEach(async()=>{
+    await User.deleteMany()
+  })
     it('should retrieve media messages for a user with messages', async () => {
-      // Create a user with a real ID
       const user = await User.create({
         role: 'Software Engineer',
         availability: ['Monday', 'Tuesday'],
@@ -511,17 +536,14 @@ describe('User Routes', () => {
         links: { githubUrl: 'https://github.com/john' },
       });
   
-      // Create a media message for the user
       const mediaMessage = await Media.create({
         sender: user._id,
-        fileUrl: 'https://res.cloudinary.com/dljgkzwfz/image/upload/v1706894350/Group_ozdvco.png', // Add other media message details as needed...
+        fileUrl: 'https://res.cloudinary.com/dljgkzwfz/image/upload/v1706894350/Group_ozdvco.png', 
       });
   
-      // Use supertest to make a request to the getMediaByUserId endpoint
       const response = await supertest(app).get(`/users/${user._id}/media`);
-  
-      // Assertions
-      expect(response.status).toBe(200);
+
+        expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('mediaMessages');
       expect(response.body.mediaMessages.length).toBeGreaterThan(0);
       expect(response.body.message).toBe(`Successfully found media messages for user with ID ${user._id}.`);
@@ -529,7 +551,6 @@ describe('User Routes', () => {
     });
   
     it('should handle the case where there are no media messages for a user', async () => {
-      // Create a user with a real ID
       const user = await User.create({
         role: 'Software Engineer',
         availability: ['Monday', 'Tuesday'],
@@ -539,19 +560,19 @@ describe('User Routes', () => {
         passwordDigest: 'hashedPassword',
         bio: 'User bio',
         links: { githubUrl: 'https://github.com/john' },
-        // Add other user details as needed...
       });
   
-      // Use supertest to make a request to the getMediaByUserId endpoint
       const response = await supertest(app).get(`/users/${user._id}/media`);
   
-      // Assertions
       expect(response.status).toBe(404);
       expect(response.body).not.toHaveProperty('mediaMessages');
       expect(response.body.message).toBe(`No media messages found for user with ID ${user._id}.`);
     });
   });
   describe('POST /messages/setUnreadMessages', () => {
+     afterEach(async()=>{
+    await User.deleteMany()
+  })
     it('should set unread messages for specified users', async () => {
       const requestBody = {
         chatId: 'mockedChatId',
@@ -600,6 +621,9 @@ describe('User Routes', () => {
   
   });
   describe('POST /users/:userId/messages/markConversationAsRead', () => {
+    afterEach(async()=>{
+    await User.deleteMany()
+  })
   
     it('should mark a conversation as read when there are unread messages', async () => {
       const user = await User.create({
@@ -692,6 +716,9 @@ describe('User Routes', () => {
   
   });
   describe('GET /users/:userId/emailPreferences', () => {
+    afterEach(async()=>{
+    await User.deleteMany()
+  })
     it('should retrieve email preferences for a user', async () => {
       const userPreferences = {
         emailPreferences: {
@@ -743,6 +770,9 @@ describe('User Routes', () => {
     });
   });
   describe('POST /users/:userId/updateEmailPreferences', () => {
+    afterEach(async()=>{
+    await User.deleteMany()
+  })
     it('should update email preferences for a user', async () => {
       const userPreferences = {
         emailPreferences: {
@@ -820,7 +850,6 @@ describe('User Routes', () => {
       expect(response.body).toEqual({ status: false, message: 'Mocked update error' });
     });
   });
-  
 });
 
 
