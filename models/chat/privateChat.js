@@ -42,7 +42,7 @@ PrivateChat.pre('save', function (next) {
     const error = new Error('A private chat must have exactly 2 participants.');
     next(error);
   } else {
-    this.lastActive = ndayjs().toDate();
+    this.lastActive = new Date();
     next();
   }
 });

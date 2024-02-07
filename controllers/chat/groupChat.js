@@ -79,9 +79,7 @@ export const getGroupChatMessages = async (req, res) => {
     const { groupChatId } = req.params;
     const messageThread = await GroupChat.find({
       _id: groupChatId,
-    })
-      .select('messages.text messages.sender messages.timestamp messages.status')
-      .populate({ path: 'messages.sender', select: 'email firstName lastName profilePicture' });
+    }).select('messages.text messages.sender messages.timestamp messages.status');
 
     const messages = messageThread[0].messages;
     messages.sort((a, b) => {
@@ -156,7 +154,7 @@ export const updateGroupChatParticipants = async (req, res) => {
           isAdmin: false,
           hasUnreadMessage: false,
         });
-        sendChatInviteEmail(user.project, user.email, user.firstName);
+        // sendChatInviteEmail(user.project, user.email, user.firstName);
       }
     }
 
