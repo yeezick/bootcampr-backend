@@ -12,7 +12,7 @@ import config from './config.js';
     process.env.MONGODB_URI = `mongodb://${config.IP}:${config.Port}`;
   }
 
-  // Optional cleanup logic (consider your testing needs)
+  // Cleanup logic
   await mongoose.connect(`${process.env.MONGODB_URI}/${config.Database}`);
   await mongoose.connection.db.dropDatabase();
   await mongoose.disconnect();

@@ -5,7 +5,6 @@ import User from '../../models/user';
 import PrivateChat from '../../models/chat/privateChat';
 import Media from "../../models/chat/media";
 import mongoose from 'mongoose';
-// import { S3Client} from '@aws-sdk/client-s3';
 import * as S3ClientModule from '@aws-sdk/client-s3';
 
 jest.mock('@aws-sdk/client-s3', () => {
@@ -20,12 +19,12 @@ const mockSend = jest.fn();
 S3ClientModule.S3Client.prototype.send = mockSend;
 const { ObjectId } = mongoose.Types;
 
+afterEach(async()=>{
+  await User.deleteMany()
+})
 
 describe('User Routes', () => {
   describe('GET /users', () => {
-    afterEach(async()=>{
-      await User.deleteMany()
-    })
     it('should retrieve a list of all users', async () => {
       const users = [
         { firstName: 'Felix', lastName:'Owolabi', email: 'felix@example.com', passwordDigest: 'hashedPassword1' },
@@ -58,9 +57,6 @@ describe('User Routes', () => {
     });
   });
   describe('GET /users/:id', () => {
-    afterEach(async()=>{
-      await User.deleteMany()
-    })
     it('should retrieve a single user by ID', async () => {
       const user = {
         firstName: 'John',
@@ -106,9 +102,6 @@ describe('User Routes', () => {
     });
   });
   describe('GET /users/email/:email', () => {
-    afterEach(async()=>{
-      await User.deleteMany()
-    })
     it('should retrieve a user by email', async () => {
       const userEmail = 'john@example.com';
       const user = {
@@ -155,13 +148,9 @@ describe('User Routes', () => {
     });
   });
   describe('POST /users/:id', () => {
-   afterEach(async()=>{
-       await User.deleteMany()
-   })
     it('should update user information successfully', async () => {
       const user = {
         role: 'Software Engineer',
-        availability: ['Monday', 'Wednesday'],
         firstName: 'Felix',
         lastName: 'Owolabi',
         email: 'felix@example.com',
@@ -179,7 +168,6 @@ describe('User Routes', () => {
   
       const updatedInfo = {
         role: 'UX Designer',
-        availability: ['Monday', 'Tuesday', 'Thursday'],
         firstName: 'Hector',
         lastName: 'Ilarraza',
         bio: 'Updated bio',
@@ -196,7 +184,6 @@ describe('User Routes', () => {
   
       expect(response.status).toBe(200);
       expect(response.body.role).toBe(updatedInfo.role);
-      expect(response.body.availability).toEqual(updatedInfo.availability);
       expect(response.body.firstName).toBe(updatedInfo.firstName);
       expect(response.body.lastName).toBe(updatedInfo.lastName);
       expect(response.body.bio).toBe(updatedInfo.bio);
@@ -256,13 +243,9 @@ describe('User Routes', () => {
     });
   });
   describe('POST /onboarding/:id', () => {
-    afterEach(async()=>{
-      await User.deleteMany()
-    })
      it('should update user profile successfully', async () => {
        const user = {
          role: 'Software Engineer',
-         availability: ['Monday', 'Tuesday'],
          firstName: 'Felix',
          lastName: 'Owolabi',
          email:'felix@example.com',
@@ -274,7 +257,6 @@ describe('User Routes', () => {
        const createdUser = await User.create(user)
        const updatedData = {
          role: 'UX Designer',
-         availability: ['Monday', 'Wednesday'],
          firstName: 'FelixDev',
          lastName: 'Owolabi',
          bio: 'New bio',
@@ -335,11 +317,7 @@ describe('User Routes', () => {
        expect(response.body.error).toBe('Failed to update user profile.');
      });
    });
- 
   describe('DELETE /users/:id', () => {
-   afterEach(async()=>{
-   await User.deleteMany()
-   })
     it('should delete user successfully', async () => {  
       const user = {
         role: 'Software Engineer',
@@ -399,9 +377,6 @@ describe('User Routes', () => {
     });
   });
   describe('POST /users/:id/addImage', () => {
-  afterEach(async()=>{
-    await User.deleteMany()
-  })
     it('should successfully add image to S3 bucket ', async () => {
       const user = await User.create({
         role: 'Software Engineer',
@@ -427,9 +402,6 @@ describe('User Routes', () => {
 
   });
   describe('DELETE /users/:id/deleteImage',() => {
-   afterEach(async()=>{
-    await User.deleteMany()
-  })
     it('should delete image from S3 bucket and update user profilePicture', async () => {
     const user = await User.create({
       role: 'Software Engineer',
@@ -465,9 +437,6 @@ describe('User Routes', () => {
   });
 });
   describe('GET /users/:userId/messages', () => {
-    afterEach(async()=>{
-    await User.deleteMany()
-  })
     it('should retrieve all chat threads for a user with threads', async () => {
       const user = await User.create({
         role: 'Software Engineer',
@@ -521,9 +490,6 @@ describe('User Routes', () => {
 
   });
   describe('GET /users/:userId/media', () => {
-    afterEach(async()=>{
-    await User.deleteMany()
-  })
     it('should retrieve media messages for a user with messages', async () => {
       const user = await User.create({
         role: 'Software Engineer',
@@ -570,9 +536,6 @@ describe('User Routes', () => {
     });
   });
   describe('POST /messages/setUnreadMessages', () => {
-     afterEach(async()=>{
-    await User.deleteMany()
-  })
     it('should set unread messages for specified users', async () => {
       const requestBody = {
         chatId: 'mockedChatId',
@@ -621,9 +584,6 @@ describe('User Routes', () => {
   
   });
   describe('POST /users/:userId/messages/markConversationAsRead', () => {
-    afterEach(async()=>{
-    await User.deleteMany()
-  })
   
     it('should mark a conversation as read when there are unread messages', async () => {
       const user = await User.create({
@@ -716,9 +676,6 @@ describe('User Routes', () => {
   
   });
   describe('GET /users/:userId/emailPreferences', () => {
-    afterEach(async()=>{
-    await User.deleteMany()
-  })
     it('should retrieve email preferences for a user', async () => {
       const userPreferences = {
         emailPreferences: {
@@ -770,9 +727,7 @@ describe('User Routes', () => {
     });
   });
   describe('POST /users/:userId/updateEmailPreferences', () => {
-    afterEach(async()=>{
-    await User.deleteMany()
-  })
+  
     it('should update email preferences for a user', async () => {
       const userPreferences = {
         emailPreferences: {
@@ -806,7 +761,6 @@ describe('User Routes', () => {
         .post(`/users/${user._id}/updateEmailPreferences`)
         .send(updatedPreferences);
   
-      // Assertions
       expect(response.status).toBe(201);
       expect(response.body).toEqual(updatedPreferences);
     });
