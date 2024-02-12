@@ -1,5 +1,5 @@
 import { randomIndex } from './seed/utils/helpers.js'
-import { commonAvailableTimeslots, userFriendlyTimes } from './data/defaults/availability.js'
+import { commonAvailableTimeslots, userFriendlyTimes, weekdays } from './data/defaults/availability.js'
 
 /**
  * Uses realistic time slot options to generate random availability for a single day
@@ -58,13 +58,19 @@ const convertLogicalToUserFriendly = (logical) => {
  */
 
 export const findCommonAvailability = (members) => {
+    // console.log(members)
     const commonAvailability = {};
 
     const logicalAvails = members.map((member) => {
+        // console.log('member availability')
+        // console.log(member.availability['SUN'])
         const logicalAvail = {}
 
         weekdays.forEach((weekday) => {
-            const memberDayAvail = member.availability[weekday].availability;
+            // console.log(member.availability)
+            // console.log('member')
+            // console.log(member)
+            const memberDayAvail = member.availability[weekday] ? member.availability[weekday].availability : []
             const wholeDay = [];
 
             memberDayAvail.forEach((timeslot) => {

@@ -14,6 +14,7 @@ import {
   getOneUserByEmail,
 } from '../../controllers/user/users.js';
 import { getEmailPreferences, updateEmailPreferences } from '../../controllers/user/communications.js';
+import { generateTeam } from '../../controllers/temp-team-matching.js';
 
 //middleware
 const storage = multer.memoryStorage();
@@ -41,5 +42,8 @@ router.post('/users/:userId/messages/markConversationAsRead', markConversationAs
 // Email Preferences
 router.get('/users/:userId/emailPreferences', getEmailPreferences)
 router.post('/users/:userId/updateEmailPreferences', updateEmailPreferences)
+
+// TEMP spot for team matching
+router.get('/generate-team', generateTeam)
 
 export default router;

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { startTimeOptions } from '../utils/availability';
+import { userFriendlyTimes } from '../utils/data/defaults/availability';
 const Schema = mongoose.Schema;
 
 const Meeting = new Schema(
@@ -18,7 +18,7 @@ const Meeting = new Schema(
       type: null || String,
       enum: ['mondays', 'tuesdays', 'wednesdays', 'thursdays', 'fridays', 'saturdays', 'sundays'],
     },
-    startTime: { type: String, enum: startTimeOptions },
+    startTime: { type: String, enum: userFriendlyTimes },
     title: { type: String },
   },
   { timestamps: true },
