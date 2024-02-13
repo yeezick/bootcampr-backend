@@ -4,6 +4,7 @@ import GroupChat from '../../models/chat/groupChat.js';
 import User from '../../models/user.js';
 import { newToken, sendChatInviteEmail } from '../auth/emailVerification.js';
 import { getUserIdFromToken } from '../auth/auth.js';
+import { createBotMessage, fetchChatBot } from './chatbot.js';
 
 export const createGroupChatRoom = async (req, res) => {
   try {
@@ -22,12 +23,17 @@ export const createGroupChatRoom = async (req, res) => {
     });
 
     for (const participantId of participantIds) {
-      const user = await User.findById(participantId).select('email firstName lastName profilePicture');
+      const user = await User.findById(participantId).select('email firstName lastName');
       // if (user) {
       // const token = newToken(user, true)
       //   tokenVerificationChatInvite(user, token);
       // }
     }
+    await fetchChatBot();
+    const welcomeMessage = createBotMessage('welcome');
+    const iceBreakerMessage = createBotMessage('iceBreaker');
+    newGroupChat.messages = [...newGroupChat.messages, welcomeMessage, iceBreakerMessage];
+    newGroupChat.lastMessage = iceBreakerMessage;
 
     await newGroupChat.save();
     res.status(201).json({
@@ -79,7 +85,7 @@ export const getGroupChatMessages = async (req, res) => {
     const { groupChatId } = req.params;
     const messageThread = await GroupChat.find({
       _id: groupChatId,
-    }).select('messages.text messages.sender messages.timestamp messages.status');
+    }).select('messages.text messages.sender messages.isBotMessage messages.timestamp messages.status');
 
     const messages = messageThread[0].messages;
     messages.sort((a, b) => {
