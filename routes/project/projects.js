@@ -5,6 +5,7 @@ import {
   getAllProjects,
   getOneProject,
   getProjectMembers,
+  getTeamCommonAvailability,
   updateProject,
   updateUserAndProject,
 } from '../../controllers/project/projects.js';
@@ -28,5 +29,6 @@ router.get('/project/:projectId/members', getProjectMembers)
 router.patch('/projects/:id', updateProject); //update description etc
 router.delete('/projects/:id', deleteProject);
 router.patch('/update-user-and-project', updateUserAndProject);
+router.get('/projects/:projectId/team-common-availability', getTeamCommonAvailability)
 
 export default router;
