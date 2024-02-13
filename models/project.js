@@ -16,6 +16,7 @@ const Project = new Schema(
     // Since each tasks holds 'status' info, is it really needed here as well?
     timeline: {
       startDate: { type: String },
+      projectSubmissionDate: { type: String },
       endDate: { type: String },
     },
     title: { type: String, required: true, maxLength: 45 },

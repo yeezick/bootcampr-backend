@@ -9,7 +9,8 @@ import axios from 'axios';
 export const generateProject = async (project = defaultProject) => {
   const { title, goal, problem, startDate, duration } = project;
   // TODO: adjust start and end date format and calulcations as needed
-  const endDate = Date.now() + duration * 24 * 60 * 60 * 60;
+  const endDate = Date.now() + duration * 24 * 60 * 60 * 1000;
+  const projectSubmissionDate = endDate - 48 * 60 * 60 * 1000;
 
   return {
     calendarId: '',
@@ -24,6 +25,7 @@ export const generateProject = async (project = defaultProject) => {
     tasks: [],
     timeline: {
       startDate,
+      projectSubmissionDate,
       endDate,
     },
     title,
