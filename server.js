@@ -3,13 +3,14 @@ import db from './db/connection.js';
 import express from 'express';
 import logger from 'morgan';
 import cors from 'cors';
+import { google } from 'googleapis';
+import colors from 'colors';
 import routes from './routes/index.js';
 import { Server } from 'socket.io';
 import http from 'http';
 import PushNotifications from './models/notifications.js';
 import User from './models/user.js';
-import { google } from 'googleapis';
-import colors from 'colors';
+import { getReceiverParticipants, markMessagesAsRead } from './controllers/chat/thread.js';
 import { newMessageNotificationEmail } from './controllers/auth/emailVerification.js';
 
 export const auth = new google.auth.GoogleAuth({
@@ -40,44 +41,71 @@ app.use(logger('dev'));
 app.use(routes);
 
 io.on('connection', (socket) => {
+  socket.on('disconnect', () => {
+    console.log('User left.');
+  });
+
   socket.on('setUserId', async (userId) => {
     if (userId) {
       const oneUser = await User.findById(userId).lean().exec();
       if (oneUser) {
+        socket.join(userId.toString());
         console.log(`Socket: User with id ${userId} has connected.`.cyan.bold.underline);
       } else {
         console.log(`No user with id ${userId}`);
       }
     }
-    PushNotifications.watch().on('change', async () => {
-      const notifications = await PushNotifications.find({ user: userId, read: false }).lean();
-      socket?.emit('notificationsLength', notifications.length || 0);
-    });
-    socket.on('disconnect', () => {
-      userId = null;
-    });
+    // PushNotifications.watch().on('change', async () => {
+    //   const notifications = await PushNotifications.find({ user: userId, read: false }).lean();
+    //   socket?.emit('notificationsLength', notifications.length || 0);
+    // });
   });
 
   socket.on('join-conversation', (data) => {
-    socket.join(data.chatRoom);
-    console.log(`Socket: User with ID: ${data.authUser} joined chat room: ${data.chatRoom}`.cyan);
+    socket.join(data.chatRoomId);
+    console.log(`Socket: User with ID: ${data.activeUserId} joined chat room: ${data.chatRoomId}`.cyan);
   });
 
-  socket.on('send-message', (data) => {
-    socket.broadcast.emit('message-from-server', data.newMessage);
-    console.log(`Socket: New message received!`.cyan);
+  socket.on('leave-conversation', (data) => {
+    socket.leave(data.chatRoomId);
+    console.log(`Socket: User with ID: ${data.activeUserId} left chat room: ${data.chatRoomId}`);
   });
 
-  socket.on('read-message', (data) => {
-    socket.broadcast.emit('read-message-check', `Unread message opened by user: ${data.authUser}`);
+  socket.on('send-message', async (receivedMessage) => {
+    io.to(receivedMessage.chatRoomId).emit('message-from-server', receivedMessage);
+    try {
+      const participantIds = await getReceiverParticipants(
+        receivedMessage.chatRoomId,
+        receivedMessage.senderId,
+        receivedMessage.chatType,
+      );
+      participantIds.forEach((participantId) => {
+        io.to(participantId.toString()).emit('new-message-received', receivedMessage);
+      });
+    } catch (error) {
+      console.error('Error in socket send message: ', error);
+    }
   });
 
-  socket.on('check-any-unread-messages', (data) => {
-    socket.broadcast.emit('unread-messages-checked', data);
+  socket.on('create-new-room', async (chatRoomInfo) => {
+    try {
+      const { chatRoom, receiverIds } = chatRoomInfo;
+      receiverIds.forEach((receiverId) => {
+        io.to(receiverId).emit('new-room-created', chatRoom);
+      });
+    } catch (error) {
+      console.error('Error in socket send message: ', error);
+    }
   });
 
-  socket.on('disconnect', (socket) => {
-    console.log('User left.');
+  socket.on('mark-message-as-read', async (chatInfo) => {
+    const { chatRoomId, chatType, activeUserId } = chatInfo;
+    try {
+      await markMessagesAsRead(chatRoomId, chatType, activeUserId);
+      io.to(activeUserId).emit('message-read', { chatRoomId, activeUserId });
+    } catch (error) {
+      console.error('Error in socket mark as read: ', error);
+    }
   });
 });
 
