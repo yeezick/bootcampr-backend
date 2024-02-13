@@ -1,4 +1,3 @@
-// import mongoose from 'mongoose';
 import User from '../models/user.js';
 import Project from '../models/project.js'
 import { convertUserFriendlyTimeSlotToLogical, findCommonAvailability } from '../utils/availability.js';
@@ -20,38 +19,29 @@ const minimumHoursOverlapRequired = 8;
 
 
 // TODO:
-// - Return error response if first fifty do not meet minimum availability AND / OR provide option to followup
 // - Similarly, if the whole DB was exhausted and no team was found, return an appropriate error
 // - Cleanly and smartly abstract logic blocks into helper functions with very clear names and definitions
 // - Set up to handle product managers as well
 // - Export util functions to external file
-// - Ensure the provided members are not already assigned a project! (in determine Needed roles?)
-// - Incoporate offset query parameter
 // - Pass the full user object in the meets minimum (with commonHours) so we don't need to call the DB again
-// - String interpolate the offset Error message with real error
 // - Only return useful info from large DB calls (fetch 50 swe/ux) (availability, role, id, project)
 // - Try populate and troubleshoot if its still not working
 // - Consider automating the followup 50?
 // - Make this work when Product Manager = 0, or 1
 // - Make all of the repeated role work reusable
 // - Sometimes 'available' is true and availability is null... - fix
-
-
-export const fetchUnassignedUsersByRole = async (role, count = 50, offset = 0) => {
-    return await User
-        .find({role, project: null})
-        .sort({"createdAt": 1})
-        .skip(offset)
-        .limit(count)
-}
+// - consider using separate offsets for each role?
+// - troubleshoot why some teams have lesss than 3 days in common
 
 export const generateTeam = async (req, res) => {
     try {
         const count = Number(req.query.count) || 50;
         const offset = Number(req.query.offset) || 0;
         const newOffset = count + offset
+        const query = { count, offset, newOffset }
 
         const { startingMembersIds } = req.body;
+
         let startingMembers = await checkIfStartingMembersAreValid(startingMembersIds);
         const neededRoles = determineNeededRoles(startingMembers);
 
@@ -62,49 +52,30 @@ export const generateTeam = async (req, res) => {
         } = await getCollectionsByRole(neededRoles, count, offset)
 
         if (!startingMembers || startingMembers.length === 0) {
-            if (collectionOfSWE) {
-                startingMembers = [collectionOfSWE.shift()]
-                neededRoles.swe -= 1
-            } else if (collectionOfUX) {
-                startingMembers = [collectionOfUX.shift()]
-                neededRoles.ux -= 1
-            } else if (collectionOfPM) {
-                startingMembers = [collectionOfPM.shift()]
-                neededRoles.product -= 1
-            } else {
-                throw new Error('There was an issue creating a new team. Please try again.')
-            }
+            startingMembers = findAndSetAStartingMember(
+                startingMembers, 
+                collectionOfSWE, 
+                collectionOfUX, 
+                collectionOfPM, 
+                neededRoles
+            )
         } else {
-            filterOutStartingMembersFromCollections(startingMembers, collectionOfSWE, collectionOfUX, collectionOfPM);
-        }
-
-        const meetsMinOverlap = {}
-
-        meetsMinOverlap.swe = neededRoles.swe > 0 
-            ? meetMinimumOverlappingHours(startingMembers, collectionOfSWE)
-                .sort((a,b) => b.commonHours - a.commonHours)
-            : []
-
-        if (meetsMinOverlap.swe.length < neededRoles.swe) {
-            throw new Error(`None of set (count: ${count}, offset: ${offset}) of Software Engineers matches minumum availability. Try again with offset: ${newOffset}`)
+            filterOutStartingMembersFromCollections(
+                startingMembers, 
+                collectionOfSWE, 
+                collectionOfUX, 
+                collectionOfPM
+            )
         };
 
-        const newEngineers = meetsMinOverlap.swe.slice(0, neededRoles.swe)
+        // TODO: Test when too many swes are given and when no more swe match min
+        const newEngineers = getNeededMembersByRoleWithMostOverlap(neededRoles, startingMembers, collectionOfSWE, 'swe', query)
         let finalTeam = [...startingMembers, ...newEngineers]
 
-        // TODO: Make sure this is sorting
-        meetsMinOverlap.ux = neededRoles.ux > 0 
-            ? meetMinimumOverlappingHours(finalTeam, collectionOfUX)
-                .sort((a,b) => b.commonHours - a.commonHours)
-            : []
-
-        if (meetsMinOverlap.ux.length < neededRoles.ux) {
-            throw new Error(`None of the first set of UX designers matches minumum availability. Try again with offset: ${newOffset}`)
-        };
-
-        const newDesigners = meetsMinOverlap.ux.slice(0, neededRoles.ux)
+        const newDesigners = getNeededMembersByRoleWithMostOverlap(neededRoles, finalTeam, collectionOfUX, 'ux', query)
         finalTeam.push(...newDesigners)
 
+        // condense?
         const finalTeamUserIds = finalTeam.map((member) => member._id)
         const finalTeamUserObjects = await User.find({"_id": {"$in": finalTeamUserIds}})
 
@@ -125,22 +96,70 @@ export const generateTeam = async (req, res) => {
             await user.save();
         };
 
-        const teamCommonHoursTotal = getTeamCommonHoursTotal(commonAvailability)
-
-        const response = {
-            team: finalTeamUserObjects.map((member) => `${member.firstName} ${member.lastName}: ${member.role}`),
-            totalCommonHours: teamCommonHoursTotal,
-            commonAvailability,
-        }
+        const response = buildNewTeamResponse(commonAvailability, finalTeamUserObjects)
 
         res.status(200).json(response);
     } catch (error) {
         console.error(error);
         res.status(500).json({
+            // Update this messaging
             message: 'Error occurred while fetching users.',
             error: error.message,
         });
     }
+};
+
+export const getNeededMembersByRoleWithMostOverlap = (neededRoles, startingMembers, collection, roleNickName, query) => {
+    const { count, offset, newOffset } = query;
+
+    const meetsMinOverlap = neededRoles[roleNickName] > 0
+        ? meetMinimumOverlappingHours(startingMembers, collection)
+            .sort((a,b) => b.commonHours - a.commonHours)
+        : []
+
+    if (meetsMinOverlap.length < neededRoles[roleNickName]) {
+        throw new Error(`None of set (count: ${count}, offset: ${offset}) of Software Engineers matches minumum availability. Try again with offset: ${newOffset}`)
+    }
+
+    return meetsMinOverlap.slice(0, neededRoles[roleNickName])
+}
+
+// TODO: Determine if this is the best response
+// Also is 201 appropriate? If not, whats the best response code?
+export const buildNewTeamResponse = (commonAvailability, finalTeamUserObjects) => {
+    const totalCommonHours = getTeamCommonHoursTotal(commonAvailability)
+    const team = finalTeamUserObjects.map((member) => `${member.firstName} ${member.lastName}: ${member.role}`)
+
+    return {
+        team,
+        totalCommonHours,
+        commonAvailability
+    }
+}
+
+export const findAndSetAStartingMember = (startingMembers, collectionOfSWE, collectionOfUX, collectionOfPM, neededRoles) => {
+    if (collectionOfSWE) {
+        startingMembers = [collectionOfSWE.shift()]
+        neededRoles.swe -= 1
+    } else if (collectionOfUX) {
+        startingMembers = [collectionOfUX.shift()]
+        neededRoles.ux -= 1
+    } else if (collectionOfPM) {
+        startingMembers = [collectionOfPM.shift()]
+        neededRoles.product -= 1
+    } else {
+        throw new Error('There was an issue creating a new team. Please try again.')
+    }
+
+    return startingMembers;
+}
+
+export const fetchUnassignedUsersByRole = async (role, count = 50, offset = 0) => {
+    return await User
+        .find({role, project: null})
+        .sort({"createdAt": 1})
+        .skip(offset)
+        .limit(count)
 };
 
 export const filterOutStartingMembersFromCollections = (
