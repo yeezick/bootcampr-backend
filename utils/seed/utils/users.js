@@ -84,6 +84,15 @@ export const generateFakeUser = async (role, customInfo) => {
   };
 };
 
+export const createChatbot = async (chatBotInfo) => {
+  return {
+    passwordDigest: await bcrypt.hash('gumballs', 11),
+    timezone: '-8:00',
+    verified: true,
+    ...chatBotInfo,
+  };
+};
+
 /**
  * Generate Multiple Fake Users
  * @param {Number} quantity of users to create
