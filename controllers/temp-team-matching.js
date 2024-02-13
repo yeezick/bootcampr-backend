@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+// import mongoose from 'mongoose';
 import User from '../models/user.js';
 import Project from '../models/project.js'
 import { convertUserFriendlyTimeSlotToLogical, findCommonAvailability } from '../utils/availability.js';
@@ -9,9 +9,11 @@ const sweRequired = 3;
 const uxRequired = 2;
 const productRequired = 0; // Update when we implement 'Product Manager' role
 
+const minumumDaysOverlapRequired = 3;
+const minimumHoursOverlapRequired = 8;
+
 // Open Questions:
 // - Should we prioritize "first in line" and sort by createdAt?
-// - What is the minimum amount of available hours we think is best for a team?
 // - What follow up logic do we also want to implement after a team is made and assigned to a project?
 //    * Schedule their first meeting?
 //    * Send out emails?
@@ -34,6 +36,7 @@ const productRequired = 0; // Update when we implement 'Product Manager' role
 // - Make all of the repeated role work reusable
 // - Sometimes 'available' is true and availability is null... - fix
 
+
 export const fetchUnassignedUsersByRole = async (role, count = 50, offset = 0) => {
     return await User
         .find({role, project: null})
@@ -44,20 +47,19 @@ export const fetchUnassignedUsersByRole = async (role, count = 50, offset = 0) =
 
 export const generateTeam = async (req, res) => {
     try {
-        const count = req.query.count;
-        const offset = req.query.offset;
+        const count = Number(req.query.count) || 50;
+        const offset = Number(req.query.offset) || 0;
+        const newOffset = count + offset
+
         const { startingMembersIds } = req.body;
-
         let startingMembers = await checkIfStartingMembersAreValid(startingMembersIds);
-
         const neededRoles = determineNeededRoles(startingMembers);
 
-        let collectionOfSWE = neededRoles.swe > 0 
-            && await fetchUnassignedUsersByRole('Software Engineer', count, offset);
-        let collectionOfUX = neededRoles.ux > 0
-            && await fetchUnassignedUsersByRole('UX Designer', count, offset);
-        let collectionOfPM = neededRoles.product > 0
-            && await fetchUnassignedUsersByRole('Product Manager', count, offset);
+        let {
+            collectionOfSWE, 
+            collectionOfUX,
+            collectionOfPM 
+        } = await getCollectionsByRole(neededRoles, count, offset)
 
         if (!startingMembers || startingMembers.length === 0) {
             if (collectionOfSWE) {
@@ -73,36 +75,32 @@ export const generateTeam = async (req, res) => {
                 throw new Error('There was an issue creating a new team. Please try again.')
             }
         } else {
-            startingMembers.forEach((member) => {
-                switch (member.role) {
-                    case 'Software Engineer':
-                        collectionOfSWE = collectionOfSWE.filter((user) => String(user._id) !== String(member._id))
-                        break;
-                    case 'UX Designer':
-                        collectionOfUX = collectionOfUX.filter((user) => String(user._id) !== String(member._id))
-                        break;
-                    case 'Product Manager':
-                        collectionOfPM = collectionOfPM.filter((user) => String(user._id) !== String(member._id))
-                        break;
-                }
-            })
+            filterOutStartingMembersFromCollections(startingMembers, collectionOfSWE, collectionOfUX, collectionOfPM);
         }
 
         const meetsMinOverlap = {}
 
         meetsMinOverlap.swe = neededRoles.swe > 0 
-            && meetMinimumOverlappingHours(startingMembers, collectionOfSWE)
+            ? meetMinimumOverlappingHours(startingMembers, collectionOfSWE)
                 .sort((a,b) => b.commonHours - a.commonHours)
+            : []
 
         if (meetsMinOverlap.swe.length < neededRoles.swe) {
-            throw new Error(`None of the first set of Software Engineers matches minumum availability. Try again with offset: ${count + offset}`)
-        }
+            throw new Error(`None of set (count: ${count}, offset: ${offset}) of Software Engineers matches minumum availability. Try again with offset: ${newOffset}`)
+        };
 
         const newEngineers = meetsMinOverlap.swe.slice(0, neededRoles.swe)
         let finalTeam = [...startingMembers, ...newEngineers]
 
-        meetsMinOverlap.ux = meetMinimumOverlappingHours(finalTeam, collectionOfUX)
-            .sort((a,b) => b.commonHours - a.commonHours)
+        // TODO: Make sure this is sorting
+        meetsMinOverlap.ux = neededRoles.ux > 0 
+            ? meetMinimumOverlappingHours(finalTeam, collectionOfUX)
+                .sort((a,b) => b.commonHours - a.commonHours)
+            : []
+
+        if (meetsMinOverlap.ux.length < neededRoles.ux) {
+            throw new Error(`None of the first set of UX designers matches minumum availability. Try again with offset: ${newOffset}`)
+        };
 
         const newDesigners = meetsMinOverlap.ux.slice(0, neededRoles.ux)
         finalTeam.push(...newDesigners)
@@ -127,17 +125,11 @@ export const generateTeam = async (req, res) => {
             await user.save();
         };
 
-        const totalHoursOverlap = Object.keys(commonAvailability).map((day) => {
-            const logical = convertUserFriendlyTimeSlotToLogical(...commonAvailability[day][0])
-
-            return logical.length
-        })
-
-        const sum = totalHoursOverlap.reduce((a, b) => a + b, 0)
+        const teamCommonHoursTotal = getTeamCommonHoursTotal(commonAvailability)
 
         const response = {
             team: finalTeamUserObjects.map((member) => `${member.firstName} ${member.lastName}: ${member.role}`),
-            totalCommonHours: sum,
+            totalCommonHours: teamCommonHoursTotal,
             commonAvailability,
         }
 
@@ -149,6 +141,54 @@ export const generateTeam = async (req, res) => {
             error: error.message,
         });
     }
+};
+
+export const filterOutStartingMembersFromCollections = (
+    startingMembers, 
+    collectionOfSWE, 
+    collectionOfUX, 
+    collectionOfPM
+) => {
+    startingMembers.forEach((member) => {
+        switch (member.role) {
+            case 'Software Engineer':
+                collectionOfSWE = collectionOfSWE
+                    .filter((user) => String(user._id) !== String(member._id)
+                )
+                break;
+            case 'UX Designer':
+                collectionOfUX = collectionOfUX
+                    .filter((user) => String(user._id) !== String(member._id))
+                break;
+            case 'Product Manager':
+                collectionOfPM = collectionOfPM
+                    .filter((user) => String(user._id) !== String(member._id))
+                break;
+        }
+    })
+}
+
+export const getCollectionsByRole = async (neededRoles, count, offset) => {
+
+    const swe = neededRoles.swe > 0 && await fetchUnassignedUsersByRole('Software Engineer', count, offset)
+    const ux = neededRoles.ux > 0 && await fetchUnassignedUsersByRole('UX Designer', count, offset)
+    const pm = neededRoles.pm > 0 && await fetchUnassignedUsersByRole('Product Manager', count, offset)
+
+    return {
+        collectionOfSWE: swe,
+        collectionOfUX: ux,
+        collectionOfPM: pm,
+    }
+};
+
+export const getTeamCommonHoursTotal = (commonAvailability) => {
+    const hoursPerDayOverlap = Object.keys(commonAvailability).map((day) => {
+            return convertUserFriendlyTimeSlotToLogical(...commonAvailability[day][0]).length
+        });
+
+    const hoursPerWeekOverlap = hoursPerDayOverlap.reduce((a,b) => a + b, 0)
+
+    return hoursPerWeekOverlap
 };
 
 export const determineNeededRoles = (startingMembers) => {
@@ -232,12 +272,10 @@ export const meetMinimumOverlappingHours = (existingMembers, users) => {
         })
 
         const sum = totalHoursOverlap.reduce((a, b) => a + b, 0)
-
-        const minimumHoursOverlapForATeam = 10;
         
-        // Potential teammates must have a minimum of 15 hours overlap
-        // TODO: Ask team what we think the minimum should be 
-        if (sum / 2 > minimumHoursOverlapForATeam) {
+        const totalDaysCommon = Object.keys(commonAvailability).length
+        if (sum / 2 > minimumHoursOverlapRequired && totalDaysCommon >= minumumDaysOverlapRequired) {
+            console.log(totalDaysCommon)
             // TODO: is this object shape the best?
             meetsMinimum.push({
                 commonHours: sum/2,
