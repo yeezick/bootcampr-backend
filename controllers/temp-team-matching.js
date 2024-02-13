@@ -12,7 +12,6 @@ const minumumDaysOverlapRequired = 3;
 const minimumHoursOverlapRequired = 8;
 
 // Open Questions:
-// - Should we prioritize "first in line" and sort by createdAt?
 // - What follow up logic do we also want to implement after a team is made and assigned to a project?
 //    * Schedule their first meeting?
 //    * Send out emails?
@@ -33,62 +32,84 @@ const minimumHoursOverlapRequired = 8;
 // - consider using separate offsets for each role?
 // - troubleshoot why some teams have lesss than 3 days in common
 
+
+
+/**
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * 
+ *  Currently users are fetched from the database incrementally. 
+ *  Follow up requests using count and offset can fetch more users if necessary.
+ * 
+ *  Users are also retrieved from the database with preference to earlier 'createdAt' value,
+ *      to prioritize users who have been waiting longer for a team.
+ *      There may be some drawbacks to this approach that we'll have to address, like stale users, etc.
+ * 
+ * 
+ * 
+ */
 export const generateTeam = async (req, res) => {
     try {
-        const count = Number(req.query.count) || 50;
-        const offset = Number(req.query.offset) || 0;
-        const newOffset = count + offset
-        const query = { count, offset, newOffset }
+        const query = setupQueryParams(req)
+        const { count, offset } = query
 
         const { startingMembersIds } = req.body;
-
         let startingMembers = await checkIfStartingMembersAreValid(startingMembersIds);
-        const neededRoles = determineNeededRoles(startingMembers);
 
-        let {
-            collectionOfSWE, 
-            collectionOfUX,
-            collectionOfPM 
-        } = await getCollectionsByRole(neededRoles, count, offset)
+        const neededRoles = determineNeededRoles(startingMembers);
+        let collectionsByRole = await getCollectionsByRole(neededRoles, count, offset)
 
         if (!startingMembers || startingMembers.length === 0) {
             startingMembers = findAndSetAStartingMember(
                 startingMembers, 
-                collectionOfSWE, 
-                collectionOfUX, 
-                collectionOfPM, 
+                collectionsByRole,
                 neededRoles
             )
         } else {
-            filterOutStartingMembersFromCollections(
+            collectionsByRole = filterOutStartingMembersFromCollections(
                 startingMembers, 
-                collectionOfSWE, 
-                collectionOfUX, 
-                collectionOfPM
+                collectionsByRole,
             )
         };
 
+        const { collectionOfSWE, collectionOfUX, collectionOfPM } = collectionsByRole
+
         // TODO: Test when too many swes are given and when no more swe match min
-        const newEngineers = getNeededMembersByRoleWithMostOverlap(neededRoles, startingMembers, collectionOfSWE, 'swe', query)
+        const newEngineers = getNeededMembersByRoleWithMostOverlap(
+            neededRoles, 
+            startingMembers, 
+            collectionOfSWE, 
+            'swe', 
+            query
+        );
         let finalTeam = [...startingMembers, ...newEngineers]
 
-        const newDesigners = getNeededMembersByRoleWithMostOverlap(neededRoles, finalTeam, collectionOfUX, 'ux', query)
+        const newDesigners = getNeededMembersByRoleWithMostOverlap(
+            neededRoles, 
+            finalTeam, 
+            collectionOfUX, 
+            'ux', 
+            query
+        );
         finalTeam.push(...newDesigners)
 
-        // condense?
-        const finalTeamUserIds = finalTeam.map((member) => member._id)
-        const finalTeamUserObjects = await User.find({"_id": {"$in": finalTeamUserIds}})
+        const finalTeamUserObjects = await getFinalTeamUserObjects(finalTeam);
 
         const commonAvailability = findCommonAvailability(finalTeamUserObjects)
 
         const project = new Project(await generateProject())
 
-        const dbDesigners = finalTeamUserObjects.filter((member) => member.role === 'UX Designer')
-        const dbEngineers = finalTeamUserObjects.filter((member) => member.role === 'Software Engineer')
+        const { 
+            dbEngineers, 
+            dbDesigners, 
+            dbProduct 
+        } = sortMembersByRole(finalTeamUserObjects)
 
+        // TODO: Set this up to allow for PMs too
         await fillProjectWithUsers(project, dbDesigners, dbEngineers);
 
-        // Note: There is a cost per calendar so we'll wait to immplement this with actual users
+        // Note: There is a calendar quota so we'll wait to immplement this with actual users
         // projects[0].calendarId = await addCalendarToProject(projects[0]._id);
         await project.save();
 
@@ -109,8 +130,38 @@ export const generateTeam = async (req, res) => {
     }
 };
 
+export const sortMembersByRole = (finalTeamUserObjects) => {
+    const dbDesigners = finalTeamUserObjects.filter((member) => member.role === 'UX Designer')
+    const dbEngineers = finalTeamUserObjects.filter((member) => member.role === 'Software Engineer')
+    const dbProduct = finalTeamUserObjects.filter((member) => member.role === 'Product Manager')
+
+    return {
+        dbDesigners,
+        dbEngineers,
+        dbProduct
+    }
+}
+
+export const getFinalTeamUserObjects = async (finalTeam) => {
+    const finalTeamUserIds = finalTeam.map((member) => member._id)
+    const finalTeamUserObjects = await User.find({"_id": {"$in": finalTeamUserIds}})
+
+    return finalTeamUserObjects
+};
+
+export const setupQueryParams = (req) => {
+    const count = Number(req.query.count) || 50;
+    const offset = Number(req.query.offset) || 0;
+
+    return {
+        count,
+        offset,
+        nextOffset: count + offset,
+    }
+}
+
 export const getNeededMembersByRoleWithMostOverlap = (neededRoles, startingMembers, collection, roleNickName, query) => {
-    const { count, offset, newOffset } = query;
+    const { count, offset, nextOffset } = query;
 
     const meetsMinOverlap = neededRoles[roleNickName] > 0
         ? meetMinimumOverlappingHours(startingMembers, collection)
@@ -118,7 +169,7 @@ export const getNeededMembersByRoleWithMostOverlap = (neededRoles, startingMembe
         : []
 
     if (meetsMinOverlap.length < neededRoles[roleNickName]) {
-        throw new Error(`None of set (count: ${count}, offset: ${offset}) of Software Engineers matches minumum availability. Try again with offset: ${newOffset}`)
+        throw new Error(`None of set (count: ${count}, offset: ${offset}) of Software Engineers matches minumum availability. Try again with offset: ${nextOffset}`)
     }
 
     return meetsMinOverlap.slice(0, neededRoles[roleNickName])
@@ -137,7 +188,10 @@ export const buildNewTeamResponse = (commonAvailability, finalTeamUserObjects) =
     }
 }
 
-export const findAndSetAStartingMember = (startingMembers, collectionOfSWE, collectionOfUX, collectionOfPM, neededRoles) => {
+export const findAndSetAStartingMember = (startingMembers, collectionsByRole,
+    // collectionOfSWE, collectionOfUX, collectionOfPM, 
+    neededRoles) => {
+        const { collectionOfSWE, collectionOfUX, collectionOfPM } = collectionsByRole
     if (collectionOfSWE) {
         startingMembers = [collectionOfSWE.shift()]
         neededRoles.swe -= 1
@@ -164,10 +218,13 @@ export const fetchUnassignedUsersByRole = async (role, count = 50, offset = 0) =
 
 export const filterOutStartingMembersFromCollections = (
     startingMembers, 
-    collectionOfSWE, 
-    collectionOfUX, 
-    collectionOfPM
+    collectionsByRole
+    // collectionOfSWE, 
+    // collectionOfUX, 
+    // collectionOfPM
 ) => {
+
+    let { collectionOfSWE, collectionOfUX, collectionOfPM } = collectionsByRole
     startingMembers.forEach((member) => {
         switch (member.role) {
             case 'Software Engineer':
@@ -185,6 +242,12 @@ export const filterOutStartingMembersFromCollections = (
                 break;
         }
     })
+
+    return {
+        collectionOfSWE,
+        collectionOfUX,
+        collectionOfPM
+    }
 }
 
 export const getCollectionsByRole = async (neededRoles, count, offset) => {
