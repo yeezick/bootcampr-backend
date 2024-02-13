@@ -27,14 +27,12 @@ const Project = new Schema(
       completed: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
     },
     completedInfo: {
-      participatingMembers: [
-        {
-          user: { type: Schema.Types.ObjectId, ref: 'User' },
-          decision: { type: String, enum: ['Participate', "Don't participate"] },
-        },
-      ],
+      presenting: {
+        type: Boolean,
+        default: null,
+      },
       deployedUrl: {
-        type: Schema.Types.Mixed,
+        type: String,
       },
     },
   },

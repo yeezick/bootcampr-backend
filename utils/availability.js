@@ -1,80 +1,116 @@
 import { randomIndex } from './seed/utils/helpers.js'
-import { startTimeOptions } from "./data/defaults/availability.js"
-
-// Returns an availability array for a single day
-export const generateRandomSingleDayAvailability = () => {
-    const availability = []
-    startTimeOptions
-        .forEach((timeslot, idx) => {
-            randomIndex(6) === 1 &&
-            availability.push([timeslot, startTimeOptions[idx+1]])
-    })
-    return availability
-};
-
-// Samples users for testing and demo:
-export const mockUsers = ['becca', 'logan', 'tommy', 'clara', 'charles'].map((user) => {
-    return {
-        id: user,
-        availability: generateRandomSingleDayAvailability(),
-    }
-});
-
+import { commonAvailableTimeslots, userFriendlyTimes } from './data/defaults/availability.js'
 
 /**
- * Find Common Availability for a Set of Team Members for a Single Day
-
- * @param {Array<objects>} membersAvailabilities - final structure tbd, currently demo-mode
- *  id -> some identifier of user / member
- *  availability -> the availability object for a user for a single day
- * @returns {Object} keys = timeslots, values = array of users
- *  
- *   {
- *      '7:00 AM: ['tommy', 'logan', 'clara'],
- *      '12:30 PM': ['tommy'],
- *      '5:00 PM': ['becca', 'logan', 'tommy' 'clara'],
- *   }
+ * Uses realistic time slot options to generate random availability for a single day
  */
-
-// final structure tbd, but this demo accepts a single member availability as
-// availability -> the availability object for a user for a single day
-
-const findCommonAvailability = (membersAvailabilities) => {
-    const commonAvailability = {}
-    startTimeOptions.forEach((timeslot) => {
-        membersAvailabilities.forEach((member) => {
-            if (member.availability[timeslot] === 'yes') {
-                commonAvailability[timeslot] 
-                    ? commonAvailability[timeslot].push(member.id) 
-                    : commonAvailability[timeslot] = [member.id]
-            }
-        })
-    })
-    return commonAvailability
-};
-
-// const commonAvailability = findCommonAvailability(users)
-
-// Takes in common availability, and a desired number of available members
-// For a team of 5 members, 5 would be the ideal number
-// Use case would be iterating starting with best case availability, aka 5
-// then decrementing down to 4, 3, 2 members etc.
-// Rework TBD on frontend usage / need
-const findBestAvailability = (availabilities, numberOfMembers) => {
-    const bestTimes = {}
-    Object.keys(availabilities).forEach(time => {
-        if (availabilities[time].length >= numberOfMembers ) {
-            bestTimes[time] = availabilities[time]
-        }
-    })
-    return bestTimes
+export const generateRealisticSingleDayAvailability = () => {
+    return [commonAvailableTimeslots[randomIndex(commonAvailableTimeslots.length)]]
 }
 
-// console.log('Checking common availability for 5 team members...')
-// const bestAvailability = findBestAvailability(commonAvailability, 5)
-// Object.keys(bestAvailability).forEach(timeslot => {
-//     console.log(`At ${timeslot}, the following ${bestAvailability[timeslot].length} members are available: ${bestAvailability[timeslot].join(' ')}`)
-// });
+/**
+ * Convert User Friendly time slot to Logical Availability
+ */
+export const convertUserFriendlyTimeSlotToLogical = (startTime, endTime)=> {
+    const startIndex = userFriendlyTimes.indexOf(startTime)
+    const endIndex = userFriendlyTimes.indexOf(endTime)
+    let logicalArray = []
 
+    for (let i = startIndex; i < endIndex; i++) {
+        logicalArray.push(i)
+    }
+    return logicalArray
+}
 
+/**
+ * Convert Logical Availabilty to User Friendly
+ */
+const convertLogicalToUserFriendly = (logical) => {
+    let userFriendly = [userFriendlyTimes[logical[0]]]
 
+    for (let i = 1; i < logical.length; i++) {
+        if (logical[i] - logical[i - 1] === 1) {
+            if (i === logical.length - 1) {
+                userFriendly.push(userFriendlyTimes[logical[i] + 1])
+            }
+        } else {
+            const indexBefore = logical[i - 1]
+
+            userFriendly.push(userFriendlyTimes[indexBefore + 1])
+            userFriendly.push(userFriendlyTimes[logical[i]])
+
+            if (i === logical.length - 1) {
+                userFriendly.push(userFriendlyTimes[logical[i] + 1])
+            }
+        }
+    }
+    const convertedUserFriendly = []
+
+    for (let i = 0; i < userFriendly.length; i += 2) {
+        convertedUserFriendly.push([userFriendly[i], userFriendly[i + 1]])
+    }
+
+    return convertedUserFriendly
+}
+
+/**
+ * Takes in an array of users, returns an availability object of a the common availabilty for given users
+ */
+
+export const findCommonAvailability = (members) => {
+    const commonAvailability = {};
+
+    const logicalAvails = members.map((member) => {
+        const logicalAvail = {}
+
+        weekdays.forEach((weekday) => {
+            const memberDayAvail = member.availability[weekday].availability;
+            const wholeDay = [];
+
+            memberDayAvail.forEach((timeslot) => {
+                if (timeslot) {
+                    const logicalSlot = convertUserFriendlyTimeSlotToLogical(...timeslot)
+                    wholeDay.push(...logicalSlot)
+                }
+            logicalAvail[weekday] = wholeDay
+            })
+        })
+
+        return logicalAvail
+    })
+
+    const logicalCommonAvailability = {};
+
+    weekdays.forEach((day) => {
+        let sharedDayAvail = [];
+
+        for (let i = 0; i < userFriendlyTimes.length; i++) {
+            if (allMembersAvailable(logicalAvails, day, i)) {
+                sharedDayAvail.push(i)
+            }
+        }
+
+        logicalCommonAvailability[day] = sharedDayAvail
+    })
+
+    weekdays.forEach((day) => {
+        const converted = convertLogicalToUserFriendly(logicalCommonAvailability[day])
+        if (converted[0][0]) { 
+            commonAvailability[day] = converted 
+        }
+    })
+
+    return commonAvailability
+}
+
+const allMembersAvailable = (avail, day, i) => {
+    let allAvail = true;
+
+    avail.forEach(member => {
+        if (!member[day] || !member[day].includes(i)) {
+            allAvail = false
+        }
+    })
+
+    return allAvail
+}
