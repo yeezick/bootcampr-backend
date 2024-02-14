@@ -40,8 +40,10 @@ export const generateProject = async (project = defaultProject) => {
 export const fillProjectWithUsers = async (project, designers, engineers, productManagers) => {
   project.members.engineers = getIds(engineers);
   project.members.designers = getIds(designers);
-  project.members.productManagers = getIds(productManagers)
+  project.members.productManagers = getIds(productManagers);
+
   const users = [...designers, ...engineers, ...productManagers];
+
   users.forEach(async (user) => {
     user.project = project._id;
   });

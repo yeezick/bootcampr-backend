@@ -6,7 +6,7 @@ import { fillProjectWithUsers } from '../utils/seed/utils/projects.js';
 
 const sweRequired = 3;
 const uxRequired = 2;
-const productRequired = 0; // Update when we implement 'Product Manager' role
+const pmRequired = 1; // Update when we implement 'Product Manager' role
 
 const minumumDaysOverlapRequired = 3;
 const minimumHoursOverlapRequired = 8;
@@ -15,6 +15,7 @@ const minimumHoursOverlapRequired = 8;
 // - What follow up logic do we also want to implement after a team is made and assigned to a project?
 //    * Schedule their first meeting?
 //    * Send out emails?
+//    * Set up their group chat / Send out intital bot messaging?
 
 
 // TODO:
@@ -51,10 +52,7 @@ const minimumHoursOverlapRequired = 8;
 export const generateTeam = async (req, res) => {
     try {
         const query = setupQueryParams(req)
-        const { 
-            count, 
-            offset 
-        } = query
+        const { count, offset } = query
 
         const { startingMembersIds } = req.body;
         let startingMembers = await checkIfStartingMembersAreValid(startingMembersIds);
@@ -97,6 +95,16 @@ export const generateTeam = async (req, res) => {
 
         finalTeam.push(...newDesigners)
 
+        const newProductManagers = getNeededMembersByRoleWithMostOverlap(
+            neededRoles,
+            finalTeam,
+            collectionOfPM,
+            'pm',
+            query
+        );
+
+        finalTeam.push(...newProductManagers)
+
         const finalTeamUserObjects = await getFinalTeamUserObjects(finalTeam);
         const commonAvailability = findCommonAvailability(finalTeamUserObjects)
         const project = new Project(await generateProject())
@@ -108,7 +116,7 @@ export const generateTeam = async (req, res) => {
         } = sortMembersByRole(finalTeamUserObjects)
 
         // TODO: Set this up to allow for PMs too
-        await fillProjectWithUsers(project, dbDesigners, dbEngineers);
+        await fillProjectWithUsers(project, dbDesigners, dbEngineers, dbProduct);
 
         // Note: There is a calendar quota so we'll wait to immplement this with actual users
         // projects[0].calendarId = await addCalendarToProject(projects[0]._id);
@@ -278,7 +286,7 @@ export const determineNeededRoles = (startingMembers) => {
     const members = {
         swe: [],
         ux: [],
-        product: [],
+        pm: [],
     };
 
     startingMembers && startingMembers.forEach((member) => {
@@ -294,7 +302,7 @@ export const determineNeededRoles = (startingMembers) => {
                 members.ux.push(member)
                 break;
             case 'Product Manager':
-                members.product.push(member)
+                members.pm.push(member)
                 break;
             default:
                 console.log('Unexpected role provided')
@@ -304,7 +312,7 @@ export const determineNeededRoles = (startingMembers) => {
     const neededRoles = {
         swe: sweRequired - members.swe.length,
         ux: uxRequired - members.ux.length,
-        product: productRequired - members.product.length
+        pm: pmRequired - members.pm.length
     };
 
     let errorMessage;
@@ -312,8 +320,8 @@ export const determineNeededRoles = (startingMembers) => {
         errorMessage = `Only ${sweRequired} Software Engineers are allowed per team.`
     } else if (neededRoles.ux < 0) {
         errorMessage = `Only ${uxRequired} UX Designers are allowed per team.`
-    } else if (neededRoles.product < 0) {
-        errorMessage = `Only ${productRequired} Product Managers are allowed per team.`
+    } else if (neededRoles.pm < 0) {
+        errorMessage = `Only ${pmRequired} Product Managers are allowed per team.`
     };
 
     // TODO: update the error and message field (and status code) of this error
@@ -357,8 +365,6 @@ export const meetMinimumOverlappingHours = (existingMembers, users) => {
         
         const totalDaysCommon = Object.keys(commonAvailability).length
         if (sum / 2 > minimumHoursOverlapRequired && totalDaysCommon >= minumumDaysOverlapRequired) {
-            console.log(totalDaysCommon)
-            // TODO: is this object shape the best?
             meetsMinimum.push({
                 commonHours: sum/2,
                 name: `${user.firstName} ${user.lastName}`,
@@ -379,3 +385,7 @@ export const getTotalEngineerCount = async () => {
 export const getTotalDesignerCount = async () => {
     return await User.count({role: 'UX Designer'})
 };
+
+export const getTotalProductCount = async () => {
+    return await User.count({role: 'Product Manager'})
+}
