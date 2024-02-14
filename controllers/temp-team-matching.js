@@ -52,7 +52,10 @@ const minimumHoursOverlapRequired = 8;
 export const generateTeam = async (req, res) => {
     try {
         const query = setupQueryParams(req)
-        const { count, offset } = query
+        const { 
+            count, 
+            offset 
+        } = query
 
         const { startingMembersIds } = req.body;
         let startingMembers = await checkIfStartingMembersAreValid(startingMembersIds);
@@ -83,6 +86,7 @@ export const generateTeam = async (req, res) => {
             'swe', 
             query
         );
+
         let finalTeam = [...startingMembers, ...newEngineers]
 
         const newDesigners = getNeededMembersByRoleWithMostOverlap(
@@ -92,12 +96,11 @@ export const generateTeam = async (req, res) => {
             'ux', 
             query
         );
+
         finalTeam.push(...newDesigners)
 
         const finalTeamUserObjects = await getFinalTeamUserObjects(finalTeam);
-
         const commonAvailability = findCommonAvailability(finalTeamUserObjects)
-
         const project = new Project(await generateProject())
 
         const { 
@@ -140,7 +143,7 @@ export const sortMembersByRole = (finalTeamUserObjects) => {
         dbEngineers,
         dbProduct
     }
-}
+};
 
 export const getFinalTeamUserObjects = async (finalTeam) => {
     const finalTeamUserIds = finalTeam.map((member) => member._id)
