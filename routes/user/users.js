@@ -10,7 +10,7 @@ import {
   getOneUserByEmail,
 } from '../../controllers/user/users.js';
 import { getEmailPreferences, updateEmailPreferences } from '../../controllers/user/communications.js';
-import { generateTeam } from '../../controllers/temp-team-matching.js';
+import { generateTeam } from '../../controllers/team-matching.js';
 
 //middleware
 const storage = multer.memoryStorage();

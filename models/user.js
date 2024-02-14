@@ -69,7 +69,7 @@ const User = new Schema(
     defaultProfilePicture: { type: String },
     hasProfilePicture: { type: Boolean },
     project: { type: Schema.Types.ObjectId, ref: 'Project' },
-    role: { type: String, enum: ['Software Engineer', 'UX Designer'] },
+    role: { type: String, enum: ['Software Engineer', 'UX Designer', 'Product Manager'] },
     timezone: { type: String },
     unreadMessages: { type: Map, of: Boolean, default: {} },
     verified: { type: Boolean, default: false },
