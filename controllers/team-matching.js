@@ -18,10 +18,10 @@ const minimumHoursOverlapRequired = 8;
 
 
 // TODO:
-// - Similarly, if the whole DB was exhausted and no team was found, return an appropriate error
-// - Cleanly and smartly abstract logic blocks into helper functions with very clear names and definitions
+// - If the whole DB was exhausted and no team was found, return an appropriate error
+// - Cleanly abstract logic blocks into helper functions with very clear names and definitions
 // - Set up to handle product managers as well
-// - Export util functions to external file
+// - Export util functions to external file?
 // - Pass the full user object in the meets minimum (with commonHours) so we don't need to call the DB again
 // - Only return useful info from large DB calls (fetch 50 swe/ux) (availability, role, id, project)
 // - Try populate and troubleshoot if its still not working
@@ -29,9 +29,8 @@ const minimumHoursOverlapRequired = 8;
 // - Make this work when Product Manager = 0, or 1
 // - Make all of the repeated role work reusable
 // - Sometimes 'available' is true and availability is null... - fix
-// - consider using separate offsets for each role?
-// - troubleshoot why some teams have lesss than 3 days in common
-
+// - Consider using separate offset query params for each role?
+// - Troubleshoot why some teams are still created with less than 3 days in common
 
 
 /**
@@ -78,7 +77,6 @@ export const generateTeam = async (req, res) => {
 
         const { collectionOfSWE, collectionOfUX, collectionOfPM } = collectionsByRole
 
-        // TODO: Test when too many swes are given and when no more swe match min
         const newEngineers = getNeededMembersByRoleWithMostOverlap(
             neededRoles, 
             startingMembers, 
@@ -161,7 +159,7 @@ export const setupQueryParams = (req) => {
         offset,
         nextOffset: count + offset,
     }
-}
+};
 
 export const getNeededMembersByRoleWithMostOverlap = (neededRoles, startingMembers, collection, roleNickName, query) => {
     const { count, offset, nextOffset } = query;
@@ -176,7 +174,7 @@ export const getNeededMembersByRoleWithMostOverlap = (neededRoles, startingMembe
     }
 
     return meetsMinOverlap.slice(0, neededRoles[roleNickName])
-}
+};
 
 // TODO: Determine if this is the best response
 // Also is 201 appropriate? If not, whats the best response code?
@@ -191,10 +189,13 @@ export const buildNewTeamResponse = (commonAvailability, finalTeamUserObjects) =
     }
 }
 
-export const findAndSetAStartingMember = (startingMembers, collectionsByRole,
-    // collectionOfSWE, collectionOfUX, collectionOfPM, 
-    neededRoles) => {
-        const { collectionOfSWE, collectionOfUX, collectionOfPM } = collectionsByRole
+export const findAndSetAStartingMember = (
+    startingMembers, 
+    collectionsByRole,
+    neededRoles
+) => {
+    const { collectionOfSWE, collectionOfUX, collectionOfPM } = collectionsByRole
+
     if (collectionOfSWE) {
         startingMembers = [collectionOfSWE.shift()]
         neededRoles.swe -= 1
@@ -222,11 +223,7 @@ export const fetchUnassignedUsersByRole = async (role, count = 50, offset = 0) =
 export const filterOutStartingMembersFromCollections = (
     startingMembers, 
     collectionsByRole
-    // collectionOfSWE, 
-    // collectionOfUX, 
-    // collectionOfPM
 ) => {
-
     let { collectionOfSWE, collectionOfUX, collectionOfPM } = collectionsByRole
     startingMembers.forEach((member) => {
         switch (member.role) {
@@ -251,7 +248,7 @@ export const filterOutStartingMembersFromCollections = (
         collectionOfUX,
         collectionOfPM
     }
-}
+};
 
 export const getCollectionsByRole = async (neededRoles, count, offset) => {
 
@@ -341,7 +338,7 @@ export const checkIfStartingMembersAreValid = async (memberIds) => {
     })
 
     return startingMembers
-}
+};
 
 export const meetMinimumOverlappingHours = (existingMembers, users) => {
     const meetsMinimum = [];
