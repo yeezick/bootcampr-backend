@@ -8,8 +8,7 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "dev:local": "MONGODB_ENV=local nodemon server.js",
-    "db:seed": "node utils/seed/seedDatabase.js",
-    "match:teams": "node scripts/match-teams.js"
+    "db:seed": "node utils/seed/seedDatabase.js"
   },
   "repository": {
     "type": "git",
