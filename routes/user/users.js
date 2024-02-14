@@ -33,7 +33,7 @@ router.delete('/users/:id/deleteImage', deleteImageFromS3Bucket);
 router.get('/users/:userId/emailPreferences', getEmailPreferences);
 router.post('/users/:userId/updateEmailPreferences', updateEmailPreferences);
 
-// TEMP spot for team matching
-router.get('/generate-team', generateTeam)
+// Generate Team
+router.post('/generate-team', generateTeam)
 
 export default router;
