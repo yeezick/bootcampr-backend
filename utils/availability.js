@@ -58,19 +58,13 @@ const convertLogicalToUserFriendly = (logical) => {
  */
 
 export const findCommonAvailability = (members) => {
-    // console.log(members)
     const commonAvailability = {};
 
     const logicalAvails = members.map((member) => {
-        // console.log('member availability')
-        // console.log(member.availability['SUN'])
         const logicalAvail = {}
 
         weekdays.forEach((weekday) => {
-            // console.log(member.availability)
-            // console.log('member')
-            // console.log(member)
-            const memberDayAvail = member.availability[weekday] ? member.availability[weekday].availability : []
+            const memberDayAvail = member.availability[weekday].availability;
             const wholeDay = [];
 
             memberDayAvail.forEach((timeslot) => {
