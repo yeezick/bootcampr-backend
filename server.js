@@ -42,7 +42,7 @@ app.use(routes);
 
 io.on('connection', (socket) => {
   socket.on('disconnect', () => {
-    console.log('User left.');
+    console.log(`User disconnected: ${socket.id}`);
   });
 
   socket.on('setUserId', async (userId) => {
@@ -55,10 +55,10 @@ io.on('connection', (socket) => {
         console.log(`No user with id ${userId}`);
       }
     }
-    // PushNotifications.watch().on('change', async () => {
-    //   const notifications = await PushNotifications.find({ user: userId, read: false }).lean();
-    //   socket?.emit('notificationsLength', notifications.length || 0);
-    // });
+  });
+
+  socket.on('reconnect', () => {
+    console.log(`User reconnected: ${socket.id}`);
   });
 
   socket.on('join-conversation', (data) => {
