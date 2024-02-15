@@ -11,14 +11,15 @@ const getChatBot = async () => {
 export const fetchChatBot = async () => {
   const chatBot = await getChatBot();
   chatBotId = chatBot._id;
+  return chatBotId;
 };
 
-const getChatBotMessageTemplate = (messageKey, userId) => {
+const getChatBotMessageTemplate = (messageKey, userName) => {
   const messages = {
-    welcome: 'Welcome to Bootcampr everyone!',
     iceBreaker: "Let's get to know each other first. Type in your name and whether you like to put pineapple on pizza.",
-    joinedChat: `${userId} joined the chat.`,
-    leftChat: `${userId} left the chat.`,
+    userJoinedChat: `${userName} joined the chat.`,
+    userLeftChat: `${userName} left the chat.`,
+    welcome: 'Welcome to Bootcampr everyone!',
   };
   return messages[messageKey];
 };
