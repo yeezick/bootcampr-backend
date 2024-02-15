@@ -16,9 +16,9 @@ const reSeedDatabase = async () => {
   await axios.delete(`http://localhost:8001/calendar/deleteAllCalendars`);
 
   // Generate set of Users
-  const designers = await generateFakeUsers(100, 'UX Designer');
-  const engineers = await generateFakeUsers(150, 'Software Engineer');
-  const productManagers = await generateFakeUsers(50, 'Product Manager')
+  const designers = await generateFakeUsers(200, 'UX Designer');
+  const engineers = await generateFakeUsers(250, 'Software Engineer');
+  const productManagers = await generateFakeUsers(150, 'Product Manager')
   const users = [...designers, ...engineers, ...productManagers];
 
   // Generate x number of Projects

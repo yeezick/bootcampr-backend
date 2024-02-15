@@ -1,15 +1,19 @@
-import User from '../models/user.js';
 import Project from '../models/project.js'
-import { convertUserFriendlyTimeSlotToLogical, findCommonAvailability } from '../utils/availability.js';
-import { generateProject } from '../utils/seed/utils/projects.js';
-import { fillProjectWithUsers } from '../utils/seed/utils/projects.js';
+import { findCommonAvailability } from '../utils/availability.js';
+import { generateProject, fillProjectWithUsers } from '../utils/seed/utils/projects.js';
+import { 
+    sortMembersByRole, 
+    getFinalTeamUserObjects, 
+    setupQueryParams, 
+    getNeededMembersByRoleWithMostOverlap, 
+    buildNewTeamResponse, 
+    findAndSetAStartingMember, 
+    filterOutStartingMembersFromCollections, 
+    getCollectionsByRole, 
+    determineNeededRoles, 
+    checkIfStartingMembersAreValid
+} from '../utils/helpers/team-matching-helpers.js';
 
-const sweRequired = 3;
-const uxRequired = 2;
-const pmRequired = 1; // Update when we implement 'Product Manager' role
-
-const minumumDaysOverlapRequired = 3;
-const minimumHoursOverlapRequired = 8;
 
 // Open Questions:
 // - What follow up logic do we also want to implement after a team is made and assigned to a project?
@@ -19,10 +23,7 @@ const minimumHoursOverlapRequired = 8;
 
 
 // TODO:
-// - If the whole DB was exhausted and no team was found, return an appropriate error
-// - Cleanly abstract logic blocks into helper functions with very clear names and definitions
-// - Set up to handle product managers as well
-// - Export util functions to external file?
+// - Clearly define helper functions
 // - Pass the full user object in the meets minimum (with commonHours) so we don't need to call the DB again
 // - Only return useful info from large DB calls (fetch 50 swe/ux) (availability, role, id, project)
 // - Try populate and troubleshoot if its still not working
@@ -75,31 +76,34 @@ export const generateTeam = async (req, res) => {
 
         const { collectionOfSWE, collectionOfUX, collectionOfPM } = collectionsByRole
 
-        const newEngineers = getNeededMembersByRoleWithMostOverlap(
+        const newEngineers = await getNeededMembersByRoleWithMostOverlap(
             neededRoles, 
             startingMembers, 
             collectionOfSWE, 
             'swe', 
+            'Software Engineer',
             query
         );
 
         let finalTeam = [...startingMembers, ...newEngineers]
 
-        const newDesigners = getNeededMembersByRoleWithMostOverlap(
+        const newDesigners = await getNeededMembersByRoleWithMostOverlap(
             neededRoles, 
             finalTeam, 
             collectionOfUX, 
-            'ux', 
+            'ux',
+            'UX Designer',
             query
         );
 
         finalTeam.push(...newDesigners)
 
-        const newProductManagers = getNeededMembersByRoleWithMostOverlap(
+        const newProductManagers = await getNeededMembersByRoleWithMostOverlap(
             neededRoles,
             finalTeam,
             collectionOfPM,
             'pm',
+            'Product Manager',
             query
         );
 
@@ -138,254 +142,3 @@ export const generateTeam = async (req, res) => {
         });
     }
 };
-
-export const sortMembersByRole = (finalTeamUserObjects) => {
-    const dbDesigners = finalTeamUserObjects.filter((member) => member.role === 'UX Designer')
-    const dbEngineers = finalTeamUserObjects.filter((member) => member.role === 'Software Engineer')
-    const dbProduct = finalTeamUserObjects.filter((member) => member.role === 'Product Manager')
-
-    return {
-        dbDesigners,
-        dbEngineers,
-        dbProduct
-    }
-};
-
-export const getFinalTeamUserObjects = async (finalTeam) => {
-    const finalTeamUserIds = finalTeam.map((member) => member._id)
-    const finalTeamUserObjects = await User.find({"_id": {"$in": finalTeamUserIds}})
-
-    return finalTeamUserObjects
-};
-
-export const setupQueryParams = (req) => {
-    const count = Number(req.query.count) || 50;
-    const offset = Number(req.query.offset) || 0;
-
-    return {
-        count,
-        offset,
-        nextOffset: count + offset,
-    }
-};
-
-export const getNeededMembersByRoleWithMostOverlap = (neededRoles, startingMembers, collection, roleNickName, query) => {
-    const { count, offset, nextOffset } = query;
-
-    const meetsMinOverlap = neededRoles[roleNickName] > 0
-        ? meetMinimumOverlappingHours(startingMembers, collection)
-            .sort((a,b) => b.commonHours - a.commonHours)
-        : []
-
-    if (meetsMinOverlap.length < neededRoles[roleNickName]) {
-        throw new Error(`None of set (count: ${count}, offset: ${offset}) of Software Engineers matches minumum availability. Try again with offset: ${nextOffset}`)
-    }
-
-    return meetsMinOverlap.slice(0, neededRoles[roleNickName])
-};
-
-// TODO: Determine if this is the best response
-// Also is 201 appropriate? If not, whats the best response code?
-export const buildNewTeamResponse = (commonAvailability, finalTeamUserObjects) => {
-    const totalCommonHours = getTeamCommonHoursTotal(commonAvailability)
-    const team = finalTeamUserObjects.map((member) => `${member.firstName} ${member.lastName}: ${member.role}`)
-
-    return {
-        team,
-        totalCommonHours,
-        commonAvailability
-    }
-}
-
-export const findAndSetAStartingMember = (
-    startingMembers, 
-    collectionsByRole,
-    neededRoles
-) => {
-    const { collectionOfSWE, collectionOfUX, collectionOfPM } = collectionsByRole
-
-    if (collectionOfSWE) {
-        startingMembers = [collectionOfSWE.shift()]
-        neededRoles.swe -= 1
-    } else if (collectionOfUX) {
-        startingMembers = [collectionOfUX.shift()]
-        neededRoles.ux -= 1
-    } else if (collectionOfPM) {
-        startingMembers = [collectionOfPM.shift()]
-        neededRoles.product -= 1
-    } else {
-        throw new Error('There was an issue creating a new team. Please try again.')
-    }
-
-    return startingMembers;
-}
-
-export const fetchUnassignedUsersByRole = async (role, count = 50, offset = 0) => {
-    return await User
-        .find({role, project: null})
-        .sort({"createdAt": 1})
-        .skip(offset)
-        .limit(count)
-};
-
-export const filterOutStartingMembersFromCollections = (
-    startingMembers, 
-    collectionsByRole
-) => {
-    let { collectionOfSWE, collectionOfUX, collectionOfPM } = collectionsByRole
-    startingMembers.forEach((member) => {
-        switch (member.role) {
-            case 'Software Engineer':
-                collectionOfSWE = collectionOfSWE
-                    .filter((user) => String(user._id) !== String(member._id)
-                )
-                break;
-            case 'UX Designer':
-                collectionOfUX = collectionOfUX
-                    .filter((user) => String(user._id) !== String(member._id))
-                break;
-            case 'Product Manager':
-                collectionOfPM = collectionOfPM
-                    .filter((user) => String(user._id) !== String(member._id))
-                break;
-        }
-    })
-
-    return {
-        collectionOfSWE,
-        collectionOfUX,
-        collectionOfPM
-    }
-};
-
-export const getCollectionsByRole = async (neededRoles, count, offset) => {
-
-    const swe = neededRoles.swe > 0 && await fetchUnassignedUsersByRole('Software Engineer', count, offset)
-    const ux = neededRoles.ux > 0 && await fetchUnassignedUsersByRole('UX Designer', count, offset)
-    const pm = neededRoles.pm > 0 && await fetchUnassignedUsersByRole('Product Manager', count, offset)
-
-    return {
-        collectionOfSWE: swe,
-        collectionOfUX: ux,
-        collectionOfPM: pm,
-    }
-};
-
-export const getTeamCommonHoursTotal = (commonAvailability) => {
-    const hoursPerDayOverlap = Object.keys(commonAvailability).map((day) => {
-            return convertUserFriendlyTimeSlotToLogical(...commonAvailability[day][0]).length
-        });
-
-    const hoursPerWeekOverlap = hoursPerDayOverlap.reduce((a,b) => a + b, 0)
-
-    return hoursPerWeekOverlap
-};
-
-export const determineNeededRoles = (startingMembers) => {
-
-    const members = {
-        swe: [],
-        ux: [],
-        pm: [],
-    };
-
-    startingMembers && startingMembers.forEach((member) => {
-        if (member.project) {
-            throw new Error(`User ${member._id} is already assigned to project ${member.project}`)
-        };
-
-        switch (member.role) {
-            case 'Software Engineer':
-                members.swe.push(member)
-                break;
-            case 'UX Designer':
-                members.ux.push(member)
-                break;
-            case 'Product Manager':
-                members.pm.push(member)
-                break;
-            default:
-                console.log('Unexpected role provided')
-        }
-    })
-
-    const neededRoles = {
-        swe: sweRequired - members.swe.length,
-        ux: uxRequired - members.ux.length,
-        pm: pmRequired - members.pm.length
-    };
-
-    let errorMessage;
-    if (neededRoles.swe < 0) {
-        errorMessage = `Only ${sweRequired} Software Engineers are allowed per team.`
-    } else if (neededRoles.ux < 0) {
-        errorMessage = `Only ${uxRequired} UX Designers are allowed per team.`
-    } else if (neededRoles.pm < 0) {
-        errorMessage = `Only ${pmRequired} Product Managers are allowed per team.`
-    };
-
-    // TODO: update the error and message field (and status code) of this error
-    if (errorMessage) { throw new Error(errorMessage) }
-
-    return neededRoles
-};
-
-/**
- *  Checks that each user:
- *      1. exists in database
- *      2. is not already assigned a project
- * @param {*} memberIds - an array of valid user ids
- */
-export const checkIfStartingMembersAreValid = async (memberIds) => {
-    const startingMembers = await User.find({"_id": {"$in": memberIds}})
-
-    startingMembers.forEach((member) => {
-        if (member.project) {
-            return new Error(`User ${member._id} is already assigned to preojct ${member.project}`)
-        }
-    })
-
-    return startingMembers
-};
-
-export const meetMinimumOverlappingHours = (existingMembers, users) => {
-    const meetsMinimum = [];
-
-    users.forEach((user) => {
-        const commonAvailability = findCommonAvailability([...existingMembers, user])
-
-        // Make function to get total hours of common availabilty
-        const totalHoursOverlap = Object.keys(commonAvailability).map((day) => {
-            const logical = convertUserFriendlyTimeSlotToLogical(...commonAvailability[day][0])
-
-            return logical.length
-        })
-
-        const sum = totalHoursOverlap.reduce((a, b) => a + b, 0)
-        
-        const totalDaysCommon = Object.keys(commonAvailability).length
-        if (sum / 2 > minimumHoursOverlapRequired && totalDaysCommon >= minumumDaysOverlapRequired) {
-            meetsMinimum.push({
-                commonHours: sum/2,
-                name: `${user.firstName} ${user.lastName}`,
-                _id: user._id,
-                availability: user.availability,
-                role: user.role
-            })
-        }
-    });
-
-    return meetsMinimum
-};
-
-export const getTotalEngineerCount = async () => {
-    return await User.count({role: 'Software Engineer'})
-};
-
-export const getTotalDesignerCount = async () => {
-    return await User.count({role: 'UX Designer'})
-};
-
-export const getTotalProductCount = async () => {
-    return await User.count({role: 'Product Manager'})
-}
