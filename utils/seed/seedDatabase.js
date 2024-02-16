@@ -112,6 +112,7 @@ export const addStaticSeedData = async (projects, users) => {
     staticProject, 
     staticUX, 
     staticSWE, 
+    // TODO: Uncomment when frontend is set up to handle product managers
     // staticPM
   );
 

@@ -1,6 +1,9 @@
 import { defaultProject } from '../../data/mocks/projects.js';
 import { getIds } from './users.js';
 import axios from 'axios';
+
+  // TODO: Uncomment commented-out product manager code when frontend is set up to handle product managers
+
 /**
  * Generate Project
  * @param {Object} project custom options including: title, goal, problem, startDate and duration
@@ -41,11 +44,13 @@ export const generateProject = async (project = defaultProject) => {
 export const fillProjectWithUsers = async (project, designers, engineers, productManagers) => {
   project.members.engineers = getIds(engineers);
   project.members.designers = getIds(designers);
+  // TODO: Uncomment when frontend is set up to handle product managers
   // project.members.productManagers = getIds(productManagers);
 
   const users = [
     ...designers, 
     ...engineers, 
+    // TODO: Uncomment when frontend is set up to handle product managers
     // ...productManagers
   ];
 
