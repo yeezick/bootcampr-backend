@@ -11,9 +11,9 @@ const Project = new Schema(
     members: {
       engineers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
       designers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+      productManagers: [{ type: Schema.Types.ObjectId, ref: 'User' }]
     },
     problem: { type: String, required: true },
-    // Since each tasks holds 'status' info, is it really needed here as well?
     timeline: {
       startDate: { type: String },
       endDate: { type: String },

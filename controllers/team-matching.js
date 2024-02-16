@@ -23,13 +23,6 @@ import {
 
 // TODO:
 // - Clearly define helper functions
-// - Troubleshoot why some teams are still created with less than 3 days in common
-// - Update error messaging
-
-// EXTRA CREDIT:
-// - Sometimes 'available' is true and availability is null... - fix
-// - Consider using separate offset query params for each role?
-
 
 /**
  * 
@@ -42,6 +35,10 @@ import {
  *  Users are also retrieved from the database with preference to earlier 'createdAt' value,
  *      to prioritize users who have been waiting longer for a team.
  *      There may be some drawbacks to this approach that we'll have to address, like stale users, etc.
+ *      Can circle back to this approach, and add/change handling if needed
+ * 
+ *  Once a team is found with minimum required overlapping availability for each role,
+ *      a project is generated with the users and the project is save to each user instance
  */
 export const generateTeam = async (req, res) => {
     try {
@@ -113,7 +110,7 @@ export const generateTeam = async (req, res) => {
 
         await fillProjectWithUsers(project, dbDesigners, dbEngineers, dbProduct);
 
-        const response = buildNewTeamResponse(commonAvailability, finalTeam)
+        const response = buildNewTeamResponse(commonAvailability, finalTeam, project)
 
         const daysInCommon = Object.keys(response.commonAvailability).length;
 
@@ -129,12 +126,12 @@ export const generateTeam = async (req, res) => {
             await user.save();
         };
 
-        res.status(200).json(response);
+        res.status(201).json(response);
     } catch (error) {
         console.error(error);
+
         res.status(500).json({
-            // Update this messaging
-            message: 'Error occurred while fetching users.',
+            message: 'Error ocurred while attempting to match a team.',
             error: error.message,
         });
     }

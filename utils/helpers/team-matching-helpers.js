@@ -57,12 +57,13 @@ export const getNeededMembersByRoleWithMostOverlap = async (neededRoles, startin
 
 // TODO: Determine if this is the best response
 // Also is 201 appropriate? If not, whats the best response code?
-export const buildNewTeamResponse = (commonAvailability, finalTeamUserObjects) => {
+export const buildNewTeamResponse = (commonAvailability, finalTeamUserObjects, project) => {
     const totalCommonHours = getTeamCommonHoursTotal(commonAvailability)
     const team = finalTeamUserObjects.map((member) => `${member.firstName} ${member.lastName}: ${member.role}`)
 
     return {
         team,
+        project: project._id,
         totalCommonHours,
         commonAvailability
     }
