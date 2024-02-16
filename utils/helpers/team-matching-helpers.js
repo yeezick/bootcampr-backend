@@ -199,7 +199,6 @@ export const determineNeededRoles = (startingMembers) => {
         errorMessage = `Only ${pmRequired} Product Managers are allowed per team.`
     };
 
-    // TODO: update the error and message field (and status code) of this error
     if (errorMessage) { throw new Error(errorMessage) }
 
     return neededRoles
@@ -229,7 +228,6 @@ export const meetMinimumOverlappingHours = (existingMembers, users) => {
     users.forEach((user) => {
         const commonAvailability = findCommonAvailability([...existingMembers, user])
 
-        // Make function to get total hours of common availabilty
         const totalHoursOverlap = Object.keys(commonAvailability).map((day) => {
             const logical = convertUserFriendlyTimeSlotToLogical(...commonAvailability[day][0])
 
