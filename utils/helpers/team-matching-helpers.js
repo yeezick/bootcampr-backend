@@ -97,6 +97,7 @@ export const fetchUnassignedUsersByRole = async (role, count = 50, offset = 0) =
         .sort({"createdAt": 1})
         .skip(offset)
         .limit(count)
+        .select('firstName lastName availability role project _id')
 };
 
 export const filterOutStartingMembersFromCollections = (
