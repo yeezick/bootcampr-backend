@@ -21,13 +21,6 @@ export const sortMembersByRole = (finalTeamUserObjects) => {
     }
 };
 
-export const getFinalTeamUserObjects = async (finalTeam) => {
-    const finalTeamUserIds = finalTeam.map((member) => member._id)
-    const finalTeamUserObjects = await User.find({"_id": {"$in": finalTeamUserIds}})
-
-    return finalTeamUserObjects
-};
-
 export const setupQueryParams = (req) => {
     const count = Number(req.query.count) || 50;
     const offset = Number(req.query.offset) || 0;
@@ -49,7 +42,7 @@ export const getNeededMembersByRoleWithMostOverlap = async (neededRoles, startin
 
     if (meetsMinOverlap.length < neededRoles[roleNickName]) {
         const totalAvailableByRole = await User.count({role, project: null})
-        console.log(totalAvailableByRole)
+
         if (totalAvailableByRole < nextOffset) {
             throw new Error(`No more ${role}s with minimum overlapping availability left in database to match.`)
         };
@@ -57,7 +50,9 @@ export const getNeededMembersByRoleWithMostOverlap = async (neededRoles, startin
         throw new Error(`None of set (count: ${count}, offset: ${offset}) of ${role}s matches minumum availability. Try again with offset: ${nextOffset}`)
     }
 
-    return meetsMinOverlap.slice(0, neededRoles[roleNickName])
+    const userObjects = meetsMinOverlap.map((user) => user.user)
+
+    return userObjects.slice(0, neededRoles[roleNickName])
 };
 
 // TODO: Determine if this is the best response
@@ -246,7 +241,8 @@ export const meetMinimumOverlappingHours = (existingMembers, users) => {
                 name: `${user.firstName} ${user.lastName}`,
                 _id: user._id,
                 availability: user.availability,
-                role: user.role
+                role: user.role,
+                user,
             })
         }
     });

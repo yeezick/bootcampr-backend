@@ -3,7 +3,6 @@ import { findCommonAvailability } from '../utils/availability.js';
 import { generateProject, fillProjectWithUsers } from '../utils/seed/utils/projects.js';
 import { 
     sortMembersByRole, 
-    getFinalTeamUserObjects, 
     setupQueryParams, 
     getNeededMembersByRoleWithMostOverlap, 
     buildNewTeamResponse, 
@@ -24,15 +23,15 @@ import {
 
 // TODO:
 // - Clearly define helper functions
-// - Pass the full user object in the meets minimum (with commonHours) so we don't need to call the DB again
+// - Troubleshoot why some teams are still created with less than 3 days in common
 // - Only return useful info from large DB calls (fetch 50 swe/ux) (availability, role, id, project)
 // - Try populate and troubleshoot if its still not working
+// - Update error messaging
+// EXTRA:
 // - Consider automating the followup 50?
-// - Make this work when Product Manager = 0, or 1
 // - Make all of the repeated role work reusable
 // - Sometimes 'available' is true and availability is null... - fix
 // - Consider using separate offset query params for each role?
-// - Troubleshoot why some teams are still created with less than 3 days in common
 
 
 /**
@@ -109,28 +108,26 @@ export const generateTeam = async (req, res) => {
 
         finalTeam.push(...newProductManagers)
 
-        const finalTeamUserObjects = await getFinalTeamUserObjects(finalTeam);
-        const commonAvailability = findCommonAvailability(finalTeamUserObjects)
+        const commonAvailability = findCommonAvailability(finalTeam)
         const project = new Project(await generateProject())
 
         const { 
             dbEngineers, 
             dbDesigners, 
             dbProduct 
-        } = sortMembersByRole(finalTeamUserObjects)
+        } = sortMembersByRole(finalTeam)
 
-        // TODO: Set this up to allow for PMs too
         await fillProjectWithUsers(project, dbDesigners, dbEngineers, dbProduct);
 
         // Note: There is a calendar quota so we'll wait to immplement this with actual users
         // projects[0].calendarId = await addCalendarToProject(projects[0]._id);
         await project.save();
 
-        for (const user of finalTeamUserObjects) {
+        for (const user of finalTeam) {
             await user.save();
         };
 
-        const response = buildNewTeamResponse(commonAvailability, finalTeamUserObjects)
+        const response = buildNewTeamResponse(commonAvailability, finalTeam)
 
         res.status(200).json(response);
     } catch (error) {
