@@ -24,12 +24,9 @@ import {
 // TODO:
 // - Clearly define helper functions
 // - Troubleshoot why some teams are still created with less than 3 days in common
-// - Only return useful info from large DB calls (fetch 50 swe/ux) (availability, role, id, project)
-// - Try populate and troubleshoot if its still not working
 // - Update error messaging
-// EXTRA:
-// - Consider automating the followup 50?
-// - Make all of the repeated role work reusable
+
+// EXTRA CREDIT:
 // - Sometimes 'available' is true and availability is null... - fix
 // - Consider using separate offset query params for each role?
 
@@ -45,9 +42,6 @@ import {
  *  Users are also retrieved from the database with preference to earlier 'createdAt' value,
  *      to prioritize users who have been waiting longer for a team.
  *      There may be some drawbacks to this approach that we'll have to address, like stale users, etc.
- * 
- * 
- * 
  */
 export const generateTeam = async (req, res) => {
     try {
@@ -119,6 +113,14 @@ export const generateTeam = async (req, res) => {
 
         await fillProjectWithUsers(project, dbDesigners, dbEngineers, dbProduct);
 
+        const response = buildNewTeamResponse(commonAvailability, finalTeam)
+
+        const daysInCommon = Object.keys(response.commonAvailability).length;
+
+        if (daysInCommon < 3) {
+            throw new Error(`Team has ${response.totalCommonHours} overlapping availability each week, but only over${daysInCommon} day(s).`)
+        };
+
         // Note: There is a calendar quota so we'll wait to immplement this with actual users
         // projects[0].calendarId = await addCalendarToProject(projects[0]._id);
         await project.save();
@@ -126,8 +128,6 @@ export const generateTeam = async (req, res) => {
         for (const user of finalTeam) {
             await user.save();
         };
-
-        const response = buildNewTeamResponse(commonAvailability, finalTeam)
 
         res.status(200).json(response);
     } catch (error) {
