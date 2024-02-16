@@ -8,7 +8,7 @@ import axios from 'axios';
  */
 export const generateProject = async (project = defaultProject) => {
   const { title, goal, problem, startDate, duration } = project;
-  // TODO: adjust start and end date format and calulcations as needed
+  // TODO: adjust start and end date format and calculations as needed
   const endDate = Date.now() + duration * 24 * 60 * 60 * 60;
 
   return {
@@ -19,6 +19,7 @@ export const generateProject = async (project = defaultProject) => {
     members: {
       engineers: [],
       designers: [],
+      productManagers: [],
     },
     problem,
     tasks: [],
@@ -40,9 +41,13 @@ export const generateProject = async (project = defaultProject) => {
 export const fillProjectWithUsers = async (project, designers, engineers, productManagers) => {
   project.members.engineers = getIds(engineers);
   project.members.designers = getIds(designers);
-  project.members.productManagers = getIds(productManagers);
+  // project.members.productManagers = getIds(productManagers);
 
-  const users = [...designers, ...engineers, ...productManagers];
+  const users = [
+    ...designers, 
+    ...engineers, 
+    // ...productManagers
+  ];
 
   users.forEach(async (user) => {
     user.project = project._id;

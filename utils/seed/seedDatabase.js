@@ -108,7 +108,12 @@ export const addStaticSeedData = async (projects, users) => {
   const staticSWE = [sillyGoose, laterGator, applePie];
   const staticPM = [pollyProduct]
 
-  await fillProjectWithUsers(staticProject, staticUX, staticSWE, staticPM);
+  await fillProjectWithUsers(
+    staticProject, 
+    staticUX, 
+    staticSWE, 
+    // staticPM
+  );
 
   staticProject.calendarId = await addCalendarToProject(staticProject._id);
   staticProject.projectTracker = sampleTaskBoard;
