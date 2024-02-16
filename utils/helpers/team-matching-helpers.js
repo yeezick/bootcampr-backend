@@ -1,7 +1,6 @@
 import User from '../../models/user.js'
 import { findCommonAvailability, convertUserFriendlyTimeSlotToLogical } from '../availability.js';
 
-
 const sweRequired = 3;
 const uxRequired = 2;
 const pmRequired = 1;
@@ -9,15 +8,20 @@ const pmRequired = 1;
 const minumumDaysOverlapRequired = 3;
 const minimumHoursOverlapRequired = 8;
 
+/**
+ * 
+ * @param {*} finalTeamUserObjects - array of User objects
+ * @returns object with arrays of team members organized by role
+ */
 export const sortMembersByRole = (finalTeamUserObjects) => {
-    const dbDesigners = finalTeamUserObjects.filter((member) => member.role === 'UX Designer')
-    const dbEngineers = finalTeamUserObjects.filter((member) => member.role === 'Software Engineer')
-    const dbProduct = finalTeamUserObjects.filter((member) => member.role === 'Product Manager')
+    const designers = finalTeamUserObjects.filter((member) => member.role === 'UX Designer')
+    const engineers = finalTeamUserObjects.filter((member) => member.role === 'Software Engineer')
+    const product = finalTeamUserObjects.filter((member) => member.role === 'Product Manager')
 
     return {
-        dbDesigners,
-        dbEngineers,
-        dbProduct
+        designers,
+        engineers,
+        product
     }
 };
 
@@ -55,8 +59,6 @@ export const getNeededMembersByRoleWithMostOverlap = async (neededRoles, startin
     return userObjects.slice(0, neededRoles[roleNickName])
 };
 
-// TODO: Determine if this is the best response
-// Also is 201 appropriate? If not, whats the best response code?
 export const buildNewTeamResponse = (commonAvailability, finalTeamUserObjects, project) => {
     const totalCommonHours = getTeamCommonHoursTotal(commonAvailability)
     const team = finalTeamUserObjects.map((member) => `${member.firstName} ${member.lastName}: ${member.role}`)

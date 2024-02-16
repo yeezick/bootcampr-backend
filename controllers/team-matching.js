@@ -21,9 +21,6 @@ import {
 //    * Set up their group chat / Send out intital bot messaging?
 
 
-// TODO:
-// - Clearly define helper functions
-
 /**
  * 
  * @param {*} req 
@@ -103,12 +100,12 @@ export const generateTeam = async (req, res) => {
         const project = new Project(await generateProject())
 
         const { 
-            dbEngineers, 
-            dbDesigners, 
-            dbProduct 
+            engineers, 
+            designers, 
+            product
         } = sortMembersByRole(finalTeam)
 
-        await fillProjectWithUsers(project, dbDesigners, dbEngineers, dbProduct);
+        await fillProjectWithUsers(project, designers, engineers, product);
 
         const response = buildNewTeamResponse(commonAvailability, finalTeam, project)
 
