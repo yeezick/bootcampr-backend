@@ -35,7 +35,7 @@ import {
  *      Can circle back to this approach, and add/change handling if needed
  * 
  *  Once a team is found with minimum required overlapping availability for each role,
- *      a project is generated with the users and the project is save to each user instance
+ *      a project is generated with the users and the project is saved to each user instance
  */
 export const generateTeam = async (req, res) => {
     try {
