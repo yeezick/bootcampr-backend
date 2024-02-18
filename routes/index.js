@@ -12,6 +12,8 @@ import chatThreadRoutes from './chat/thread.js';
 import projectRoutes from './project/projects.js';
 import ticketRoutes from './project/tickets.js';
 import userRoutes from './user/users.js';
+import serviceRoutes from './service.js';
+
 const router = Router();
 
 //BC-647: these routes need to be updated with more semantic routes
@@ -30,5 +32,6 @@ router.use('/', chatThreadRoutes);
 router.use('/', projectRoutes);
 router.use('/', ticketRoutes);
 router.use('/', userRoutes);
+router.use('/', serviceRoutes);
 
 export default router;
