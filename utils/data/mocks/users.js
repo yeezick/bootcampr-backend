@@ -72,3 +72,18 @@ export const applePieData = {
     firstName: 'Apple',
     lastName: 'Pie',
 };
+
+export const pollyProductData = {
+    availability: {
+        SUN: { available: true, availability: [['11:00 AM', '1:00 PM']]},
+        MON: { available: true, availability: [['8:00 AM', '10:00 AM'], ['3:00 PM', '6:00 PM']]},
+        TUE: { available: false, availability: [['8:00 AM', '1:00 PM'], ['4:30 PM', '8:00 PM']]},
+        WED: { available: true, availability: [['5:00 PM', '8:00 PM']]},
+        THU: { available: true, availability: [['11:00 AM', '8:00 PM']]},
+        FRI: { available: true, availability: [['8:00 AM', '12:00 PM'], ['2:00 PM', '6:00 PM']]},
+        SAT: { available: false, availability: []},
+    },
+    email: 'polly@product.com',
+    firstName: 'Polly',
+    lastName: 'Product',
+};
