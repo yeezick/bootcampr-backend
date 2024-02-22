@@ -61,11 +61,21 @@ export const getNeededMembersByRoleWithMostOverlap = async (neededRoles, startin
 
 export const buildNewTeamResponse = (commonAvailability, finalTeamUserObjects, project) => {
     const totalCommonHours = getTeamCommonHoursTotal(commonAvailability)
-    const team = finalTeamUserObjects.map((member) => `${member.firstName} ${member.lastName}: ${member.role}`)
+    const team = finalTeamUserObjects.map((member) => {
+        return {
+            member: `${member.firstName} ${member.lastName}`,
+            role: member.role,
+            id: member._id
+        }
+    })
 
     return {
+        project: {
+            id: project._id,
+            startDate: project.timeline.startDate,
+            endDate: project.timeline.endDate,
+        },
         team,
-        project: project._id,
         totalCommonHours,
         commonAvailability
     }
