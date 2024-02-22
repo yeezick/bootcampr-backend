@@ -14,6 +14,10 @@ export const generateProject = async (project = defaultProject) => {
   // TODO: adjust start and end date format and calculations as needed
   const endDate = Date.now() + duration * 24 * 60 * 60 * 60;
 
+  // Upcoming sunday
+  // Move this util out of seed data
+  // ensure the format is what jordan needs for calendar work
+
   return {
     calendarId: '',
     chats: [],
