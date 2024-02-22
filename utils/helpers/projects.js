@@ -1,6 +1,9 @@
 import { defaultProject } from '../data/projects.js';
 import { getIds } from '../seed/utils/users.js';
 import axios from 'axios';
+import dayjs from 'dayjs';
+import weekday from 'dayjs/plugin/weekday.js';
+import relativeTime from 'dayjs/plugin/relativeTime.js';
 
   // TODO: Uncomment commented-out product manager code when frontend is set up to handle product managers
 
@@ -10,9 +13,17 @@ import axios from 'axios';
  * @returns
  */
 export const generateProject = async (project = defaultProject) => {
-  const { title, goal, problem, startDate, duration } = project;
-  // TODO: adjust start and end date format and calculations as needed
-  const endDate = Date.now() + duration * 24 * 60 * 60 * 60;
+  const { title, goal, problem, duration } = project;
+
+  dayjs.extend(weekday);
+  dayjs.extend(relativeTime);
+
+  // All projects will start on upcoming Sunday (7)
+  const upcomingSundayRaw = dayjs().weekday(7);
+  const formattedStartDate = upcomingSundayRaw.format('YYYY/MM/DD');
+
+  const endDateRaw = upcomingSundayRaw.add(duration, 'd');
+  const formattedEndDate = endDateRaw.format('YYYY/MM/DD');
 
   return {
     calendarId: '',
@@ -27,8 +38,8 @@ export const generateProject = async (project = defaultProject) => {
     problem,
     tasks: [],
     timeline: {
-      startDate,
-      endDate,
+      startDate: formattedStartDate,
+      endDate: formattedEndDate
     },
     title,
   };
