@@ -1,4 +1,4 @@
-import { defaultProject } from '../data/mocks/projects.js';
+import { defaultProject } from '../data/projects.js';
 import { getIds } from '../seed/utils/users.js';
 import axios from 'axios';
 
