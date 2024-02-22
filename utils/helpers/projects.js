@@ -1,5 +1,5 @@
-import { defaultProject } from '../../data/mocks/projects.js';
-import { getIds } from './users.js';
+import { defaultProject } from '../data/mocks/projects.js';
+import { getIds } from '../seed/utils/users.js';
 import axios from 'axios';
 
   // TODO: Uncomment commented-out product manager code when frontend is set up to handle product managers
