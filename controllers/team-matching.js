@@ -1,6 +1,6 @@
 import Project from '../models/project.js'
 import { findCommonAvailability } from '../utils/availability.js';
-import { generateProject, fillProjectWithUsers } from '../utils/seed/utils/projects.js';
+import { generateProject, fillProjectWithUsers } from '../utils/helpers/projects.js';
 import { 
     sortMembersByRole, 
     setupQueryParams, 
