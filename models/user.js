@@ -1,29 +1,89 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
+
+// Backend Model Refactor
+// NOTES:
+// TODO: clean up backend routes (and anywhere else affected)
+//  - Users cannot delete boards, calendars or projects
+//  - Add a route to see team member's availability
 
 const User = new Schema(
   {
-    bio: { type: String, maxlength: 300 },
-    declinedProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+    availability: {
+      SUN: {
+        available: { type: Boolean },
+        availability: [[String]],
+      },
+      MON: {
+        available: { type: Boolean },
+        availability: [[String]],
+      },
+      TUE: {
+        available: { type: Boolean },
+        availability: [[String]],
+      },
+      WED: {
+        available: { type: Boolean },
+        availability: [[String]],
+      },
+      THU: {
+        available: { type: Boolean },
+        availability: [[String]],
+      },
+      FRI: {
+        available: { type: Boolean },
+        availability: [[String]],
+      },
+      SAT: {
+        available: { type: Boolean },
+        availability: [[String]],
+      },
+    },
+    bio: { type: String, maxlength: 500 },
     email: {
-      // match: /.+\@.+\..+/,
+      match: /.+\@.+\..+/,
       type: String,
       required: true,
-      // unique: [true, "E-mail already exists."],
+      unique: [true, 'E-mail already exists.'],
+    },
+    emailPreferences: { type: Object, required: true, default: {
+        bootcamprUpdates: true,
+        newsletters: true,
+        projectUpdates: true,
+        eventInvitations: true,
+        surveysAndFeedback: true,
+        chatNotifications: true,
+        jobAlerts: true,
+      }
     },
     firstName: { type: String, required: true },
-    interestedProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
     lastName: { type: String, required: true },
-    linkedinUrl: { type: String },
-    memberOfProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
-    ownerOfProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+    links: {
+      githubUrl: { type: String },
+      linkedinUrl: { type: String },
+      portfolioUrl: { type: String },
+    },
+    onboarded: { type: Boolean, default: false },
     passwordDigest: { type: String, required: true, select: false },
-    portfolioProjects: [{ type: Object }],
-    portfolioUrl: { type: String },
-    profilePicture: {type: String},
-    role: { type: String },
-    savedProjects: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+    profilePicture: { type: String },
+    defaultProfilePicture: { type: String },
+    hasProfilePicture: { type: Boolean },
+    project: { type: Schema.Types.ObjectId, ref: 'Project' },
+    role: { type: String, enum: ['Software Engineer', 'UX Designer', 'Product Manager'] },
+    timezone: { type: String },
+    unreadMessages: { type: Map, of: Boolean, default: {} },
+    verified: { type: Boolean, default: false },
+
+    // CALENDAR
+    // They'll see meetings on their Project calendar
+    // meetings: [{ type: Schema.Types.ObjectId, ref: 'Meeting' }],
+    // we may not actually need to store timezone, we can probably get it dynamically with
+    /// *** we should still store a user's timezone on their user object
+    // ... JS .getTimezoneOffset() and store all times in UTC
+    // store availability in UTC, handle translation on frontend rendering
+    // store as stringified object, workable with JSON.parse()
   },
-  { timestamps: true }
+  { timestamps: true },
 );
-export default mongoose.model("User", User);
+
+export default mongoose.model('User', User);
