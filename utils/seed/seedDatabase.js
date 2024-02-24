@@ -4,7 +4,7 @@ import Project from '../../models/project.js';
 import User from '../../models/user.js';
 import Ticket from '../../models/tickets.js';
 import { createChatbot, generateFakeUser, generateFakeUsers } from './utils/users.js';
-import { addCalendarToProject, generateProject, fillProjectWithUsers } from './utils/projects.js';
+import { addCalendarToProject, generateProject, fillProjectWithUsers } from '../helpers/projects.js';
 import axios from 'axios';
 import {
   applePieData,
@@ -13,6 +13,7 @@ import {
   laterGatorData,
   sillyGooseData,
   starStruckData,
+  pollyProductData,
 } from '../data/mocks/users.js';
 
 const reSeedDatabase = async () => {
@@ -23,9 +24,10 @@ const reSeedDatabase = async () => {
   await axios.delete(`http://localhost:8001/calendar/deleteAllCalendars`);
 
   // Generate set of Users
-  const designers = await generateFakeUsers(100, 'UX Designer');
-  const engineers = await generateFakeUsers(150, 'Software Engineer');
-  const users = [...designers, ...engineers];
+  const designers = await generateFakeUsers(200, 'UX Designer');
+  const engineers = await generateFakeUsers(250, 'Software Engineer');
+  const productManagers = await generateFakeUsers(150, 'Product Manager');
+  const users = [...designers, ...engineers, ...productManagers];
 
   // Generate x number of Projects
   const projects = [];
@@ -35,7 +37,7 @@ const reSeedDatabase = async () => {
   }
 
   // Fill a single project with users
-  await fillProjectWithUsers(projects[0], designers.slice(0, 2), engineers.slice(0, 3));
+  await fillProjectWithUsers(projects[0], designers.slice(0, 2), engineers.slice(0, 3), productManagers.slice(0, 1));
   projects[0].calendarId = await addCalendarToProject(projects[0]._id);
 
   await addStaticSeedData(projects, users);
@@ -72,6 +74,8 @@ export const addStaticSeedData = async (projects, users) => {
 
   const applePie = new User(await generateFakeUser('Software Engineer', applePieData));
 
+  const pollyProduct = new User(await generateFakeUser('Product Manager', pollyProductData));
+
   const noProjectUX = new User(
     await generateFakeUser('Software Engineer', {
       email: 'no@project.com',
@@ -100,12 +104,20 @@ export const addStaticSeedData = async (projects, users) => {
 
   const staticUX = [starStruck, dummyUser];
   const staticSWE = [sillyGoose, laterGator, applePie];
+  const staticPM = [pollyProduct];
 
-  await fillProjectWithUsers(staticProject, staticUX, staticSWE);
+  await fillProjectWithUsers(
+    staticProject,
+    staticUX,
+    staticSWE,
+    // TODO: Uncomment when frontend is set up to handle product managers
+    // staticPM
+  );
 
   staticProject.calendarId = await addCalendarToProject(staticProject._id);
   staticProject.projectTracker = sampleTaskBoard;
 
   projects.push(staticProject);
-  users.push(...staticUX, ...staticSWE, noProjectUX, chatBot);
+
+  users.push(...staticUX, ...staticSWE, noProjectUX, ...staticPM, chatBot);
 };

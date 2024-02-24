@@ -10,6 +10,7 @@ import {
   getOneUserByEmail,
 } from '../../controllers/user/users.js';
 import { getEmailPreferences, updateEmailPreferences } from '../../controllers/user/communications.js';
+import { generateTeam } from '../../controllers/team-matching.js';
 
 //middleware
 const storage = multer.memoryStorage();
@@ -31,5 +32,8 @@ router.delete('/users/:id/deleteImage', deleteImageFromS3Bucket);
 // Email Preferences
 router.get('/users/:userId/emailPreferences', getEmailPreferences);
 router.post('/users/:userId/updateEmailPreferences', updateEmailPreferences);
+
+// Generate Team
+router.post('/generate-team', generateTeam)
 
 export default router;
