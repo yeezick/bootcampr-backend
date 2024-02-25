@@ -3,7 +3,6 @@ import User from '../../models/user.js';
 import jwt from 'jsonwebtoken';
 import sgMail from '@sendgrid/mail';
 import { scheduleJob } from 'node-schedule';
-import { getAllChatThreads } from '../user/users.js';
 
 const TOKEN_KEY = process.env.NODE_ENV === 'production' ? process.env.TOKEN_KEY : 'themostamazingestkey';
 const today = new Date();
@@ -310,6 +309,53 @@ export const sendUnreadMessagesEmail = (project, userId, email, firstName, unrea
     });
 };
 
+export const tokenVerificationChatInvite = async (user, token) => {
+  const url = `${process.env.BASE_URL}/project/${user.projectId}?inviteToken=${token}`;
+  sendChatInviteEmail(user, url);
+};
+export const sendChatInviteEmail = (user, url) => {
+  const { firstName, email } = user;
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  const testEmail = 'svc.jira.swe@gmail.com';
+  const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
+  const body = `
+    <table style="background-color: #F2F4FF; width: 100%; max-width: 910px; min-height: 335px; margin: 0 auto; border-radius: 4px; padding: 25px 25px 125px 25px;">
+      <tr>
+        <td style="text-align: center;">
+          <img src=${bootcamprLogoURL} alt="logo" style="height: 42px; width: auto; margin: 0 auto; margin-bottom: 25px;" draggable="false" />
+          <table style="background-color: #FFFFFF; width: 100%; max-width: 560px; margin: 0 auto; padding: 20px;">
+            <tr>
+              <td style="font-size: 16px; display: flex; flex-direction: column;">
+                <p style="color: black; margin: 0; margin-bottom: 32px; text-align: left;">Hi ${firstName}!</p>
+                <p style="color: black; margin: 0; text-align: left; font-weight: bold;">You have been invited to a new chat!</p>
+                <p style="color: black; margin: 0; margin-top: 8px; text-align: left;">Be the first to get the conversation going!</p>
+                <a href=${url} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 11px; font-weight: 500; padding: 8px 20px; text-decoration: none; align-self: center; margin-top:64px">Open chat</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+`;
+
+  const msg = {
+    to: testEmail,
+    from: `${process.env.SENDGRID_EMAIL}`,
+    subject: 'You have been invited to a new chat!',
+    html: body,
+  };
+
+  sgMail
+    .send(msg)
+    .then(() => {
+      console.log(`Invited to a new chat email notification sent to ${testEmail} successfully`);
+    })
+    .catch((error) => {
+      console.log('Invitation email error');
+      console.error(error.response.body.errors);
+      console.error(error);
+    });
+};
 export const resetPasswordEmailVerification = ({ user, token }) => {
   const resetPasswordUrl = `${process.env.BASE_URL}/users/${user._id}/reset-password/${token}`;
   const loginUrl = `${process.env.BASE_URL}/sign-in`;

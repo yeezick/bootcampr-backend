@@ -1,34 +1,41 @@
 import mongoose from 'mongoose';
+import dayjs from 'dayjs';
 import GroupChat from '../../models/chat/groupChat.js';
+import User from '../../models/user.js';
+import { newToken, sendChatInviteEmail } from '../auth/emailVerification.js';
 import { getUserIdFromToken } from '../auth/auth.js';
 
 export const createGroupChatRoom = async (req, res) => {
   try {
-    //instead of getting user id from endpoint we can get it from token to avoid  /users/userId/chats/id etc..
     const authHeader = req.headers.authorization;
     const userId = getUserIdFromToken(authHeader);
 
-    let { groupName, groupDescription, groupPhoto, participants } = req.body;
-
-    participants = participants.map((participantId) => ({
+    let { participantIds } = req.body;
+    const participants = participantIds.map((participantId) => ({
       participant: mongoose.Types.ObjectId(participantId),
       isAdmin: false,
     }));
 
     const newGroupChat = new GroupChat({
-      groupName,
-      groupDescription,
-      groupPhoto,
       participants: [{ participant: mongoose.Types.ObjectId(userId), isAdmin: true }, ...participants],
       creator: mongoose.Types.ObjectId(userId),
     });
+
+    for (const participantId of participantIds) {
+      const user = await User.findById(participantId).select('email firstName lastName profilePicture');
+      // if (user) {
+      // const token = newToken(user, true)
+      //   tokenVerificationChatInvite(user, token);
+      // }
+    }
+
     await newGroupChat.save();
     res.status(201).json({
-      newRoomId: newGroupChat._id,
+      chatRoom: newGroupChat,
       message: `Group chat created successfully by user with ID ${userId}.`,
     });
   } catch (error) {
-    console.error(error.message);
+    console.error('Error in create group chat: ', error.message);
     res.status(500).json({ error: error.message });
   }
 };
@@ -40,70 +47,29 @@ export const createGroupChatMessage = async (req, res) => {
     const { groupChatId } = req.params;
     let { text } = req.body;
     const existingGroupChat = await GroupChat.findOne({ _id: groupChatId });
-
+    existingGroupChat.participants.forEach((pp) => {
+      if (pp.participant._id.toString() !== userId) {
+        pp.hasUnreadMessage = true;
+      } else {
+        pp.hasUnreadMessage = false;
+      }
+    });
     existingGroupChat['messages'].push({
       text: text,
       sender: mongoose.Types.ObjectId(userId),
+      timestamp: dayjs().toDate(),
     });
+    existingGroupChat['lastMessage'] = {
+      text: text,
+      sender: mongoose.Types.ObjectId(userId),
+      timestamp: dayjs().toDate(),
+    };
     await existingGroupChat.save();
     res.status(201).json({
       message: `Successfully sent message from user with ID ${userId} to group chat ${groupChatId}.`,
     });
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-export const getUserGroupChats = async (req, res) => {
-  try {
-    const authHeader = req.headers.authorization;
-    const userId = getUserIdFromToken(authHeader);
-
-    const groupChatThreads = await GroupChat.find({
-      'participants.participant': userId,
-    })
-      .populate({ path: 'participants.participant', select: 'email profilePicture' })
-      .populate({ path: 'creator', select: 'email' })
-      .populate({ path: 'messages.sender', select: 'email' });
-
-    if (groupChatThreads.length === 0) {
-      return res.status(404).json({
-        message: `No group chat threads found for user with ID ${userId}.`,
-      });
-    }
-    res.status(200).json({
-      groupChatThreads,
-      message: `Successfully retrieved all group chat threads for user with ID ${userId}.`,
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: error.message });
-  }
-};
-//gets group chat without messages
-export const getGroupChatByChatId = async (req, res) => {
-  try {
-    const { groupChatId } = req.params;
-    const groupChatThread = await GroupChat.findOne({ _id: groupChatId })
-      .populate({ path: 'participants.participant', select: 'email profilePicture firstName lastName' })
-      .populate({ path: 'creator', select: 'email' })
-      .populate({
-        path: 'media',
-        select: 'status fileName fileType fileUrl',
-        populate: { path: 'sender', select: 'email' },
-      })
-      .populate({ path: 'messages.sender', select: 'email' })
-      .select('-messages');
-
-    !groupChatThread
-      ? res.status(404).json({ message: `No group chat found with ID ${groupChatId}.` })
-      : res.status(200).json({
-          groupChatThread,
-          message: `Successfully retrieve group chat thread with ID ${groupChatId}.`,
-        });
-  } catch (error) {
-    console.error(error.message);
+    console.error('Error in create group chat message: ', error.message);
     res.status(500).json({ error: error.message });
   }
 };
@@ -113,37 +79,26 @@ export const getGroupChatMessages = async (req, res) => {
     const { groupChatId } = req.params;
     const messageThread = await GroupChat.find({
       _id: groupChatId,
-    })
-      .select('messages.text messages.sender messages.timestamp messages.status')
-      .populate({ path: 'messages.sender', select: 'email profilePicture' })
-      .populate({
-        path: 'media',
-        populate: { path: 'sender', select: 'email profilePicture' },
-        select: 'fileName fileType fileUrl status createdAt',
-      });
+    }).select('messages.text messages.sender messages.timestamp messages.status');
 
-    const combinedMessages = messageThread[0].messages.concat(messageThread[0].media);
-    combinedMessages.sort((a, b) => {
+    const messages = messageThread[0].messages;
+    messages.sort((a, b) => {
       const aDate = a.createdAt || a.timestamp;
       const bDate = b.createdAt || b.timestamp;
-      return new Date(aDate) - new Date(bDate);
+      return dayjs(aDate).toISOString() - dayjs(bDate).toISOString();
     });
 
-    combinedMessages.length === 0
-      ? res.status(404).json({
-          message: `Group messages thread with ID ${groupChatId} not found.`,
-        })
-      : res.status(200).json({
-          combinedMessages,
-          message: `Successfully retrieved all messages in group chat thread ${groupChatId}.`,
-        });
+    res.status(200).json({
+      messages,
+      message: `Successfully retrieved all messages in group chat thread ${groupChatId}.`,
+    });
   } catch (error) {
-    console.error(error.message);
+    console.error('Error in get group chat message: ', error.message);
     res.status(500).json({ error: error.message });
   }
 };
 
-export const updateGroupChatInfo = async (req, res) => {
+export const updateGroupChat = async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     const userId = getUserIdFromToken(authHeader);
@@ -151,7 +106,6 @@ export const updateGroupChatInfo = async (req, res) => {
     const groupChat = await GroupChat.findOne({ _id: groupChatId }).populate('participants');
 
     const user = groupChat.participants.find((participant) => participant.participant._id.toString() === userId);
-
     if (user && user.isAdmin === true) {
       const updatedData = {
         ...req.body,
@@ -163,7 +117,6 @@ export const updateGroupChatInfo = async (req, res) => {
         ],
       };
       const updatedGroupChat = await GroupChat.findByIdAndUpdate({ _id: groupChatId }, updatedData, { new: true });
-
       if (!updatedGroupChat) {
         return res.status(404).json({ message: `Group chat with ID ${groupChatId} not updated.` });
       }
@@ -173,6 +126,43 @@ export const updateGroupChatInfo = async (req, res) => {
     }
     return res.status(403).json({
       message: `User does not have admin privileges to update group chat.`,
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const updateGroupChatParticipants = async (req, res) => {
+  try {
+    const { groupChatId } = req.params;
+    const participantIds = req.body;
+    const groupChat = await GroupChat.findById(groupChatId).populate({
+      path: 'messages.sender',
+      select: 'email firstName lastName',
+    });
+
+    if (!groupChat) {
+      return res.status(404).send('Group chat not found');
+    }
+    for (const participantId of participantIds) {
+      const user = await User.findById(participantId).select('email firstName lastName profilePicture');
+      const userIsAlreadyParticipant = groupChat.participants.some((p) => p.participant._id.equals(user._id));
+      if (user && !userIsAlreadyParticipant) {
+        groupChat.participants.push({
+          participant: user,
+          isAdmin: false,
+          hasUnreadMessage: false,
+        });
+        // sendChatInviteEmail(user.project, user.email, user.firstName);
+      }
+    }
+
+    await groupChat.save();
+
+    res.status(201).json({
+      chatRoom: groupChat,
+      message: `Participants updated successfully.`,
     });
   } catch (error) {
     console.error(error.message);
@@ -232,24 +222,6 @@ export const leaveGroupChat = async (req, res) => {
     res.status(200).json({
       message: `User with ID ${userId} successfully left the group chat ${groupChatId}.`,
     });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-export const getAllUsersGroupChats = async (req, res) => {
-  try {
-    const allGChats = await GroupChat.find({})
-      .populate({ path: 'participants.participant', select: 'email' })
-      .populate({ path: 'creator', select: 'email' })
-      .populate({ path: 'media', select: 'sender fileName fileType fileUrl' });
-    !allGChats
-      ? res.status(404).json({ message: 'No group chats found.' })
-      : res.status(200).json({
-          allGChats,
-          message: 'Successfully retrieved all group chat threads from database.',
-        });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });

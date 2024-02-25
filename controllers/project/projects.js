@@ -1,5 +1,6 @@
 import Project from '../../models/project.js';
 import User from '../../models/user.js';
+import { findCommonAvailability } from '../../utils/availability.js';
 import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
 
 export const getAllProjects = async (req, res) => {
@@ -109,6 +110,26 @@ export const updateUserAndProject = async (req, res) => {
     res.status(200).json({ message: 'Success!', user, project });
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getTeamCommonAvailability = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const project = await Project.findById(projectId)
+      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }])
+      .exec();
+
+    if (project) {
+      const members = [...project.members.engineers, ...project.members.designers];
+      const commonAvailability = findCommonAvailability(members);
+
+      return res.json(commonAvailability);
+    }
+    res.status(404).json({ message: 'Project not found.' });
+  } catch (error) {
+    console.error(error.message);
     res.status(500).json({ error: error.message });
   }
 };
