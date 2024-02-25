@@ -19,7 +19,7 @@ router.post('/projects', createProject);
 // Takes in Query Parameter 'attributes' with values seperated by commas
 // EX: ./project/1234/members?attributes=firstName,lastName
 // will return the User's firstName and lastName attribtues
-router.get('/project/:projectId/members', getProjectMembers)
+router.get('/project/:projectId/members', getProjectMembers);
 // TODO: Discuss during SWE meeting
 // What elements of a project can be updated?
 // Should they each have their own route? aka, meetings, chats, tasks etc.
