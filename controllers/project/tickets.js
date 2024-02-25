@@ -3,7 +3,13 @@ import Project from '../../models/project.js';
 
 export const createTicket = async (req, res) => {
   try {
-    const newTicket = new Ticket(req.body);
+    let newTicket;
+    if (req.body.assignee === 'Unassigned') {
+      const { assignee, ...ticketBody } = req.body;
+      newTicket = new Ticket(ticketBody);
+    } else {
+      newTicket = newTicket(req.body);
+    }
     await newTicket.save();
     const project = await Project.findById(req.body.projectId);
     const concatenatedStatus = req.body.status.replace(/\s+/g, '');
