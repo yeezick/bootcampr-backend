@@ -20,10 +20,10 @@ export const generateProject = async (project = defaultProject) => {
 
   // All projects will start on upcoming Sunday (7)
   const upcomingSundayRaw = dayjs().weekday(7);
-  const formattedStartDate = upcomingSundayRaw.format('YYYY/MM/DD');
+  const formattedStartDate = upcomingSundayRaw.format('YYYY-MM-DD');
 
   const endDateRaw = upcomingSundayRaw.add(duration, 'd');
-  const formattedEndDate = endDateRaw.format('YYYY/MM/DD');
+  const formattedEndDate = endDateRaw.format('YYYY-MM-DD');
 
   return {
     calendarId: '',

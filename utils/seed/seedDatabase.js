@@ -4,7 +4,7 @@ import Project from '../../models/project.js';
 import User from '../../models/user.js';
 import Ticket from '../../models/tickets.js';
 import { generateFakeUser, generateFakeUsers } from './utils/users.js';
-import { addCalendarToProject, generateProject, fillProjectWithUsers } from './utils/projects.js';
+import { addCalendarToProject, generateProject, fillProjectWithUsers } from '../../utils/helpers/projects.js'
 import axios from 'axios';
 import { applePieData, dummyUserData, laterGatorData, sillyGooseData, starStruckData, pollyProductData } from '../data/mocks/users.js';
 
@@ -31,7 +31,7 @@ const reSeedDatabase = async () => {
   // Fill a single project with users
   await fillProjectWithUsers(projects[0], designers.slice(0, 2), engineers.slice(0, 3), productManagers.slice(0,1));
   projects[0].calendarId = await addCalendarToProject(projects[0]._id);
-
+  
   await addStaticSeedData(projects, users);
 
   for (const project of projects) {
