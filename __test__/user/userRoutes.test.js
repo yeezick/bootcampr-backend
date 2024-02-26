@@ -388,13 +388,14 @@ describe('User Routes', () => {
         bio: 'User bio',
         links: { githubUrl: 'https://github.com/john' },
       });
-
-      mockSend.mockResolvedValue({})
-      const imageBuffer = fs.readFileSync(`${__dirname}/../Group.png`);
+      
+    const fakeImageBuffer = Buffer.from('fakeImageData');
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(fakeImageBuffer);
+    mockSend.mockResolvedValue({});
 
       const response = await supertest(app)
         .post(`/users/${user._id}/addImage`)
-        .attach('image', imageBuffer, 'Group.png');
+        .attach('image',fakeImageBuffer, 'fakeImage.png');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ success: 'image sent successfully' });
@@ -412,7 +413,7 @@ describe('User Routes', () => {
       passwordDigest: 'hashedPassword',
       bio: 'User bio',
       links: { githubUrl: 'https://github.com/john' },
-      profilePicture: '../Group.png',
+      profilePicture: 'https://fakeImage.png',
     });
 
     mockSend.mockResolvedValue({})
