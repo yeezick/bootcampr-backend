@@ -23,6 +23,7 @@ const GroupChat = new Schema(
         text: { type: String },
         sender: { type: mongoose.Types.ObjectId, ref: 'User' },
         timestamp: { type: Date, default: Date.now },
+        isBotMessage: { type: Boolean, default: false },
         status: {
           type: String,
           enum: ['sent', 'read', 'failed'],
@@ -36,6 +37,7 @@ const GroupChat = new Schema(
       text: { type: String, default: '' },
       sender: { type: mongoose.Types.ObjectId, ref: 'User' },
       timestamp: { type: Date, default: Date.now },
+      isBotMessage: { type: Boolean, default: false },
     },
     chatType: { type: String, default: 'group', immutable: true },
   },
