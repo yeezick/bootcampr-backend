@@ -2,8 +2,6 @@ import supertest from 'supertest';
 import fs from 'fs';
 import app from '../../server';
 import User from '../../models/user';
-import PrivateChat from '../../models/chat/privateChat';
-import Media from "../../models/chat/media";
 import mongoose from 'mongoose';
 import * as S3ClientModule from '@aws-sdk/client-s3';
 
