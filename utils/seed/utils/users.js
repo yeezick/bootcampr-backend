@@ -1,86 +1,94 @@
-import { faker } from '@faker-js/faker';
+import { randUser, randAvatar, randQuote } from '@ngneat/falso';
 import bcrypt from 'bcrypt';
 import User from '../../../models/user.js';
-import { generateRandomSingleDayAvailability } from '../../availability.js';
+import { generateRealisticSingleDayAvailability } from '../../availability.js';
 
 /**
  * Generate User Bio
  * @param {enum: ['Software Engineer', 'UX Designer']} role
  * @returns {String} uniquely generated personal bio
  */
-export const generateBio = (role) => {
-  const adjective1 = faker.word.adjective();
-  const preAdjective = ['a', 'e', 'i', 'o', 'u'].includes(adjective1.charAt(0)) ? 'an' : 'a';
+export const generateBio = (role, location) => {
+
+  const randomQuote = randQuote()
 
   return [
-    `I'm ${preAdjective} ${adjective1} ${role}.`,
-    `I'm an avid ${faker.word.noun()} lover and I'm passionate about ${faker.word.noun()}s.`,
-    `I'm ${faker.word.adjective()}, ${faker.word.adjective()}, and ${faker.word.adjective()}`,
-    `and look forward to using my skills to build something ${faker.word.adjective()}.`,
-    `Let's get ${faker.word.adjective()}!`,
+    `I'm a ${role} from ${location}.`,
+    `${randomQuote}`,
+    `I'm looking forward to using my skills to build something awesome.`
   ].join(' ');
 };
 
 /**
  * Generate Fake User
- * @param {enum: ['Software Engineer', 'UX Designer']} role
+ * @param {enum: ['Software Engineer', 'UX Designer', 'Product Manager']} role
  * @returns a User object with randomly generated user data
  */
 export const generateFakeUser = async (role, customInfo) => {
-  const name = {
-    first: faker.name.firstName(),
-    last: faker.name.lastName(),
-  };
+
+  const randomUser = randUser();
+
+  const { firstName, lastName, email, address } = randomUser
+  const location = address.country
 
   return {
     availability: {
       SUN: {
         available: true,
-        availability: generateRandomSingleDayAvailability(),
+        availability: generateRealisticSingleDayAvailability(),
       },
       MON: {
         available: true,
-        availability: generateRandomSingleDayAvailability(),
+        availability: generateRealisticSingleDayAvailability(),
       },
       TUE: {
         available: true,
-        availability: generateRandomSingleDayAvailability(),
+        availability: generateRealisticSingleDayAvailability(),
       },
       WED: {
         available: true,
-        availability: generateRandomSingleDayAvailability(),
+        availability: generateRealisticSingleDayAvailability(),
       },
       THU: {
         available: true,
-        availability: generateRandomSingleDayAvailability(),
+        availability: generateRealisticSingleDayAvailability(),
       },
       FRI: {
         available: true,
-        availability: generateRandomSingleDayAvailability(),
+        availability: generateRealisticSingleDayAvailability(),
       },
       SAT: {
         available: true,
-        availability: generateRandomSingleDayAvailability(),
+        availability: generateRealisticSingleDayAvailability(),
       },
     },
-    bio: generateBio(role),
-    email: faker.helpers.unique(faker.internet.email, [name.first, name.last]),
-    firstName: name.first,
-    lastName: name.last,
+    bio: generateBio(role, location),
+    email,
+    firstName,
+    lastName,
     links: {
-      githubUrl: `www.github.com/${name.first}-${name.last}`,
-      linkedinUrl: `www.linkedin.com/${name.first}-${name.last}`,
-      portfolioUrl: `www.${name.first}${name.last}.com`,
+      githubUrl: `www.github.com/${firstName}-${lastName}`,
+      linkedinUrl: `www.linkedin.com/${firstName}-${lastName}`,
+      portfolioUrl: `www.${firstName}${lastName}.com`,
     },
     passwordDigest: await bcrypt.hash('gumballs', 11),
-    profilePicture: faker.image.people(640, 480, true),
+    profilePicture: '',
     defaultProfilePicture: '',
-    hasProfilePicture: true,
+    hasProfilePicture: false,
     project: null,
     role,
     timezone: '-8:00',
     verified: true,
     ...customInfo, // has to go last to overwrrite previous assignments
+  };
+};
+
+export const createChatbot = async (chatBotInfo) => {
+  return {
+    passwordDigest: await bcrypt.hash('gumballs', 11),
+    timezone: '-8:00',
+    verified: true,
+    ...chatBotInfo,
   };
 };
 

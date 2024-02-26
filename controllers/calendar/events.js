@@ -25,7 +25,6 @@ export const createEvent = async (req, res) => {
         draft.resource = eventInfo;
       });
     }
-
     const { data: googleEvent } = await calendar.events.insert(preparedEvent);
     const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
     res.status(200).send(convertedEvent[0]);
@@ -84,6 +83,7 @@ export const fetchEvent = async (req, res) => {
     });
     const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
     res.status(200).send(convertedEvent[0]);
+   
   } catch (error) {
     console.error('Error fetching event:', error);
     res.status(400).send(error);
@@ -113,6 +113,22 @@ export const deleteCalendarEvents = async (req, res) => {
     res.status(200).send('All events deleted');
   } catch (error) {
     console.error('Error deleting events:', error);
+    res.status(400).send(error);
+  }
+};
+
+export const deleteEvent = async (req, res) => {
+  try {
+    const { calendarId, eventId } = req.params;
+
+    const deletedEvent = await calendar.events.delete({
+      calendarId: formatCalendarId(calendarId),
+      eventId,
+    });
+  
+    res.status(200).send('Event deleted.');
+  } catch (error) {
+    console.log('Error deleting event:', error);
     res.status(400).send(error);
   }
 };

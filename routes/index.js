@@ -8,9 +8,12 @@ import groupChatRoutes from './chat/groupChat.js';
 import mediaRoutes from './chat/media.js';
 import notificationRoutes from './user/notifications.js';
 import privateChatRoutes from './chat/privateChat.js';
+import chatThreadRoutes from './chat/thread.js';
 import projectRoutes from './project/projects.js';
 import ticketRoutes from './project/tickets.js';
 import userRoutes from './user/users.js';
+import serviceRoutes from './service.js';
+
 const router = Router();
 
 //BC-647: these routes need to be updated with more semantic routes
@@ -25,8 +28,10 @@ router.use('/', groupChatRoutes);
 router.use('/', mediaRoutes);
 router.use('/', notificationRoutes);
 router.use('/', privateChatRoutes);
+router.use('/', chatThreadRoutes);
 router.use('/', projectRoutes);
 router.use('/', ticketRoutes);
 router.use('/', userRoutes);
+router.use('/', serviceRoutes);
 
 export default router;

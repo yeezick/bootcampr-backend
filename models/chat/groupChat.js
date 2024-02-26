@@ -13,6 +13,7 @@ const GroupChat = new Schema(
       {
         participant: { type: mongoose.Types.ObjectId, ref: 'User' },
         isAdmin: { type: Boolean, default: false, required: true },
+        hasUnreadMessage: { type: Boolean, default: false },
       },
     ],
     creator: { type: mongoose.Types.ObjectId, ref: 'User', required: true },
@@ -22,6 +23,7 @@ const GroupChat = new Schema(
         text: { type: String },
         sender: { type: mongoose.Types.ObjectId, ref: 'User' },
         timestamp: { type: Date, default: Date.now },
+        isBotMessage: { type: Boolean, default: false },
         status: {
           type: String,
           enum: ['sent', 'read', 'failed'],
@@ -31,6 +33,13 @@ const GroupChat = new Schema(
     ],
     media: [{ type: mongoose.Types.ObjectId, ref: 'Media' }],
     lastActive: { type: Date, default: Date.now },
+    lastMessage: {
+      text: { type: String, default: '' },
+      sender: { type: mongoose.Types.ObjectId, ref: 'User' },
+      timestamp: { type: Date, default: Date.now },
+      isBotMessage: { type: Boolean, default: false },
+    },
+    chatType: { type: String, default: 'group', immutable: true },
   },
   { timestamps: true },
 );
@@ -42,4 +51,4 @@ GroupChat.pre('save', function (next) {
 
 GroupChat.index({ groupName: 1, 'participants._id': 1 }, { unique: true });
 
-export default mongoose.model('GroupChat', GroupChat);
+export default mongoose.model('GroupChat', GroupChat, 'groupchats');
