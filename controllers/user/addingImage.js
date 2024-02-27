@@ -81,7 +81,7 @@ export const deleteImageFromS3Bucket = async (req, res) => {
     await s3.send(deleteImage);
     user.profilePicture = null;
     await user.save();
-    res.status(200).json({ success: 'image delete successfully' });
+    res.status(200).json({ success: 'image deleted successfully' });
   } catch (error) {
     console.error(error);
   }
