@@ -3,11 +3,12 @@ import db from '../../db/connection.js';
 import Project from '../../models/project.js';
 import User from '../../models/user.js';
 import Ticket from '../../models/tickets.js';
-import { generateFakeUser, generateFakeUsers } from './utils/users.js';
+import { createChatbot, generateFakeUser, generateFakeUsers } from './utils/users.js';
 import { addCalendarToProject, generateProject, fillProjectWithUsers } from '../helpers/projects.js';
 import axios from 'axios';
 import {
   applePieData,
+  chatBotData,
   dummyUserData,
   laterGatorData,
   sillyGooseData,
@@ -83,6 +84,8 @@ export const addStaticSeedData = async (projects, users) => {
     }),
   );
 
+  const chatBot = new User(await createChatbot(chatBotData));
+
   const sampleTicket = new Ticket({
     title: 'Sample title',
     description: 'Sample description',
@@ -115,5 +118,6 @@ export const addStaticSeedData = async (projects, users) => {
   staticProject.projectTracker = sampleTaskBoard;
 
   projects.push(staticProject);
-  users.push(...staticUX, ...staticSWE, noProjectUX, ...staticPM);
+
+  users.push(...staticUX, ...staticSWE, noProjectUX, ...staticPM, chatBot);
 };
