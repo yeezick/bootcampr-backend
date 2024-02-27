@@ -1,38 +1,41 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
-/**
- * TODO:
- * - Concert snake_case properties to camelCase
- * 
- * Need to discuss:
- * - options for meeting cadence
- * - is duration necessary? what are the possible options?
- * - how we will handle multiple roles
- * - how we handle applicants to a role
- * -
- */
 
 const Project = new Schema(
   {
-    duration: { type: String },
-    meeting_cadence: { type: String, required: true },
-    overview: { type: String, required: true },
-    project_owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    roles: [
-      {
-        interested_applicants: [{ type: Schema.Types.ObjectId, ref: "User" }],
-        status: { type: String, enum: ["Draft", "Published"] },
-        category: { type: String, enum: ["Software Engineer", "UX Designer"] },
-        title: { type: String },
-        description: { type: String, maxlength: 300 },
-        skills: [{ type: String }],
-        desired_headcount: { type: Number },
+    chats: [{ type: Schema.Types.ObjectId, ref: 'Chat' }],
+    calendarId: { type: String },
+    // Add regex or some type check on the date format?
+    goal: { type: String, required: true },
+    meetings: [{ type: Schema.Types.ObjectId, ref: 'Meeting' }],
+    members: {
+      engineers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+      designers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+      productManagers: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+    },
+    problem: { type: String, required: true },
+    timeline: {
+      startDate: { type: String },
+      endDate: { type: String },
+    },
+    title: { type: String, required: true, maxLength: 45 },
+    loading: { type: Boolean },
+    projectTracker: {
+      toDo: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
+      inProgress: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
+      underReview: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
+      completed: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
+    },
+    completedInfo: {
+      presenting: {
+        type: Boolean,
+        default: null,
       },
-    ],
-    status: { type: String, required: true, enum: ["Draft", "Published"] },
-    technologies_used: [{ type: String, required: true }],
-    title: { type: String, required: true, maxlength: 45 },
+      deployedUrl: {
+        type: String,
+      },
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
-export default mongoose.model("Project", Project);
+export default mongoose.model('Project', Project);
