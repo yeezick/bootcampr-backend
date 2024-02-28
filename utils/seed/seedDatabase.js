@@ -17,6 +17,13 @@ import {
 } from '../data/mocks/users.js';
 
 const reSeedDatabase = async () => {
+  const env = process.env.NODE_ENV;
+
+  if (env === 'production') {
+    console.log('Cannot re-seed production database')
+    return
+  };
+  
   console.log('Re-seeding database.');
   // Remove all data from database
   await db.dropDatabase();
