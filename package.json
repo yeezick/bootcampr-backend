@@ -1,10 +1,10 @@
 {
   "name": "bootcamper",
-  "version": "1.0.0",
+  "version": "1.0.7",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test jest",
+    "test": "cross-env NODE_ENV=test jest --coverage",
     "start": "node server.js",
     "dev": "nodemon server.js",
     "dev:local": "MONGODB_ENV=local nodemon server.js",
@@ -24,6 +24,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.216.0",
     "@aws-sdk/s3-request-presigner": "^3.216.0",
+    "@ngneat/falso": "^7.2.0",
     "@sendgrid/mail": "^7.7.0",
     "axios": "^1.4.0",
     "bcrypt": "^5.1.0",
@@ -40,12 +41,12 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "node-schedule": "^2.1.1",
-    "socket.io": "^4.5.4"
+    "socket.io": "^4.5.4",
+    "stripe": "^14.18.0"
   },
   "devDependencies": {
     "@babel/core": "^7.21.3",
     "@babel/preset-env": "^7.20.2",
-    "@faker-js/faker": "^7.6.0",
     "@types/jest": "^29.5.0",
     "babel-jest": "^29.5.0",
     "cross-env": "^7.0.3",

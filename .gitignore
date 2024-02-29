@@ -2,3 +2,4 @@ node_modules/
 .env 
 # Remove below before merging
 calendarSecret.json 
+coverage/

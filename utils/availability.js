@@ -1,5 +1,5 @@
 import { randomIndex } from './seed/utils/helpers.js'
-import { commonAvailableTimeslots, userFriendlyTimes } from './data/defaults/availability.js'
+import { commonAvailableTimeslots, userFriendlyTimes, weekdays } from './data/defaults/availability.js'
 
 /**
  * Uses realistic time slot options to generate random availability for a single day
@@ -26,7 +26,11 @@ export const convertUserFriendlyTimeSlotToLogical = (startTime, endTime)=> {
  * Convert Logical Availabilty to User Friendly
  */
 const convertLogicalToUserFriendly = (logical) => {
-    let userFriendly = [userFriendlyTimes[logical[0]]]
+    let userFriendly = [userFriendlyTimes[logical[0]]];
+
+    if (logical.length === 1) {
+        userFriendly.push(userFriendlyTimes[logical[0]+ 1])
+    }
 
     for (let i = 1; i < logical.length; i++) {
         if (logical[i] - logical[i - 1] === 1) {

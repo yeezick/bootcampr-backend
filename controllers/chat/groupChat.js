@@ -4,30 +4,47 @@ import GroupChat from '../../models/chat/groupChat.js';
 import User from '../../models/user.js';
 import { newToken, sendChatInviteEmail } from '../auth/emailVerification.js';
 import { getUserIdFromToken } from '../auth/auth.js';
+import { createBotMessage, fetchChatBot } from './chatbot.js';
 
 export const createGroupChatRoom = async (req, res) => {
   try {
+    let { participantIds, isTeamChat = false } = req.body;
     const authHeader = req.headers.authorization;
     const userId = getUserIdFromToken(authHeader);
+    const chatBotId = await fetchChatBot();
+    const groupName = isTeamChat ? 'Team Chat' : '';
+    const creatorId = isTeamChat ? chatBotId : mongoose.Types.ObjectId(userId);
 
-    let { participantIds } = req.body;
     const participants = participantIds.map((participantId) => ({
       participant: mongoose.Types.ObjectId(participantId),
-      isAdmin: false,
+      isAdmin: isTeamChat ? false : participantId === userId,
+      hasUnreadMessage: isTeamChat ? true : participantId !== userId,
     }));
 
     const newGroupChat = new GroupChat({
-      participants: [{ participant: mongoose.Types.ObjectId(userId), isAdmin: true }, ...participants],
-      creator: mongoose.Types.ObjectId(userId),
+      groupName,
+      participants: participants,
+      creator: creatorId,
     });
 
-    for (const participantId of participantIds) {
-      const user = await User.findById(participantId).select('email firstName lastName profilePicture');
-      // if (user) {
-      // const token = newToken(user, true)
-      //   tokenVerificationChatInvite(user, token);
-      // }
+    if (isTeamChat) {
+      const welcomeMessage = createBotMessage('welcome');
+      const iceBreakerMessage = createBotMessage('iceBreaker');
+      newGroupChat.messages = [...newGroupChat.messages, welcomeMessage, iceBreakerMessage];
+      newGroupChat.lastMessage = iceBreakerMessage;
     }
+
+    const participantsWithoutAuthUser = participantIds.filter((participantId) => participantId !== userId);
+    const emailReceiverIds = isTeamChat ? participantIds : participantsWithoutAuthUser;
+
+    //This part will implement after implementation of front-end router protection
+    // for (const participantId of emailReceiverIds) {
+    //   const user = await User.findById(participantId).select('email firstName lastName');
+    // if (user) {
+    // const token = newToken(user, true)
+    //   tokenVerificationChatInvite(user, token);
+    // }
+    // }
 
     await newGroupChat.save();
     res.status(201).json({
@@ -79,7 +96,7 @@ export const getGroupChatMessages = async (req, res) => {
     const { groupChatId } = req.params;
     const messageThread = await GroupChat.find({
       _id: groupChatId,
-    }).select('messages.text messages.sender messages.timestamp messages.status');
+    }).select('messages.text messages.sender messages.isBotMessage messages.timestamp messages.status');
 
     const messages = messageThread[0].messages;
     messages.sort((a, b) => {
@@ -137,23 +154,28 @@ export const updateGroupChatParticipants = async (req, res) => {
   try {
     const { groupChatId } = req.params;
     const participantIds = req.body;
-    const groupChat = await GroupChat.findById(groupChatId).populate({
-      path: 'messages.sender',
-      select: 'email firstName lastName',
-    });
+    const groupChat = await GroupChat.findById(groupChatId);
+    await fetchChatBot();
 
     if (!groupChat) {
       return res.status(404).send('Group chat not found');
     }
+
     for (const participantId of participantIds) {
       const user = await User.findById(participantId).select('email firstName lastName profilePicture');
       const userIsAlreadyParticipant = groupChat.participants.some((p) => p.participant._id.equals(user._id));
+
       if (user && !userIsAlreadyParticipant) {
+        const name = `${user.firstName} ${user.lastName}`;
+        const joinedChatMessage = createBotMessage('userJoinedChat', name);
+
         groupChat.participants.push({
           participant: user,
           isAdmin: false,
-          hasUnreadMessage: false,
+          hasUnreadMessage: true,
         });
+        groupChat['messages'].push(joinedChatMessage);
+        groupChat['lastMessage'] = joinedChatMessage;
         // sendChatInviteEmail(user.project, user.email, user.firstName);
       }
     }

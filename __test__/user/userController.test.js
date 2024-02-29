@@ -1,25 +1,10 @@
 // Import necessary modules and functions
 import mongoose from 'mongoose';
 import User from '../../models/user.js';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { getAllUsers, getOneUser, deleteUser, updateUserInfo } from '../../controllers/user/users';
 import * as addingImageModule from '../../controllers/user/addingImage';
 
 const { ObjectId } = mongoose.Types;
-let mongoServer;
-
-// Set up an in-memory MongoDB server and connect to it before running any tests
-beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
-  await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-});
-
-// Disconnect from the MongoDB server and stop it after all tests have run
-afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
-});
 
 // Seed the User collection with three sample users before each test
 beforeEach(async () => {
