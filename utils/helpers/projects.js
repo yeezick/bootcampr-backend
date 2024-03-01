@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import weekday from 'dayjs/plugin/weekday.js';
 import relativeTime from 'dayjs/plugin/relativeTime.js';
 
-  // TODO: Uncomment commented-out product manager code when frontend is set up to handle product managers
+// TODO: Uncomment commented-out product manager code when frontend is set up to handle product managers
 
 /**
  * Generate Project
@@ -39,7 +39,7 @@ export const generateProject = async (project = defaultProject) => {
     tasks: [],
     timeline: {
       startDate: formattedStartDate,
-      endDate: formattedEndDate
+      endDate: formattedEndDate,
     },
     title,
   };
@@ -59,8 +59,8 @@ export const fillProjectWithUsers = async (project, designers, engineers, produc
   // project.members.productManagers = getIds(productManagers);
 
   const users = [
-    ...designers, 
-    ...engineers, 
+    ...designers,
+    ...engineers,
     // TODO: Uncomment when frontend is set up to handle product managers
     // ...productManagers
   ];
