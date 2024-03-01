@@ -25,6 +25,7 @@ export const generateProject = async (project = defaultProject) => {
   const endDateRaw = upcomingSundayRaw.add(duration, 'd');
   const formattedEndDate = endDateRaw.format('YYYY-MM-DD');
 
+
   return {
     calendarId: '',
     chats: [],

@@ -78,3 +78,8 @@ const snakeCaseEventSummary = (projectId, eventSummary) => {
 
   return `${projectId}-${snakeCasedEventSummary}`;
 };
+
+
+export const createProjectStartEvent = () => {
+  
+}
