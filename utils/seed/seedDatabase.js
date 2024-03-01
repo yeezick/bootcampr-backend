@@ -1,6 +1,7 @@
 import 'dotenv/config.js';
 import db from '../../db/connection.js';
 import Project from '../../models/project.js';
+import Event from '../../models/event.js';
 import User from '../../models/user.js';
 import Ticket from '../../models/tickets.js';
 import { createChatbot, generateFakeUser, generateFakeUsers } from './utils/users.js';
@@ -15,6 +16,7 @@ import {
   starStruckData,
   pollyProductData,
 } from '../data/mocks/users.js';
+import { generateProjectStartEvent } from '../helpers/calendarHelpers.js';
 
 const reSeedDatabase = async () => {
   const env = process.env.NODE_ENV;
@@ -46,8 +48,12 @@ const reSeedDatabase = async () => {
   // Fill a single project with users
   await fillProjectWithUsers(projects[0], designers.slice(0, 2), engineers.slice(0, 3), productManagers.slice(0, 1));
   projects[0].calendarId = await addCalendarToProject(projects[0]._id);
+
   
   await addStaticSeedData(projects, users);
+
+  const projectStartEvent = new Event(await generateProjectStartEvent(projects[0]))
+  await projectStartEvent.save()
 
   for (const project of projects) {
     await project.save();
@@ -57,6 +63,8 @@ const reSeedDatabase = async () => {
   }
   return;
 };
+
+
 
 reSeedDatabase()
   .then(() => {

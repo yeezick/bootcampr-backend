@@ -80,6 +80,23 @@ const snakeCaseEventSummary = (projectId, eventSummary) => {
 };
 
 
-export const createProjectStartEvent = () => {
+export const generateProjectStartEvent = (project) => {
+  const { timeline: { startDate, endDate }, calendarId, members: { engineers, designers, productManagers } } = project
+
+  const attendees = []
   
+  engineers.forEach(engineer => attendees.push(engineer))
+  designers.forEach(designer => attendees.push(designer))
+  
+  //productManagers.forEach(projectManager => attendees.push(productManager))
+
+  return {
+    title: 'Project Start',
+    start: startDate,
+    end: endDate,
+    allDay: true, 
+    attendees,
+    calendarId,
+    description: 'First day of project'
+    }
 }

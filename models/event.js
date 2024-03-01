@@ -10,7 +10,7 @@ const Event = new Schema(
     calendarId: { type: String },
     attendees: [
       {
-        email: { type: String }
+        userId: { type: Schema.Types.ObjectId, ref: 'User' }
       }
     ],
     description: { type: String }

@@ -1,5 +1,6 @@
 import Project from '../models/project.js'
 import { findCommonAvailability } from '../utils/availability.js';
+import { generateProjectStartEvent } from '../utils/helpers/calendarHelpers.js';
 import { generateProject, fillProjectWithUsers } from '../utils/helpers/projects.js';
 
 import { 
