@@ -2,7 +2,7 @@ import Project from '../../models/project.js';
 import User from '../../models/user.js';
 import { findCommonAvailability } from '../../utils/availability.js';
 import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
-import { reorderColumn } from '../../utils/helpers/projects.js';
+import { moveTicketBetweenColumns, reorderColumn } from '../../utils/helpers/projects.js';
 
 export const getAllProjects = async (req, res) => {
   try {
@@ -149,5 +149,29 @@ export const reorderProjectColumn = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(400).json({ message: 'Error reordering ticket within column.' });
+  }
+};
+
+export const moveTicketColumn = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { newColumnId, newColumnIdx, oldColumnId, oldColumnIdx } = req.body;
+    const project = await Project.findById(projectId).populate([
+      { path: `projectTracker.${oldColumnId}`, select: '-projectTracker' },
+      { path: `projectTracker.${newColumnId}`, select: '-projectTracker' },
+    ]);
+    const [oldColumn, newColumn] = moveTicketBetweenColumns(
+      project.projectTracker[newColumnId],
+      newColumnIdx,
+      project.projectTracker[oldColumnId],
+      oldColumnIdx,
+    );
+    project.projectTracker[newColumnId] = newColumn;
+    project.projectTracker[oldColumnId] = oldColumn;
+    await project.save();
+    res.status(200).json({ oldColumn, newColumn });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: 'Error moving tickets between columns.' });
   }
 };

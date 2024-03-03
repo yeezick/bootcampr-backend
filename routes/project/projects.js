@@ -6,6 +6,7 @@ import {
   getOneProject,
   getProjectMembers,
   getTeamCommonAvailability,
+  moveTicketColumn,
   reorderProjectColumn,
   updateProject,
   updateUserAndProject,
@@ -30,6 +31,7 @@ router.get('/project/:projectId/members', getProjectMembers);
 router.patch('/projects/:id', updateProject); //update description etc
 router.delete('/projects/:id', deleteProject);
 router.patch('/project/reorder/:projectId', reorderProjectColumn);
+router.patch('/project/moveTicket/:projectId', moveTicketColumn);
 router.patch('/update-user-and-project', updateUserAndProject);
 router.get('/projects/:projectId/team-common-availability', getTeamCommonAvailability);
 
