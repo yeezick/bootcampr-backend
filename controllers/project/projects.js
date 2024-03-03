@@ -2,6 +2,7 @@ import Project from '../../models/project.js';
 import User from '../../models/user.js';
 import { findCommonAvailability } from '../../utils/availability.js';
 import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
+import { reorderColumn } from '../../utils/helpers/projects.js';
 
 export const getAllProjects = async (req, res) => {
   try {
@@ -131,5 +132,22 @@ export const getTeamCommonAvailability = async (req, res) => {
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });
+  }
+};
+
+export const reorderProjectColumn = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { columnId, oldIdx, newIdx } = req.body;
+    const project = await Project.findById(projectId).populate([
+      { path: `projectTracker.${columnId}`, select: '-projectTracker' },
+    ]);
+    const reorderedColumn = reorderColumn(project.projectTracker[columnId], oldIdx, newIdx);
+    project.projectTracker[columnId] = reorderedColumn;
+    await project.save();
+    res.status(200).json({ reorderedColumn });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: 'Error reordering ticket within column.' });
   }
 };

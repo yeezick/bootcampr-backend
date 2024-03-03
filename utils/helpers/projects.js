@@ -88,3 +88,10 @@ export const addCalendarToProject = async (projectId) => {
     return null;
   }
 };
+
+export const reorderColumn = (ticketColumn, startIndex, endIndex) => {
+  const updatedColumn = Array.from(ticketColumn);
+  const [removed] = updatedColumn.splice(startIndex, 1);
+  updatedColumn.splice(endIndex, 0, removed);
+  return updatedColumn;
+};
