@@ -6,13 +6,7 @@ const Event = new Schema(
     title: { type: String, required: true },
     start: { type: String },
     end: { type: String },
-    allDay: { type: Boolean },
     calendarId: { type: String },
-    attendees: [
-      {
-        userId: { type: Schema.Types.ObjectId, ref: 'User' }
-      }
-    ],
     description: { type: String }
   }
 )

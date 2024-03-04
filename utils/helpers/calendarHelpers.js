@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 /**
  * Returns the data relevant to enabling or disbaling a hangout link.
  * Should be spread out directly into the preparedEvent payload of a google calendar api call.
@@ -81,21 +83,15 @@ const snakeCaseEventSummary = (projectId, eventSummary) => {
 
 
 export const generateProjectStartEvent = (project) => {
-  const { timeline: { startDate, endDate }, calendarId, members: { engineers, designers, productManagers } } = project
+  const { timeline: { startDate }, calendarId, } = project
 
-  const attendees = []
-  
-  engineers.forEach(engineer => attendees.push(engineer))
-  designers.forEach(designer => attendees.push(designer))
-  
-  //productManagers.forEach(projectManager => attendees.push(productManager))
+  const start = dayjs(startDate).set('hour', 0).set('minute', 0).set('second', 0).format('YYYY-MM-DDTHH:mm:ss')
+  const end = dayjs(startDate).set('hour', 24).set('minute', 0).set('second',0).format('YYYY-MM-DDTHH:mm:ss')
 
   return {
     title: 'Project Start',
-    start: startDate,
-    end: endDate,
-    allDay: true, 
-    attendees,
+    start,
+    end,
     calendarId,
     description: 'First day of project'
     }
