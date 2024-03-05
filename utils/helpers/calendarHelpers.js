@@ -1,10 +1,6 @@
 import dayjs from 'dayjs';
-import User from '../../models/user.js'
-import Project from '../../models/project.js';
-import { produce } from 'immer';
-import { calendar } from '../../server.js';
-
-
+import customParseFormat from "dayjs/plugin/customParseFormat.js";
+dayjs.extend(customParseFormat);
 /**
  * Returns the data relevant to enabling or disbaling a hangout link.
  * Should be spread out directly into the preparedEvent payload of a google calendar api call.
@@ -86,52 +82,44 @@ const snakeCaseEventSummary = (projectId, eventSummary) => {
   return `${projectId}-${snakeCasedEventSummary}`;
 };
 
-export const projectEvents = []
+export const findFirstAvailableDateTime = (commonAvailability, project) => {
+  const [firstDay] = Object.keys(commonAvailability)
 
-export const generateProjectOrientation = async (projectId) => {
-  const project = await Project.findById(projectId)
-      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }])
-      .exec();
+  const firstAvailableDOTW = Object.keys(commonAvailability)[0]
+  const firstAvailableTime = dayjs(commonAvailability[firstDay][0][0], "h:mm A").format('HH:mm:ss')
 
-      console.log(project)
-  const members = [...project.members.engineers, ...project.members.designers]
-  const attendees = members.map((member) => {
-    return {
-      email: member.email,
-      comment: 'not organizer'
-    }
-  })
-
-  const start = dayjs(project.timeline.startDate).set('hour', 12).set('minute', 0).set('second', 0).format('YYYY-MM-DDTHH:mm:ss')
-  const end = dayjs(project.timeline.startDate).set('hour', 13).set('minute', 0).set('second',0).format('YYYY-MM-DDTHH:mm:ss')
-
-  const eventInfo = {
-    summary: 'Project Orientation',
-    start: {
-      dateTime: start,
-      timeZone: 'America/New_York'
-    },
-    end: {
-      dateTime: end,
-      timeZone: 'America/New_York'
-    },
-    description: 'Project Orientation',
-    attendees,
-    calendarId: project.calendarId
+  let DOTWNumber;
+  switch(firstAvailableDOTW){
+    case "SUN":
+      DOTWNumber = 0
+      break;
+    case "MON":
+      DOTWNumber = 1
+      break;
+    case "TUE":
+      DOTWNumber = 2
+      break;
+    case "WED":
+      DOTWNumber = 3
+      break;
+    case "THU":
+      DOTWNumber = 4
+      break;
+    case "FRI":
+      DOTWNumber = 5
+      break;
+    case "SAT":
+      DOTWNumber = 6
+      break;
   }
 
+   const start = dayjs(`${project.timeline.startDate} ${firstAvailableTime}`).day(DOTWNumber).format('YYYY-MM-DDTHH:mm:ss')
+   const end = dayjs(start).add(1, 'hour').format('YYYY-MM-DDTHH:mm:ss')
 
-  let preparedEvent = {
-    calendarId: `${eventInfo.calendarId}@group.calendar.google.com`,
-    resource: eventInfo,
-    sendUpdates: 'all',
-  };
-
-  const { data: googleEvent } = await calendar.events.insert(preparedEvent);
-  const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
-  return convertedEvent
+   return {
+    start,
+    end
+   }
 }
 
-export const generateProjectKickoffMeeting = () => {
 
-}

@@ -2,12 +2,10 @@ import Project from '../../models/project.js';
 import User from '../../models/user.js';
 import { findCommonAvailability } from '../../utils/availability.js';
 import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
-import { generateProjectOrientation } from '../../utils/helpers/calendarHelpers.js';
 
 export const getAllProjects = async (req, res) => {
   try {
     const projects = await Project.find();
-    
     res.json(projects);
   } catch (error) {
     console.log(error.message);
@@ -28,9 +26,7 @@ export const getOneProject = async (req, res) => {
         { path: 'projectTracker.completed', select: '-projectTracker' },
       ])
       .exec();
-
-    //generateProjectOrientation(id)
-
+    
     if (project) {
       return res.json(project);
     }
