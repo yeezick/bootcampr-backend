@@ -15,89 +15,86 @@ const userData = {
   password: 'dummy_password',
 };
 
+const createUser = async (userData) => {
+  const hashedPassword = await bcrypt.hash(userData.password, SALT_ROUNDS);
+  return User.create({
+    ...userData,
+    passwordDigest: hashedPassword,
+    verified: true,
+  });
+};
+
 describe('Auth Routes', () => {
+  let testUserId, testUserEmail, validToken, expiredToken;
+  const newEmail = `newemail${Date.now()}@example.com`;
+  let invalidUserId = new mongoose.Types.ObjectId();
+  const invalidEmail = `invalidEmail${Date.now()}@example.com`;
+
+  beforeEach(async () => {
+    await User.deleteMany({});
+    const user = await createUser(userData);
+    testUserId = user._id.toString();
+    testUserEmail = user.email;
+    validToken = newToken(testUserId);
+    expiredToken = newToken(testUserId, false, true);
+  });
+
+  afterAll(async () => {
+    await User.deleteMany({});
+  });
+
   describe('POST /sign-up', () => {
     beforeEach(async () => {
       await User.deleteMany({});
     });
 
     it('should return 201 and confirm user creation and email verification sent', async () => {
-      try {
-        const res = await supertest(app).post('/sign-up').send(userData);
-        expect(res.status).toBe(201);
-        expect(isValidObjectId(res.body.newUser)).toBe(true);
-        expect(res.body).toEqual(
-          expect.objectContaining({
-            message: `We've sent a verification link to ${userData.email}. Please click on the link that has been sent to your email to verify your account and continue the registration process. The link expires in 30 minutes.`,
-            invalidCredentials: false,
-            existingAccount: false,
-          }),
-        );
-      } catch (err) {
-        console.error(err.message);
-        throw err;
-      }
-    });
-
-    it('should return 409 and confirm user email already exists', async () => {
-      const hashedPassword = await bcrypt.hash(userData.password, SALT_ROUNDS);
-      await User.create({
-        ...userData,
-        passwordDigest: hashedPassword,
-        verified: true,
-      });
-      try {
-        const res = await supertest(app).post('/sign-up').send(userData);
-        expect(res.status).toBe(409);
-        expect(res.body).toEqual({
-          message: `An account with Email ${userData.email} already exists. Please try a different email address to register, or Sign In to your existing Bootcampr account.`,
-          invalidCredentials: true,
-          existingAccount: true,
-        });
-      } catch (err) {
-        console.error(err.message);
-        throw err;
-      }
-    });
-
-    it('should return 400 for missing fields', async () => {
-      const requiredFields = ['firstName', 'lastName', 'email', 'password'];
-      await Promise.all(
-        requiredFields.map(async (field) => {
-          const cloneUserData = { ...userData };
-          delete cloneUserData[field];
-          const res = await supertest(app).post('/sign-up').send(cloneUserData);
-          expect(res.status).toBe(400);
-          expect(res.body).toEqual({
-            message: `Missing required fields: ${field}`,
-            invalidCredentials: true,
-            existingAccount: false,
-          });
+      const res = await supertest(app).post('/sign-up').send(userData);
+      expect(res.status).toBe(201);
+      expect(isValidObjectId(res.body.newUser)).toBe(true);
+      expect(res.body).toEqual(
+        expect.objectContaining({
+          message: `We've sent a verification link to ${testUserEmail}. Please click on the link that has been sent to your email to verify your account and continue the registration process. The link expires in 30 minutes.`,
+          invalidCredentials: false,
+          existingAccount: false,
         }),
       );
     });
 
-    // TODO: Potential Additional Tests for Sign Up:
-    // Validate password Strength or Length?
-    // Combination of Invalid Fields?
-    // Invalid Email Address? Should that be its own test file emailVerification.js?
-    // look into Promise.all
-    // Dynamic email for testing
-  });
-
-  describe('POST /sign-in', () => {
-    beforeAll(async () => {
-      const hashedPassword = await bcrypt.hash(userData.password, SALT_ROUNDS);
-      await User.create({
-        ...userData,
-        passwordDigest: hashedPassword,
-        verified: true,
+    it('should return 409 and confirm user email already exists', async () => {
+      await createUser(userData);
+      const res = await supertest(app).post('/sign-up').send(userData);
+      expect(res.status).toBe(409);
+      expect(res.body).toEqual({
+        message: `An account with Email ${testUserEmail} already exists. Please try a different email address to register, or Sign In to your existing Bootcampr account.`,
+        invalidCredentials: true,
+        existingAccount: true,
       });
     });
 
+    it.each([['firstName'], ['lastName'], ['email'], ['password']])(
+      'should return 400 for missing field %s',
+      async (field) => {
+        const { [field]: removed, ...partialData } = userData;
+        const res = await supertest(app).post('/sign-up').send(partialData);
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({
+          message: `Missing required fields: ${field}`,
+          invalidCredentials: true,
+          existingAccount: false,
+        });
+      },
+    );
+
+    // NOTE: Potential Additional Tests for Sign Up:
+    // Validate password Strength or Length?
+    // Combination of Invalid Fields?
+  });
+
+  describe('POST /sign-in', () => {
     it('should sign in an existing user and return a token', async () => {
       const res = await supertest(app).post('/sign-in').send({
-        email: userData.email,
+        email: testUserEmail,
         password: userData.password,
       });
       expect(res.status).toBe(201);
@@ -119,7 +116,7 @@ describe('Auth Routes', () => {
 
     it('should return an error for invalid credentials', async () => {
       const res = await supertest(app).post('/sign-in').send({
-        email: userData.email,
+        email: testUserEmail,
         password: 'wrong_password',
       });
       expect(res.status).toBe(401);
@@ -129,22 +126,25 @@ describe('Auth Routes', () => {
         tMsg: "User ID and password don't match. Please try again.",
       });
     });
+
+    // NOTE: Potential Additional Tests for Sign Up:
+    // Test for user not verified?
+    // Test for server error?
   });
 
   describe('GET /verify', () => {
-    let validToken;
+    let validBodyToken;
 
     beforeAll(async () => {
       const res = await supertest(app).post('/sign-in').send({
-        email: userData.email,
+        email: testUserEmail,
         password: userData.password,
       });
-      validToken = res.body.token;
+      validBodyToken = res.body.token;
     });
 
     it('should verify a user with a valid token', async () => {
-      const res = await supertest(app).get('/verify').set('Authorization', `Bearer ${validToken}`);
-
+      const res = await supertest(app).get('/verify').set('Authorization', `Bearer ${validBodyToken}`);
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('userID');
       expect(res.body).toHaveProperty('email');
@@ -152,14 +152,12 @@ describe('Auth Routes', () => {
 
     it('should return an error for an invalid token', async () => {
       const res = await supertest(app).get('/verify');
-
       expect(res.status).toBe(401);
       expect(res.body).toEqual({ message: 'Not authorized' });
     });
 
     it('should return an error if no token is provided', async () => {
       const res = await supertest(app).get('/verify');
-
       expect(res.status).toBe(401);
       expect(res.body).toEqual({ message: 'Not authorized' });
     });
@@ -174,20 +172,20 @@ describe('Auth Routes', () => {
     });
 
     it('should return an error for invalid email format', async () => {
-      const invalidEmail = 'invalid-email';
-      const res = await supertest(app).get(`/verify-email/${invalidEmail}`);
+      const invalidEmailFormat = 'invalid-email';
+      const res = await supertest(app).get(`/verify-email/${invalidEmailFormat}`);
       expect(res.status).toBe(422);
       expect(res.body).toEqual({ error: 'Invalid email.' });
     });
 
     it('should return an error if the email address already exists', async () => {
-      const existingEmail = userData.email;
+      const existingEmail = testUserEmail;
       const res = await supertest(app).get(`/verify-email/${existingEmail}`);
       expect(res.status).toBe(409);
       expect(res.body).toEqual({ error: 'Email address already exists.' });
     });
 
-    // TODO: Potential Additional Tests for verify-email/:email:
+    // NOTE: Potential Additional Tests for verify-email/:email:
     // Test for case sensitivity?
     // Test for trailing spaces?
     // Test for special characters?
@@ -196,21 +194,8 @@ describe('Auth Routes', () => {
   });
 
   describe('POST /users/:id/expired-link', () => {
-    let userId;
-
-    beforeAll(async () => {
-      await User.deleteMany({});
-      const hashedPassword = await bcrypt.hash(userData.password, SALT_ROUNDS);
-      const createdUser = await User.create({
-        ...userData,
-        passwordDigest: hashedPassword,
-        verified: false,
-      });
-      userId = createdUser._id.toString();
-    });
-
     it('should resend a new verification link successfully', async () => {
-      const res = await supertest(app).post(`/users/${userId}/expired-link`).send();
+      const res = await supertest(app).post(`/users/${testUserId}/expired-link`).send();
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
         friendlyMessage: `Hi ${userData.firstName}, a new link has been sent to your email. Please verify.`,
@@ -218,8 +203,8 @@ describe('Auth Routes', () => {
     });
 
     it('should resend a verification link to a new email address successfully', async () => {
-      const newEmail = Buffer.from(`newemail${Date.now()}@example.com`).toString('base64');
-      const res = await supertest(app).post(`/users/${userId}/expired-link?newEmail=${newEmail}`).send();
+      const newEncodedEmail = Buffer.from(`newemail${Date.now()}@example.com`).toString('base64');
+      const res = await supertest(app).post(`/users/${testUserId}/expired-link?newEmail=${newEncodedEmail}`).send();
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
         friendlyMessage: 'A new verification link has been sent to your updated email address.',
@@ -227,7 +212,6 @@ describe('Auth Routes', () => {
     });
 
     it('should return an error for an invalid user ID', async () => {
-      const invalidUserId = new ObjectId();
       const res = await supertest(app).post(`/users/${invalidUserId}/expired-link`);
       expect(res.status).toBe(400);
       expect(res.body).toEqual({
@@ -237,25 +221,10 @@ describe('Auth Routes', () => {
   });
 
   describe('POST /users/:id/update-email-verification', () => {
-    let userId, oldEmail;
-
-    beforeAll(async () => {
-      await User.deleteMany({});
-      oldEmail = userData.email;
-      const hashedPassword = await bcrypt.hash(userData.password, SALT_ROUNDS);
-      const createdUser = await User.create({
-        ...userData,
-        passwordDigest: hashedPassword,
-        verified: false,
-      });
-      userId = createdUser._id.toString();
-    });
-
     it('should update the email address successfully and send a verification link', async () => {
-      const newEmail = `newemail${Date.now()}@example.com`;
       const res = await supertest(app)
-        .post(`/users/${userId}/update-email-verification`)
-        .send({ userId, oldEmail, newEmail });
+        .post(`/users/${testUserId}/update-email-verification`)
+        .send({ userId: testUserId, oldEmail: testUserEmail, newEmail: newEmail });
       expect(res.status).toBe(201);
       expect(res.body).toEqual({
         friendlyMessage: `We've sent a verification link to ${newEmail}. Please click on the link that has been sent to your email to verify your updated email address. The link expires in 30 minutes.`,
@@ -264,8 +233,9 @@ describe('Auth Routes', () => {
     });
 
     it('should handle unexpected errors gracefully', async () => {
-      const newEmail = `newemail${Date.now()}@example.com`;
-      const res = await supertest(app).post(`/users/${userId}/update-email-verification`).send({ newEmail });
+      const res = await supertest(app)
+        .post(`/users/${testUserId}/update-email-verification`)
+        .send({ newEmail: newEmail });
       expect(res.status).toBe(400);
       expect(res.body).toEqual({
         error: expect.any(String),
@@ -274,11 +244,10 @@ describe('Auth Routes', () => {
     });
 
     it('should return an error for mismatching old email', async () => {
-      const newEmail = `newemail${Date.now()}@example.com`;
-      const wrongOldEmail = `wrong${oldEmail}`;
+      const wrongOldEmail = `wrong${testUserEmail}@example.com`;
       const res = await supertest(app)
-        .post(`/users/${userId}/update-email-verification`)
-        .send({ userId, oldEmail: wrongOldEmail, newEmail });
+        .post(`/users/${testUserId}/update-email-verification`)
+        .send({ userId: testUserId, oldEmail: wrongOldEmail, newEmail: newEmail });
       expect(res.status).toBe(400);
       expect(res.body).toEqual({
         friendlyMessage: `This email address does not match the provided account.`,
@@ -286,10 +255,10 @@ describe('Auth Routes', () => {
     });
 
     it('should return an error when the new email already exists', async () => {
-      const duplicateEmail = oldEmail;
+      const duplicateEmail = testUserEmail;
       const res = await supertest(app)
-        .post(`/users/${userId}/update-email-verification`)
-        .send({ userId, oldEmail, newEmail: duplicateEmail });
+        .post(`/users/${testUserId}/update-email-verification`)
+        .send({ userId: testUserId, oldEmail: testUserEmail, newEmail: duplicateEmail });
       expect(res.status).toBe(401);
       expect(res.body).toEqual({
         friendlyMessage: `An account with email ${duplicateEmail} already exists.`,
@@ -299,23 +268,8 @@ describe('Auth Routes', () => {
   });
 
   describe('GET /:id/verify/:token', () => {
-    let userId, validToken, expiredToken;
-
-    beforeAll(async () => {
-      await User.deleteMany({});
-      const hashedPassword = await bcrypt.hash(userData.password, SALT_ROUNDS);
-      const createdUser = await User.create({
-        ...userData,
-        passwordDigest: hashedPassword,
-        verified: false,
-      });
-      userId = createdUser._id.toString();
-      validToken = newToken(userId);
-      expiredToken = newToken(userId, false, true);
-    });
-
     it('should indicate the token is expired', async () => {
-      const res = await supertest(app).get(`/${userId}/verify/${expiredToken}`);
+      const res = await supertest(app).get(`/${testUserId}/verify/${expiredToken}`);
       expect(res.status).toBe(299);
       expect(res.body).toEqual({
         msg: 'This url is expired. Please request a new link.',
@@ -324,21 +278,20 @@ describe('Auth Routes', () => {
     });
 
     it('should indicate the link is invalid', async () => {
-      const invalidUserId = new mongoose.Types.ObjectId();
       const res = await supertest(app).get(`/${invalidUserId}/verify/${validToken}`);
       expect(res.status).toBe(400);
       expect(res.body).toEqual({ msg: 'Invalid link' });
     });
 
     it('should verify the user email successfully', async () => {
-      const res = await supertest(app).get(`/${userId}/verify/${validToken}`);
+      const res = await supertest(app).get(`/${testUserId}/verify/${validToken}`);
       expect(res.status).toBe(200);
       expect(res.body.msg).toBe(
         `Hi, ${userData.firstName}! Your email has been successfully verified. Please Sign In to finish setting up your account.`,
       );
       expect(res.body.user).toBeDefined();
       expect(res.body.bootcamprNewToken).toBeDefined();
-      const updatedUser = await User.findById(userId);
+      const updatedUser = await User.findById(testUserId);
       expect(updatedUser.verified).toBe(true);
     });
   });
@@ -349,22 +302,9 @@ describe('Auth Routes', () => {
   // describe('GET /verify-token-expiration/:emailToken', () => {});
 
   describe('POST /confirm-password/:userID', () => {
-    let userId;
-
-    beforeAll(async () => {
-      await User.deleteMany({});
-      const hashedPassword = await bcrypt.hash(userData.password, SALT_ROUNDS);
-      const createdUser = await User.create({
-        ...userData,
-        passwordDigest: hashedPassword,
-        verified: false,
-      });
-      userId = createdUser._id.toString();
-    });
-
     it('should confirm the password successfully for a valid user and correct password', async () => {
-      const res = await supertest(app).post(`/confirm-password/${userData}`).send({
-        email: userData.email,
+      const res = await supertest(app).post(`/confirm-password/${testUserId}`).send({
+        email: testUserEmail,
         password: userData.password,
       });
       expect(res.status).toBe(201);
@@ -372,8 +312,8 @@ describe('Auth Routes', () => {
     });
 
     it('should fail to confirm the password with an incorrect password', async () => {
-      const res = await supertest(app).post(`/confirm-password/${userId}`).send({
-        email: userData.email,
+      const res = await supertest(app).post(`/confirm-password/${testUserId}`).send({
+        email: testUserEmail,
         password: 'incorrectPassword',
       });
       expect(res.status).toBe(401);
@@ -381,9 +321,9 @@ describe('Auth Routes', () => {
     });
 
     it('should fail to confirm the password for a non-existent userID', async () => {
-      const nonExistentUserId = new mongoose.Types.ObjectId();
+      const nonExistentUserId = ObjectId();
       const res = await supertest(app).post(`/confirm-password/${nonExistentUserId}`).send({
-        email: userData.email,
+        email: testUserEmail,
         password: 'testPassword123',
       });
       expect(res.status).toBe(401);
@@ -392,23 +332,12 @@ describe('Auth Routes', () => {
   });
 
   describe('PATCH /update-password/:userID', () => {
-    let userId;
     let oldPassword = userData.password;
     let newPassword = `newPassword${Date.now()}`;
-    beforeAll(async () => {
-      await User.deleteMany({});
-      const hashedPassword = await bcrypt.hash(oldPassword, SALT_ROUNDS);
-      const createdUser = await User.create({
-        ...userData,
-        passwordDigest: hashedPassword,
-        verified: true,
-      });
-      userId = createdUser._id.toString();
-    });
 
     it('should fail to update the password when new password is the same as the old password', async () => {
       const res = await supertest(app)
-        .patch(`/update-password/${userId}`)
+        .patch(`/update-password/${testUserId}`)
         .send({ password: oldPassword, newPassword: oldPassword });
       expect(res.status).toBe(401);
       expect(res.body).toEqual({
@@ -420,7 +349,7 @@ describe('Auth Routes', () => {
 
     it('should successfully update the password', async () => {
       const res = await supertest(app)
-        .patch(`/update-password/${userId}`)
+        .patch(`/update-password/${testUserId}`)
         .send({ password: oldPassword, newPassword: newPassword });
       expect(res.status).toBe(201);
       expect(res.body).toEqual({
@@ -432,7 +361,7 @@ describe('Auth Routes', () => {
 
     it('should fail to update the password with incorrect current password', async () => {
       const res = await supertest(app)
-        .patch(`/update-password/${userId}`)
+        .patch(`/update-password/${testUserId}`)
         .send({ password: 'wrongPassword', newPassword: newPassword });
       expect(res.status).toBe(401);
       expect(res.body).toEqual({
@@ -444,33 +373,18 @@ describe('Auth Routes', () => {
   });
 
   describe('POST /reset-password', () => {
-    let userId, userEmail;
-
-    beforeAll(async () => {
-      await User.deleteMany({});
-      const hashedPassword = await bcrypt.hash(userData.password, SALT_ROUNDS);
-      const createdUser = await User.create({
-        ...userData,
-        passwordDigest: hashedPassword,
-        verified: true,
-      });
-      userId = createdUser._id.toString();
-      userEmail = createdUser.email;
-    });
-
     it("should return an error if the email does not match the logged-in user's email", async () => {
-      const wrongEmail = `wrong${Date.now()}@example.com`;
-      const res = await supertest(app).post('/reset-password').send({ email: wrongEmail, userId: userId });
+      const res = await supertest(app).post('/reset-password').send({ email: invalidEmail, userId: testUserId });
       expect(res.status).toBe(401);
       expect(res.body).toEqual({
         status: false,
-        message: `The email address ${wrongEmail} is not associated with the user's account.`,
+        message: `The email address ${invalidEmail} is not associated with the user's account.`,
         friendlyMessage: 'Incorrect email. Please enter the email address associated with your account.',
       });
     });
 
     it('should send a reset password verification email successfully', async () => {
-      const res = await supertest(app).post('/reset-password').send({ email: userEmail, userId: userId });
+      const res = await supertest(app).post('/reset-password').send({ email: testUserEmail, userId: testUserId });
       expect(res.status).toBe(201);
       expect(res.body).toEqual({
         status: true,
@@ -481,10 +395,8 @@ describe('Auth Routes', () => {
     });
 
     it('handles errors during the reset password process gracefully', async () => {
-      const invalidUserId = `invalidUserId${Date.now()}`;
-      const invalidEmail = `invalidEmail${Date.now()}@example.com`;
+      invalidUserId = `invalidUserId${Date.now()}`;
       const res = await supertest(app).post('/reset-password').send({ email: invalidEmail, userId: invalidUserId });
-
       expect(res.status).toBe(400);
       expect(res.body).toEqual({
         status: false,
@@ -493,9 +405,5 @@ describe('Auth Routes', () => {
           'There was an issue sending your reset password verification email. Please try again or contact support.',
       });
     });
-  });
-
-  afterAll(async () => {
-    await User.deleteMany({});
   });
 });
