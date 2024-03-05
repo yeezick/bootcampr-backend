@@ -7,6 +7,7 @@ const Event = new Schema(
     start: { type: String },
     end: { type: String },
     calendarId: { type: String },
+    classNames: [],
     description: { type: String }
   }
 )

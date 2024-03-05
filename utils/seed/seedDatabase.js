@@ -52,8 +52,11 @@ const reSeedDatabase = async () => {
   
   await addStaticSeedData(projects, users);
 
-  const projectStartEvent = new Event(await generateProjectStartEvent(projects[0]))
-  await projectStartEvent.save()
+  // const projectStartEvent = new Event(await generateProjectStartEvent(projects[0]))
+  // await projectStartEvent.save()
+  console.log(projects[0])
+  const projectStart = generateProjectStartEvent(projects[0])
+ 
 
   for (const project of projects) {
     await project.save();

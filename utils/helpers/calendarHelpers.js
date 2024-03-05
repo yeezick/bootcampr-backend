@@ -1,4 +1,7 @@
 import dayjs from 'dayjs';
+import User from '../../models/user.js'
+import { produce } from 'immer';
+
 
 /**
  * Returns the data relevant to enabling or disbaling a hangout link.
@@ -82,17 +85,30 @@ const snakeCaseEventSummary = (projectId, eventSummary) => {
 };
 
 
-export const generateProjectStartEvent = (project) => {
-  const { timeline: { startDate }, calendarId, } = project
+export const generateProjectStartEvent = async (project) => {
+  const { _id, timeline: { startDate }, calendarId, members: {engineers, designers, productManagers} } = project
 
-  const start = dayjs(startDate).set('hour', 0).set('minute', 0).set('second', 0).format('YYYY-MM-DDTHH:mm:ss')
-  const end = dayjs(startDate).set('hour', 24).set('minute', 0).set('second',0).format('YYYY-MM-DDTHH:mm:ss')
+  const start = dayjs(startDate).set('hour', 12).set('minute', 0).set('second', 0).format('YYYY-MM-DDTHH:mm:ss')
+  const end = dayjs(startDate).set('hour', 13).set('minute', 0).set('second',0).format('YYYY-MM-DDTHH:mm:ss')
 
-  return {
+  const eventInfo = {
     title: 'Project Start',
     start,
     end,
-    calendarId,
-    description: 'First day of project'
-    }
+    description: 'First day of project',
+  }
+    
+      let preparedEvent = {
+        calendarId: `${calendarId}@group.calendar.google.com`,
+        resource: {},
+        sendUpdates: 'all',
+      };
+  
+        preparedEvent = produce(preparedEvent, (draft) => {
+          draft = { ...draft, ...addConferenceDataToGoogleEvent(_id, eventInfo.title, true) };
+          draft.resource = { ...eventInfo, ...draft.resource };
+          return draft;
+        });
+
+       return preparedEvent
 }
