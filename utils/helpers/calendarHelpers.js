@@ -1,6 +1,8 @@
 import dayjs from 'dayjs';
 import User from '../../models/user.js'
+import Project from '../../models/project.js';
 import { produce } from 'immer';
+import { calendar } from '../../server.js';
 
 
 /**
@@ -84,31 +86,52 @@ const snakeCaseEventSummary = (projectId, eventSummary) => {
   return `${projectId}-${snakeCasedEventSummary}`;
 };
 
+export const projectEvents = []
 
-export const generateProjectStartEvent = async (project) => {
-  const { _id, timeline: { startDate }, calendarId, members: {engineers, designers, productManagers} } = project
+export const generateProjectOrientation = async (projectId) => {
+  const project = await Project.findById(projectId)
+      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }])
+      .exec();
 
-  const start = dayjs(startDate).set('hour', 12).set('minute', 0).set('second', 0).format('YYYY-MM-DDTHH:mm:ss')
-  const end = dayjs(startDate).set('hour', 13).set('minute', 0).set('second',0).format('YYYY-MM-DDTHH:mm:ss')
+      console.log(project)
+  const members = [...project.members.engineers, ...project.members.designers]
+  const attendees = members.map((member) => {
+    return {
+      email: member.email,
+      comment: 'not organizer'
+    }
+  })
+
+  const start = dayjs(project.timeline.startDate).set('hour', 12).set('minute', 0).set('second', 0).format('YYYY-MM-DDTHH:mm:ss')
+  const end = dayjs(project.timeline.startDate).set('hour', 13).set('minute', 0).set('second',0).format('YYYY-MM-DDTHH:mm:ss')
 
   const eventInfo = {
-    title: 'Project Start',
-    start,
-    end,
-    description: 'First day of project',
+    summary: 'Project Orientation',
+    start: {
+      dateTime: start,
+      timeZone: 'America/New_York'
+    },
+    end: {
+      dateTime: end,
+      timeZone: 'America/New_York'
+    },
+    description: 'Project Orientation',
+    attendees,
+    calendarId: project.calendarId
   }
-    
-      let preparedEvent = {
-        calendarId: `${calendarId}@group.calendar.google.com`,
-        resource: {},
-        sendUpdates: 'all',
-      };
-  
-        preparedEvent = produce(preparedEvent, (draft) => {
-          draft = { ...draft, ...addConferenceDataToGoogleEvent(_id, eventInfo.title, true) };
-          draft.resource = { ...eventInfo, ...draft.resource };
-          return draft;
-        });
 
-       return preparedEvent
+
+  let preparedEvent = {
+    calendarId: `${eventInfo.calendarId}@group.calendar.google.com`,
+    resource: eventInfo,
+    sendUpdates: 'all',
+  };
+
+  const { data: googleEvent } = await calendar.events.insert(preparedEvent);
+  const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
+  return convertedEvent
+}
+
+export const generateProjectKickoffMeeting = () => {
+
 }

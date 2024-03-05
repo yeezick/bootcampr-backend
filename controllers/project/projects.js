@@ -2,10 +2,12 @@ import Project from '../../models/project.js';
 import User from '../../models/user.js';
 import { findCommonAvailability } from '../../utils/availability.js';
 import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
+import { generateProjectOrientation } from '../../utils/helpers/calendarHelpers.js';
 
 export const getAllProjects = async (req, res) => {
   try {
     const projects = await Project.find();
+    
     res.json(projects);
   } catch (error) {
     console.log(error.message);
@@ -27,9 +29,12 @@ export const getOneProject = async (req, res) => {
       ])
       .exec();
 
+    //generateProjectOrientation(id)
+
     if (project) {
       return res.json(project);
     }
+  
     res.status(404).json({ message: 'Project not found.' });
   } catch (error) {
     console.log(error.message);
@@ -124,7 +129,6 @@ export const getTeamCommonAvailability = async (req, res) => {
     if (project) {
       const members = [...project.members.engineers, ...project.members.designers];
       const commonAvailability = findCommonAvailability(members);
-
       return res.json(commonAvailability);
     }
     res.status(404).json({ message: 'Project not found.' });
