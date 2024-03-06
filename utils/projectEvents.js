@@ -1,12 +1,12 @@
 import dayjs from 'dayjs';
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
 dayjs.extend(customParseFormat);
-import Project from '../../models/project.js';
-import { calendar } from '../../server.js';
-import { findCommonAvailability } from '../availability.js';
+import Project from '../models/project.js';
+import { calendar } from '../server.js';
+import { findCommonAvailability } from './availability.js';
 import { findFirstAvailableDateTime } from './helpers/calendarHelpers.js';
 
-const createGoogleEvent = async () => {
+const createGoogleEvent = async (eventInfo) => {
   let preparedEvent = {
     calendarId: `${eventInfo.calendarId}@group.calendar.google.com`,
     resource: eventInfo,

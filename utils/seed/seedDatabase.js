@@ -16,7 +16,7 @@ import {
   starStruckData,
   pollyProductData,
 } from '../data/mocks/users.js';
-import { generateProjectOrientation } from '../helpers/calendarHelpers.js';
+import { generateProjectOrientation, generateProjectKickoffMeeting } from '../projectEvents.js';
 
 const reSeedDatabase = async () => {
   const env = process.env.NODE_ENV;
@@ -55,7 +55,8 @@ const reSeedDatabase = async () => {
   // const projectStartEvent = new Event(await generateProjectStartEvent(projects[0]))
   // await projectStartEvent.save()
 
-  //const projectStart = await generateProjectOrientation(projects[0]._id.toString())
+  const projectStart = await generateProjectOrientation(projects[0]._id)
+  const projectKickoff = await generateProjectKickoffMeeting(projects[0]._id)
  
 
   for (const project of projects) {
