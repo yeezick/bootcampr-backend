@@ -82,14 +82,19 @@ const snakeCaseEventSummary = (projectId, eventSummary) => {
   return `${projectId}-${snakeCasedEventSummary}`;
 };
 
-export const findFirstAvailableDateTime = (commonAvailability, project) => {
-  const [firstDay] = Object.keys(commonAvailability)
+export const findAvailableDateTime = (commonAvailability, project, ref) => {
+  let availableDOTW;
 
-  const firstAvailableDOTW = Object.keys(commonAvailability)[0]
-  const firstAvailableTime = dayjs(commonAvailability[firstDay][0][0], "h:mm A").format('HH:mm:ss')
+  if(ref === "first"){
+    availableDOTW = Object.keys(commonAvailability)[0]
+  } else if (ref === "last") {
+    availableDOTW = Object.keys(commonAvailability)[Object.keys(commonAvailability).length - 1]
+  }
+
+  const availableTime = dayjs(commonAvailability[availableDOTW][0][0], "h:mm A").format('HH:mm:ss')
 
   let DOTWNumber;
-  switch(firstAvailableDOTW){
+  switch(availableDOTW){
     case "SUN":
       DOTWNumber = 0
       break;
@@ -113,7 +118,7 @@ export const findFirstAvailableDateTime = (commonAvailability, project) => {
       break;
   }
 
-   const start = dayjs(`${project.timeline.startDate} ${firstAvailableTime}`).day(DOTWNumber).format('YYYY-MM-DDTHH:mm:ss')
+   const start = dayjs(`${ref === 'first' ? project.timeline.startDate : project.timeline.endDate} ${availableTime}`).day(DOTWNumber).format('YYYY-MM-DDTHH:mm:ss')
    const end = dayjs(start).add(1, 'hour').format('YYYY-MM-DDTHH:mm:ss')
 
    return {
@@ -121,5 +126,4 @@ export const findFirstAvailableDateTime = (commonAvailability, project) => {
     end
    }
 }
-
 

@@ -4,7 +4,7 @@ dayjs.extend(customParseFormat);
 import Project from '../models/project.js';
 import { calendar } from '../server.js';
 import { findCommonAvailability } from './availability.js';
-import { findFirstAvailableDateTime } from './helpers/calendarHelpers.js';
+import { findAvailableDateTime } from './helpers/calendarHelpers.js';
 import { convertGoogleEventsForCalendar } from './helpers/calendarHelpers.js';
 
 export const createGoogleEvent = async (eventInfo) => {
@@ -67,10 +67,10 @@ export const generateProjectKickoffMeeting = async (projectId) => {
     }
   })
   const commonAvailability = findCommonAvailability(members)
-  const firstDateAndTime = findFirstAvailableDateTime(commonAvailability, project)
+  const firstDateAndTime = findAvailableDateTime(commonAvailability, project, "first")
 
   const eventInfo = {
-    summary: 'Kickoff Meeting',
+    summary: 'Kickoff',
     start: {
       dateTime: firstDateAndTime.start,
       timeZone: 'America/New_York'
@@ -85,5 +85,39 @@ export const generateProjectKickoffMeeting = async (projectId) => {
   }
 
   return createGoogleEvent(eventInfo)
+}
+
+
+export const generateProjectSubmissionMeeting = async(projectId) => {
+  const project = await Project.findById(projectId)
+      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }])
+      .exec();
+
+  const members = [...project.members.engineers, ...project.members.designers]
+  const attendees = members.map((member) => {
+    return {
+      email: member.email,
+      comment: 'not organizer'
+    }
+  })
+
+  const commonAvailability = findCommonAvailability(members)
+  console.log(findAvailableDateTime(commonAvailability, project, "last"))
+
+  const eventInfo = {
+    summary: 'Project Submission',
+    start: {
+      dateTime: firstDateAndTime.start,
+      timeZone: 'America/New_York'
+    },
+    end: {
+      dateTime: firstDateAndTime.end,
+      timeZone: 'America/New_York'
+    },
+    description: 'Project Submission Meeting',
+    attendees,
+    calendarId: project.calendarId
+  }
+
 }
 

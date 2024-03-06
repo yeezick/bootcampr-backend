@@ -2,7 +2,7 @@ import Project from '../../models/project.js';
 import User from '../../models/user.js';
 import { findCommonAvailability } from '../../utils/availability.js';
 import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
-import { generateProjectKickoffMeeting, generateProjectOrientation } from '../../utils/projectEvents.js';
+import { generateProjectKickoffMeeting, generateProjectOrientation, generateProjectSubmissionMeeting } from '../../utils/projectEvents.js';
 
 
 export const getAllProjects = async (req, res) => {
@@ -31,6 +31,7 @@ export const getOneProject = async (req, res) => {
 
       //generateProjectKickoffMeeting(id)
       //generateProjectOrientation(id)
+      generateProjectSubmissionMeeting(id)
     
     if (project) {
       return res.json(project);
