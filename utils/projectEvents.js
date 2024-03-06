@@ -102,16 +102,16 @@ export const generateProjectSubmissionMeeting = async(projectId) => {
   })
 
   const commonAvailability = findCommonAvailability(members)
-  console.log(findAvailableDateTime(commonAvailability, project, "last"))
+  const lastDateAndTime = findAvailableDateTime(commonAvailability, project, "last")
 
   const eventInfo = {
     summary: 'Project Submission',
     start: {
-      dateTime: firstDateAndTime.start,
+      dateTime: lastDateAndTime.start,
       timeZone: 'America/New_York'
     },
     end: {
-      dateTime: firstDateAndTime.end,
+      dateTime: lastDateAndTime.end,
       timeZone: 'America/New_York'
     },
     description: 'Project Submission Meeting',
@@ -119,5 +119,6 @@ export const generateProjectSubmissionMeeting = async(projectId) => {
     calendarId: project.calendarId
   }
 
+  return createGoogleEvent(eventInfo)
 }
 

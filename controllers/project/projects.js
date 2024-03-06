@@ -31,7 +31,7 @@ export const getOneProject = async (req, res) => {
 
       //generateProjectKickoffMeeting(id)
       //generateProjectOrientation(id)
-      generateProjectSubmissionMeeting(id)
+      //generateProjectSubmissionMeeting(id)
     
     if (project) {
       return res.json(project);
