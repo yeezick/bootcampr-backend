@@ -5,8 +5,9 @@ import Project from '../models/project.js';
 import { calendar } from '../server.js';
 import { findCommonAvailability } from './availability.js';
 import { findFirstAvailableDateTime } from './helpers/calendarHelpers.js';
+import { convertGoogleEventsForCalendar } from './helpers/calendarHelpers.js';
 
-const createGoogleEvent = async (eventInfo) => {
+export const createGoogleEvent = async (eventInfo) => {
   let preparedEvent = {
     calendarId: `${eventInfo.calendarId}@group.calendar.google.com`,
     resource: eventInfo,
