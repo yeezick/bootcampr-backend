@@ -6,6 +6,8 @@ import {
   getOneProject,
   getProjectMembers,
   getTeamCommonAvailability,
+  moveTicketColumn,
+  reorderProjectColumn,
   updateProject,
   updateUserAndProject,
 } from '../../controllers/project/projects.js';
@@ -28,7 +30,9 @@ router.get('/project/:projectId/members', getProjectMembers);
 // record in case additional accidental data is submitted with this request
 router.patch('/projects/:id', updateProject); //update description etc
 router.delete('/projects/:id', deleteProject);
+router.patch('/project/reorder/:projectId', reorderProjectColumn);
+router.patch('/project/moveTicket/:projectId', moveTicketColumn);
 router.patch('/update-user-and-project', updateUserAndProject);
-router.get('/projects/:projectId/team-common-availability', getTeamCommonAvailability)
+router.get('/projects/:projectId/team-common-availability', getTeamCommonAvailability);
 
 export default router;
