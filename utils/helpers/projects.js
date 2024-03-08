@@ -6,6 +6,25 @@ import weekday from 'dayjs/plugin/weekday.js';
 import relativeTime from 'dayjs/plugin/relativeTime.js';
 
 /**
+ * Create a calendar instance for this project
+ * @param {string} projectId The Id of the newly created project
+ * @returns {string | null} Returns either the Id of the newly created calendar or null if unsuccessful.
+ */
+export const addCalendarToProject = async (projectId) => {
+  try {
+    const response = await axios.post(`http://localhost:8001/calendar/createCalendar/${projectId}`, {
+      summary: `Main calendar for ${projectId}`,
+      description: `Team calendar for ${projectId}`,
+      timeZone: 'America/New_York', // set to universal tz
+    });
+    return response.data.id.split('@')[0];
+  } catch (error) {
+    console.error('Error creating a project for this team', error);
+    return null;
+  }
+};
+
+/**
  * Generate Project
  * @param {Object} project custom options including: title, goal, problem, startDate and duration
  * @returns
@@ -62,21 +81,17 @@ export const fillProjectWithUsers = async (project, designers, engineers, produc
   });
 };
 
-/**
- * Create a calendar instance for this project
- * @param {string} projectId The Id of the newly created project
- * @returns {string | null} Returns either the Id of the newly created calendar or null if unsuccessful.
- */
-export const addCalendarToProject = async (projectId) => {
-  try {
-    const response = await axios.post(`http://localhost:8001/calendar/createCalendar/${projectId}`, {
-      summary: `Main calendar for ${projectId}`,
-      description: `Team calendar for ${projectId}`,
-      timeZone: 'America/New_York', // set to universal tz
-    });
-    return response.data.id.split('@')[0];
-  } catch (error) {
-    console.error('Error creating a project for this team', error);
-    return null;
-  }
+export const reorderColumn = (ticketColumn, startIndex, endIndex) => {
+  const updatedColumn = Array.from(ticketColumn);
+  const [removed] = updatedColumn.splice(startIndex, 1);
+  updatedColumn.splice(endIndex, 0, removed);
+  return updatedColumn;
+};
+
+export const moveTicketBetweenColumns = (newColumn, newColumnIdx, oldColumn, oldColumnIdx) => {
+  const updatedOldColumn = Array.from(oldColumn);
+  const updatedNewColumn = Array.from(newColumn);
+  const [removed] = updatedOldColumn.splice(oldColumnIdx, 1);
+  updatedNewColumn.splice(newColumnIdx, 0, removed);
+  return [updatedOldColumn, updatedNewColumn];
 };
