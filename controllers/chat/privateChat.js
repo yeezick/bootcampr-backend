@@ -3,7 +3,8 @@ import dayjs from 'dayjs';
 import PrivateChat from '../../models/chat/privateChat.js';
 import User from '../../models/user.js';
 import { getUserIdFromToken } from '../auth/auth.js';
-import { tokenVerificationChatInvite, newToken } from '../auth/emailVerification.js';
+import { sendChatInvite } from '../auth/emailVerification.js';
+
 export const createOrGetPrivateChatRoom = async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -38,18 +39,18 @@ export const createOrGetPrivateChatRoom = async (req, res) => {
     }).populate({ path: 'messages.sender', select: 'email firstName lastName' });
 
     if (!existingPrivateChat) {
-      // If no existing chat room, create a new one
       const newPrivateThread = new PrivateChat({
         participants: [
           { participant: mongoose.Types.ObjectId(userId) },
           { participant: mongoose.Types.ObjectId(recipientId) },
         ],
       });
-      // const user = await User.findById(recipientId).select('email firstName lastName profilePicture');
-      // const token = newToken(user, true);
-      // if (user) {
-      //   tokenVerificationChatInvite(user, token);
-      // }
+
+      //send notification email to invited user
+      const user = await User.findById(recipientId).select('email firstName');
+      if (user) {
+        sendChatInvite(user, newPrivateThread._id);
+      }
 
       await newPrivateThread.save();
       return res.status(201).json({
@@ -59,7 +60,6 @@ export const createOrGetPrivateChatRoom = async (req, res) => {
       });
     }
 
-    // If a chat room already exists, return it
     return res.status(200).json({
       chatRoom: existingPrivateChat,
       isNew: false,
