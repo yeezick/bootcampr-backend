@@ -9,13 +9,12 @@ import { generateRealisticSingleDayAvailability } from '../../availability.js';
  * @returns {String} uniquely generated personal bio
  */
 export const generateBio = (role, location) => {
-
-  const randomQuote = randQuote()
+  const randomQuote = randQuote();
 
   return [
     `I'm a ${role} from ${location}.`,
     `${randomQuote}`,
-    `I'm looking forward to using my skills to build something awesome.`
+    `I'm looking forward to using my skills to build something awesome.`,
   ].join(' ');
 };
 
@@ -25,11 +24,10 @@ export const generateBio = (role, location) => {
  * @returns a User object with randomly generated user data
  */
 export const generateFakeUser = async (role, customInfo) => {
-
   const randomUser = randUser();
 
-  const { firstName, lastName, email, address } = randomUser
-  const location = address.country
+  const { firstName, lastName, email, address } = randomUser;
+  const location = address.country;
 
   return {
     availability: {

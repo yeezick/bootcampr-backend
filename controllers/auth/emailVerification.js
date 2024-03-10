@@ -21,7 +21,7 @@ export const emailTokenVerification = async (user, token) => {
   sendSignUpEmail(user, url);
 };
 
-export const sendSignUpEmail = (user, url, verified = false) => {
+export const sendSignUpEmail = (user, url) => {
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
   const { email, firstName } = user;
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -34,8 +34,8 @@ export const sendSignUpEmail = (user, url, verified = false) => {
             <tr>
               <td style="font-size: 15px;">
                 <p style="color: black; margin: 0; margin-bottom: 20px; text-align: left;">Hi ${firstName}!</p>
-                <p style="color: black; margin: 0; margin-bottom: 2px; text-align: left;">You've signed up to be a beta Bootcampr!</p>
-                <p style="color: black; margin: 0; margin-bottom: 40px; text-align: left;">Confirm your email address to log in and start a short onboarding process.</p>
+                <p style="color: black; margin: 0; margin-bottom: 2px; text-align: left;">You've signed up to be a Bootcampr!</p>
+                <p style="color: black; margin: 0; margin-bottom: 40px; text-align: left;">Confirm your email address to log in.</p>
                 <a href=${url} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 11px; font-weight: 500; padding: 8px 20px; text-decoration: none; text-align: center;">Confirm your email address</a>
               </td>
             </tr>
