@@ -16,7 +16,7 @@ export const createGroupChatRoom = async (req, res) => {
     const creatorId = isTeamChat ? chatBotId : mongoose.Types.ObjectId(userId);
 
     const participants = participantIds.map((participantId) => ({
-      participant: mongoose.Types.ObjectId(participantId),
+      userInfo: mongoose.Types.ObjectId(participantId),
       isAdmin: isTeamChat ? false : participantId === userId,
       hasUnreadMessage: isTeamChat ? true : participantId !== userId,
     }));
@@ -65,7 +65,7 @@ export const createGroupChatMessage = async (req, res) => {
     let { text } = req.body;
     const existingGroupChat = await GroupChat.findOne({ _id: groupChatId });
     existingGroupChat.participants.forEach((pp) => {
-      if (pp.participant._id.toString() !== userId) {
+      if (pp.userInfo._id.toString() !== userId) {
         pp.hasUnreadMessage = true;
       } else {
         pp.hasUnreadMessage = false;
@@ -122,14 +122,14 @@ export const updateGroupChat = async (req, res) => {
     const { groupChatId } = req.params;
     const groupChat = await GroupChat.findOne({ _id: groupChatId }).populate('participants');
 
-    const user = groupChat.participants.find((participant) => participant.participant._id.toString() === userId);
+    const user = groupChat.participants.find((participant) => participant.userInfo._id.toString() === userId);
     if (user && user.isAdmin === true) {
       const updatedData = {
         ...req.body,
         participants: [
           ...(groupChat.participants || []),
           ...(req.body.participants || []).map((id) => ({
-            participant: mongoose.Types.ObjectId(id),
+            userInfo: mongoose.Types.ObjectId(id),
           })),
         ],
       };
@@ -163,14 +163,14 @@ export const updateGroupChatParticipants = async (req, res) => {
 
     for (const participantId of participantIds) {
       const user = await User.findById(participantId).select('email firstName lastName profilePicture');
-      const userIsAlreadyParticipant = groupChat.participants.some((p) => p.participant._id.equals(user._id));
+      const userIsAlreadyParticipant = groupChat.participants.some((p) => p.userInfo._id.equals(user._id));
 
       if (user && !userIsAlreadyParticipant) {
         const name = `${user.firstName} ${user.lastName}`;
         const joinedChatMessage = createBotMessage('userJoinedChat', name);
 
         groupChat.participants.push({
-          participant: user,
+          userInfo: user,
           isAdmin: false,
           hasUnreadMessage: true,
         });
@@ -203,10 +203,10 @@ export const deleteGroupChatThread = async (req, res) => {
         message: `Could not find group chat thread with ID ${groupChatId}.`,
       });
 
-    const user = groupChat.participants.find((participant) => participant.participant._id.toString() === userId);
+    const user = groupChat.participants.find((participant) => participant.userInfo._id.toString() === userId);
     if (!user) return res.status(403).json({ message: `User is not a participant of the group chat.` });
 
-    if (user.participant._id.toString() !== groupChat.creator._id.toString())
+    if (user.userInfo._id.toString() !== groupChat.creator._id.toString())
       return res.status(403).json({
         message: `User is not the creator of the group chat and cannot delete the thread.`,
       });
@@ -234,7 +234,7 @@ export const leaveGroupChat = async (req, res) => {
 
     const updatedChat = await GroupChat.findByIdAndUpdate(
       { _id: groupChatId },
-      { $pull: { participants: { participant: { _id: userId } } } },
+      { $pull: { participants: { userInfo: { _id: userId } } } },
       { new: true },
     );
 

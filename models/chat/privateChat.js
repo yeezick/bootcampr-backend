@@ -5,7 +5,7 @@ const PrivateChat = new Schema(
   {
     participants: [
       {
-        participant: {
+        userInfo: {
           type: mongoose.Types.ObjectId,
           ref: 'User',
         },

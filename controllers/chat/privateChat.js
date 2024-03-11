@@ -21,16 +21,16 @@ export const createOrGetPrivateChatRoom = async (req, res) => {
         {
           participants: {
             $all: [
-              { $elemMatch: { participant: mongoose.Types.ObjectId(userId) } },
-              { $elemMatch: { participant: mongoose.Types.ObjectId(recipientId) } },
+              { $elemMatch: { userInfo: mongoose.Types.ObjectId(userId) } },
+              { $elemMatch: { userInfo: mongoose.Types.ObjectId(recipientId) } },
             ],
           },
         },
         {
           participants: {
             $all: [
-              { $elemMatch: { participant: mongoose.Types.ObjectId(recipientId) } },
-              { $elemMatch: { participant: mongoose.Types.ObjectId(userId) } },
+              { $elemMatch: { userInfo: mongoose.Types.ObjectId(recipientId) } },
+              { $elemMatch: { userInfo: mongoose.Types.ObjectId(userId) } },
             ],
           },
         },
@@ -41,8 +41,8 @@ export const createOrGetPrivateChatRoom = async (req, res) => {
       // If no existing chat room, create a new one
       const newPrivateThread = new PrivateChat({
         participants: [
-          { participant: mongoose.Types.ObjectId(userId) },
-          { participant: mongoose.Types.ObjectId(recipientId) },
+          { userInfo: mongoose.Types.ObjectId(userId) },
+          { userInfo: mongoose.Types.ObjectId(recipientId) },
         ],
       });
       // const user = await User.findById(recipientId).select('email firstName lastName profilePicture');
@@ -80,7 +80,7 @@ export const createPrivateChatMessage = async (req, res) => {
 
     const existingMessageThread = await PrivateChat.findOne({ _id: privateChatId });
     existingMessageThread.participants.forEach((pp) => {
-      if (pp.participant._id.toString() !== userId) {
+      if (pp.userInfo._id.toString() !== userId) {
         pp.hasUnreadMessage = true;
       } else {
         pp.hasUnreadMessage = false;

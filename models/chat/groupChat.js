@@ -11,7 +11,7 @@ const GroupChat = new Schema(
     },
     participants: [
       {
-        participant: { type: mongoose.Types.ObjectId, ref: 'User' },
+        userInfo: { type: mongoose.Types.ObjectId, ref: 'User' },
         isAdmin: { type: Boolean, default: false, required: true },
         hasUnreadMessage: { type: Boolean, default: false },
       },
