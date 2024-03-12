@@ -21,10 +21,10 @@ export const createGoogleEvent = async (eventInfo) => {
 
 export const generateProjectOrientation = async (projectId) => {
   const project = await Project.findById(projectId)
-      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }])
+      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
       .exec();
 
-  const members = [...project.members.engineers, ...project.members.designers]
+  const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers]
   const attendees = members.map((member) => {
     return {
       email: member.email,
@@ -56,10 +56,10 @@ export const generateProjectOrientation = async (projectId) => {
 
 export const generateProjectKickoffMeeting = async (projectId) => {
   const project = await Project.findById(projectId)
-      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }])
+      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
       .exec();
 
-  const members = [...project.members.engineers, ...project.members.designers]
+  const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers]
   const attendees = members.map((member) => {
     return {
       email: member.email,
@@ -90,10 +90,10 @@ export const generateProjectKickoffMeeting = async (projectId) => {
 
 export const generateProjectSubmissionMeeting = async(projectId) => {
   const project = await Project.findById(projectId)
-      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }])
+      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
       .exec();
 
-  const members = [...project.members.engineers, ...project.members.designers]
+  const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers]
   const attendees = members.map((member) => {
     return {
       email: member.email,
