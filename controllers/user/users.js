@@ -77,7 +77,6 @@ export const updateUserProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User Profile not found.' });
     }
-    user.save();
     res.status(201).json({
       message: 'User profile updated successfully.',
       userProfile: user,
