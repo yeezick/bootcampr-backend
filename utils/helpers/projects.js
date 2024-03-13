@@ -4,6 +4,7 @@ import axios from 'axios';
 import dayjs from 'dayjs';
 import weekday from 'dayjs/plugin/weekday.js';
 import relativeTime from 'dayjs/plugin/relativeTime.js';
+import { generateProjectKickoffMeeting, generateProjectOrientation } from '../projectEvents.js';
 
   // TODO: Uncomment commented-out product manager code when frontend is set up to handle product managers
 
@@ -89,3 +90,8 @@ export const addCalendarToProject = async (projectId) => {
     return null;
   }
 };
+
+export const addProjectEventsToCalendar = async (projectId) => {
+  generateProjectKickoffMeeting(projectId)
+  generateProjectOrientation(projectId)
+}
