@@ -165,7 +165,7 @@ export const updateUserInfo = async (req, res) => {
         onboarded,
         profilePicture: hasProfilePicture ? imageUrl : '',
         defaultProfilePicture,
-        hasProfilePicture
+        hasProfilePicture,
       },
       { new: true },
     );

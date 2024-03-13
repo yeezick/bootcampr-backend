@@ -16,6 +16,7 @@ const Project = new Schema(
     problem: { type: String, required: true },
     timeline: {
       startDate: { type: String },
+      projectSubmissionDate: { type: String },
       endDate: { type: String },
     },
     title: { type: String, required: true, maxLength: 45 },
