@@ -14,7 +14,7 @@ export const createCheckout = async (req, res) => {
       ],
       mode: 'payment',
       success_url: `${bootcamprDomain}/whats-next`,
-      cancel_url: `${bootcamprDomain}/checkout`, // TODO: speak with Dan on this error state, maybe it's when too many users have paid?
+      cancel_url: `${bootcamprDomain}/checkout`,
     });
     res.status(200).json({ checkoutUrl: session.url });
   } catch (error) {
