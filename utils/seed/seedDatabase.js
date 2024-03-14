@@ -20,10 +20,10 @@ const reSeedDatabase = async () => {
   const env = process.env.NODE_ENV;
 
   if (env === 'production') {
-    console.log('Cannot re-seed production database')
-    return
-  };
-  
+    console.log('Cannot re-seed production database');
+    return;
+  }
+
   console.log('Re-seeding database.');
   // Remove all data from database
   await db.dropDatabase();
@@ -70,21 +70,14 @@ reSeedDatabase()
 // Todo: move to a util file, project import currently fails script
 export const addStaticSeedData = async (projects, users) => {
   const staticProject = new Project(await generateProject());
-
-  const starStruck = new User(await generateFakeUser('UX Designer', starStruckData));
-
-  const dummyUser = new User(await generateFakeUser('UX Designer', dummyUserData));
-
-  const sillyGoose = new User(await generateFakeUser('Software Engineer', sillyGooseData));
-
-  const laterGator = new User(await generateFakeUser('Software Engineer', laterGatorData));
-
-  const applePie = new User(await generateFakeUser('Software Engineer', applePieData));
-
-  const pollyProduct = new User(await generateFakeUser('Product Manager', pollyProductData));
-
+  const starStruck = new User(await generateFakeUser('UX Designer', starStruckData, staticProject._id));
+  const dummyUser = new User(await generateFakeUser('UX Designer', dummyUserData, staticProject._id));
+  const sillyGoose = new User(await generateFakeUser('Software Engineer', sillyGooseData, staticProject._id));
+  const laterGator = new User(await generateFakeUser('Software Engineer', laterGatorData, staticProject._id));
+  const applePie = new User(await generateFakeUser('Software Engineer', applePieData, staticProject._id));
+  const pollyProduct = new User(await generateFakeUser('Product Manager', pollyProductData, staticProject._id));
   const noProjectUX = new User(
-    await generateFakeUser('Software Engineer', {
+    await generateFakeUser('UX Designer', {
       email: 'no@project.com',
       firstName: 'No',
       lastName: 'Project',
@@ -113,13 +106,7 @@ export const addStaticSeedData = async (projects, users) => {
   const staticSWE = [sillyGoose, laterGator, applePie];
   const staticPM = [pollyProduct];
 
-  await fillProjectWithUsers(
-    staticProject,
-    staticUX,
-    staticSWE,
-    // TODO: Uncomment when frontend is set up to handle product managers
-    // staticPM
-  );
+  await fillProjectWithUsers(staticProject, staticUX, staticSWE, staticPM);
 
   staticProject.calendarId = await addCalendarToProject(staticProject._id);
   staticProject.projectTracker = sampleTaskBoard;

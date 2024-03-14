@@ -5,8 +5,6 @@ import dayjs from 'dayjs';
 import weekday from 'dayjs/plugin/weekday.js';
 import relativeTime from 'dayjs/plugin/relativeTime.js';
 
-// TODO: Uncomment commented-out product manager code when frontend is set up to handle product managers
-
 /**
  * Create a calendar instance for this project
  * @param {string} projectId The Id of the newly created project
@@ -74,15 +72,9 @@ export const generateProject = async (project = defaultProject) => {
 export const fillProjectWithUsers = async (project, designers, engineers, productManagers) => {
   project.members.engineers = getIds(engineers);
   project.members.designers = getIds(designers);
-  // TODO: Uncomment when frontend is set up to handle product managers
-  // project.members.productManagers = getIds(productManagers);
+  project.members.productManagers = getIds(productManagers);
 
-  const users = [
-    ...designers,
-    ...engineers,
-    // TODO: Uncomment when frontend is set up to handle product managers
-    // ...productManagers
-  ];
+  const users = [...designers, ...engineers, ...productManagers];
 
   users.forEach(async (user) => {
     user.project = project._id;

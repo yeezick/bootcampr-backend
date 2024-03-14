@@ -9,13 +9,12 @@ import { generateRealisticSingleDayAvailability } from '../../availability.js';
  * @returns {String} uniquely generated personal bio
  */
 export const generateBio = (role, location) => {
-
-  const randomQuote = randQuote()
+  const randomQuote = randQuote();
 
   return [
     `I'm a ${role} from ${location}.`,
     `${randomQuote}`,
-    `I'm looking forward to using my skills to build something awesome.`
+    `I'm looking forward to using my skills to build something awesome.`,
   ].join(' ');
 };
 
@@ -24,12 +23,27 @@ export const generateBio = (role, location) => {
  * @param {enum: ['Software Engineer', 'UX Designer', 'Product Manager']} role
  * @returns a User object with randomly generated user data
  */
-export const generateFakeUser = async (role, customInfo) => {
-
+export const generateFakeUser = async (role, customInfo, projectId) => {
   const randomUser = randUser();
 
-  const { firstName, lastName, email, address } = randomUser
-  const location = address.country
+  const { firstName, lastName, email, address } = randomUser;
+  const location = address.country;
+
+  if (projectId) {
+    customInfo = {
+      ...customInfo,
+      onboarded: true,
+      payment: {
+        experience: 'active',
+        paid: true,
+      },
+      project: projectId, // to be removed once 'projects' is fully implemented
+      projects: {
+        activeProject: projectId,
+        projects: [projectId],
+      },
+    };
+  }
 
   return {
     availability: {
@@ -75,7 +89,15 @@ export const generateFakeUser = async (role, customInfo) => {
     profilePicture: '',
     defaultProfilePicture: '',
     hasProfilePicture: false,
+    payment: {
+      experience: 'unchosen',
+      paid: false,
+    },
     project: null,
+    projects: {
+      activeProject: null,
+      projects: [],
+    },
     role,
     timezone: '-8:00',
     verified: true,

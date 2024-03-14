@@ -1,24 +1,6 @@
-import mongoose from 'mongoose';
 import User from '../../models/user.js';
-import PrivateChat from '../../models/chat/privateChat.js';
-import GroupChat from '../../models/chat/groupChat.js';
 import { updatingImage } from './addingImage.js';
 
-// ORIGINAL CODE
-
-// export const getAllUsers = async (req, res) => {
-//   try {
-//     const allUser = await User.find({}).populate(['memberOfProjects']);
-//     if (allUser) {
-//       res.status(200).json(allUser);
-//     }
-//   } catch (error) {
-//     console.log(error.message);
-//     return res.status(404).json({ message: 'All User not found.', error: error.message });
-//   }
-// };
-
-// BACKEND TEST SUITE CODE
 export const getAllUsers = async (req, res) => {
   try {
     const allUser = await User.find().select('-passwordDigest');
@@ -36,22 +18,6 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-// ORIGINAL CODE
-
-// export const getOneUser = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const user = await User.findById(id);
-//     if (user) {
-//       return res.status(200).json(user);
-//     }
-//   } catch (error) {
-//     console.error(error.message);
-//     return res.status(404).json({ message: 'User not found.', error: error.message });
-//   }
-// };
-
-// BACKEND TEST SUITE CODE
 export const getOneUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -111,7 +77,6 @@ export const updateUserProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User Profile not found.' });
     }
-    user.save();
     res.status(201).json({
       message: 'User profile updated successfully.',
       userProfile: user,
@@ -121,20 +86,6 @@ export const updateUserProfile = async (req, res) => {
     res.status(500).json({ error: 'Failed to update user profile.' });
   }
 };
-
-// ORIGINAL CODE
-
-// export const updateUserInfo = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const user = await User.findByIdAndUpdate(id, req.body, { new: true });
-//     const updatedUserImg = await updatingImage(id);
-//     res.status(200).send(updatedUserImg);
-//   } catch (error) {
-//     console.log(error.message);
-//     return res.status(404).json({ error: error.message });
-//   }
-// };
 
 // BACKEND TEST SUITE CODE
 export const updateUserInfo = async (req, res) => {
@@ -165,7 +116,7 @@ export const updateUserInfo = async (req, res) => {
         onboarded,
         profilePicture: hasProfilePicture ? imageUrl : '',
         defaultProfilePicture,
-        hasProfilePicture
+        hasProfilePicture,
       },
       { new: true },
     );
@@ -180,5 +131,20 @@ export const updateUserInfo = async (req, res) => {
   } catch (error) {
     console.log('Error message: ', error.message);
     res.status(404).json({ error: error.message });
+  }
+};
+
+export const updateUserExperience = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findByIdAndUpdate(userId, { payment: req.body }, { new: true });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User Profile not found.' });
+    }
+    res.status(200).json(user.payment);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: 'Failed to update user profile.' });
   }
 };

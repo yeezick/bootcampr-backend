@@ -46,7 +46,10 @@ const User = new Schema(
       required: true,
       unique: [true, 'E-mail already exists.'],
     },
-    emailPreferences: { type: Object, required: true, default: {
+    emailPreferences: {
+      type: Object,
+      required: true,
+      default: {
         bootcamprUpdates: true,
         newsletters: true,
         projectUpdates: true,
@@ -54,7 +57,7 @@ const User = new Schema(
         surveysAndFeedback: true,
         chatNotifications: true,
         jobAlerts: true,
-      }
+      },
     },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
@@ -66,22 +69,21 @@ const User = new Schema(
     onboarded: { type: Boolean, default: false },
     passwordDigest: { type: String, required: true, select: false },
     profilePicture: { type: String },
-    defaultProfilePicture: { type: String },
-    hasProfilePicture: { type: Boolean },
+    defaultProfilePicture: { type: String }, // should be deleted
+    hasProfilePicture: { type: Boolean }, // should be deleted -- both of these properties can be consolidated with just "profilePicture"
     project: { type: Schema.Types.ObjectId, ref: 'Project' },
+    projects: {
+      activeProject: { type: Schema.Types.ObjectId, ref: 'Project' },
+      projects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
+    },
+    payment: {
+      experience: { type: String, default: 'unchosen', enum: ['active', 'sandbox', 'unchosen', 'waitlist'] },
+      paid: { type: Boolean, required: true, default: false },
+    },
     role: { type: String, enum: ['Software Engineer', 'UX Designer', 'Product Manager'] },
     timezone: { type: String },
     unreadMessages: { type: Map, of: Boolean, default: {} },
     verified: { type: Boolean, default: false },
-
-    // CALENDAR
-    // They'll see meetings on their Project calendar
-    // meetings: [{ type: Schema.Types.ObjectId, ref: 'Meeting' }],
-    // we may not actually need to store timezone, we can probably get it dynamically with
-    /// *** we should still store a user's timezone on their user object
-    // ... JS .getTimezoneOffset() and store all times in UTC
-    // store availability in UTC, handle translation on frontend rendering
-    // store as stringified object, workable with JSON.parse()
   },
   { timestamps: true },
 );

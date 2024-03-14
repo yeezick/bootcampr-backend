@@ -8,6 +8,7 @@ import {
   getOneUser,
   updateUserInfo,
   getOneUserByEmail,
+  updateUserExperience,
 } from '../../controllers/user/users.js';
 import { getEmailPreferences, updateEmailPreferences } from '../../controllers/user/communications.js';
 import { generateTeam } from '../../controllers/team-matching.js';
@@ -23,6 +24,7 @@ router.get('/users/:id', getOneUser);
 router.get('/users/email/:email', getOneUserByEmail);
 router.post('/users/:id', updateUserInfo);
 router.post('/onboarding/:id', updateUserProfile);
+router.post('/users/experience/:userId', updateUserExperience);
 router.delete('/users/:id', deleteUser);
 
 // Profile Image
@@ -34,6 +36,6 @@ router.get('/users/:userId/emailPreferences', getEmailPreferences);
 router.post('/users/:userId/updateEmailPreferences', updateEmailPreferences);
 
 // Generate Team
-router.post('/generate-team', generateTeam)
+router.post('/generate-team', generateTeam);
 
 export default router;

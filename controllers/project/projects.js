@@ -21,6 +21,7 @@ export const getOneProject = async (req, res) => {
       .populate([
         { path: 'members.engineers' },
         { path: 'members.designers' },
+        { path: 'members.productManagers' },
         { path: 'projectTracker.toDo', select: '-projectTracker' },
         { path: 'projectTracker.inProgress', select: '-projectTracker' },
         { path: 'projectTracker.underReview', select: '-projectTracker' },
@@ -44,7 +45,7 @@ export const getProjectMembers = async (req, res) => {
     const { attributes } = req.query;
     const attributesToFetch = convertQueryAttributesToMongoString(attributes);
     const project = await Project.findOne({ _id: projectId });
-    const memberIds = [...project.members.engineers, ...project.members.designers];
+    const memberIds = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers];
     const members = await User.find({ _id: { $in: memberIds } }).select(attributesToFetch);
     res.status(200).json(members);
   } catch (err) {
@@ -119,11 +120,11 @@ export const getTeamCommonAvailability = async (req, res) => {
   try {
     const { projectId } = req.params;
     const project = await Project.findById(projectId)
-      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }])
+      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
       .exec();
 
     if (project) {
-      const members = [...project.members.engineers, ...project.members.designers];
+      const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers];
       const commonAvailability = findCommonAvailability(members);
 
       return res.json(commonAvailability);
