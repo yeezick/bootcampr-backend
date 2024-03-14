@@ -12,11 +12,9 @@ exp.setDate(today.getDate() + 30);
 export const newToken = (user, temp = false, forceExpire = false) => {
   let options = {};
   if (forceExpire) {
-    // Set token to expire immediately for testing expired tokens
-    options = { expiresIn: '-1s' }; // Expires immediately
+    options = { expiresIn: '-1s' };
   } else {
-    // Otherwise, set expiration based on the 'temp' flag
-    options = { expiresIn: temp ? 1800 : parseInt(exp.getTime() / 1000) }; // '1800s' for temp tokens, '30 mintues' for regular tokens
+    options = { expiresIn: temp ? 1800 : parseInt(exp.getTime() / 1000) };
   }
 
   const tokenjwt = jwt.sign({ userID: user._id, email: user.email }, TOKEN_KEY, options);
