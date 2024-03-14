@@ -2,6 +2,7 @@ import Project from '../../models/project.js';
 import User from '../../models/user.js';
 import { findCommonAvailability } from '../../utils/availability.js';
 import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
+import { moveTicketBetweenColumns, reorderColumn } from '../../utils/helpers/projects.js';
 
 export const getAllProjects = async (req, res) => {
   try {
@@ -20,6 +21,7 @@ export const getOneProject = async (req, res) => {
       .populate([
         { path: 'members.engineers' },
         { path: 'members.designers' },
+        { path: 'members.productManagers' },
         { path: 'projectTracker.toDo', select: '-projectTracker' },
         { path: 'projectTracker.inProgress', select: '-projectTracker' },
         { path: 'projectTracker.underReview', select: '-projectTracker' },
@@ -43,7 +45,7 @@ export const getProjectMembers = async (req, res) => {
     const { attributes } = req.query;
     const attributesToFetch = convertQueryAttributesToMongoString(attributes);
     const project = await Project.findOne({ _id: projectId });
-    const memberIds = [...project.members.engineers, ...project.members.designers];
+    const memberIds = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers];
     const members = await User.find({ _id: { $in: memberIds } }).select(attributesToFetch);
     res.status(200).json(members);
   } catch (err) {
@@ -118,11 +120,11 @@ export const getTeamCommonAvailability = async (req, res) => {
   try {
     const { projectId } = req.params;
     const project = await Project.findById(projectId)
-      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }])
+      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
       .exec();
 
     if (project) {
-      const members = [...project.members.engineers, ...project.members.designers];
+      const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers];
       const commonAvailability = findCommonAvailability(members);
 
       return res.json(commonAvailability);
@@ -131,5 +133,46 @@ export const getTeamCommonAvailability = async (req, res) => {
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });
+  }
+};
+
+export const reorderProjectColumn = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { columnId, oldIdx, newIdx } = req.body;
+    const project = await Project.findById(projectId).populate([
+      { path: `projectTracker.${columnId}`, select: '-projectTracker' },
+    ]);
+    const reorderedColumn = reorderColumn(project.projectTracker[columnId], oldIdx, newIdx);
+    project.projectTracker[columnId] = reorderedColumn;
+    await project.save();
+    res.status(200).json({ reorderedColumn });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: 'Error reordering ticket within column.' });
+  }
+};
+
+export const moveTicketColumn = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { newColumnId, newColumnIdx, oldColumnId, oldColumnIdx } = req.body;
+    const project = await Project.findById(projectId).populate([
+      { path: `projectTracker.${oldColumnId}`, select: '-projectTracker' },
+      { path: `projectTracker.${newColumnId}`, select: '-projectTracker' },
+    ]);
+    const [oldColumn, newColumn] = moveTicketBetweenColumns(
+      project.projectTracker[newColumnId],
+      newColumnIdx,
+      project.projectTracker[oldColumnId],
+      oldColumnIdx,
+    );
+    project.projectTracker[newColumnId] = newColumn;
+    project.projectTracker[oldColumnId] = oldColumn;
+    await project.save();
+    res.status(200).json({ oldColumn, newColumn });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: 'Error moving tickets between columns.' });
   }
 };

@@ -20,10 +20,10 @@ const reSeedDatabase = async () => {
   const env = process.env.NODE_ENV;
 
   if (env === 'production') {
-    console.log('Cannot re-seed production database')
-    return
-  };
-  
+    console.log('Cannot re-seed production database');
+    return;
+  }
+
   console.log('Re-seeding database.');
   // Remove all data from database
   await db.dropDatabase();
@@ -113,13 +113,7 @@ export const addStaticSeedData = async (projects, users) => {
   const staticSWE = [sillyGoose, laterGator, applePie];
   const staticPM = [pollyProduct];
 
-  await fillProjectWithUsers(
-    staticProject,
-    staticUX,
-    staticSWE,
-    // TODO: Uncomment when frontend is set up to handle product managers
-    // staticPM
-  );
+  await fillProjectWithUsers(staticProject, staticUX, staticSWE, staticPM);
 
   staticProject.calendarId = await addCalendarToProject(staticProject._id);
   staticProject.projectTracker = sampleTaskBoard;
