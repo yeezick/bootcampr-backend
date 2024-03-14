@@ -9,10 +9,15 @@ const today = new Date();
 const exp = new Date(today);
 exp.setDate(today.getDate() + 30);
 
-export const newToken = (user, temp = false) => {
-  const tokenjwt = jwt.sign({ userID: user._id, email: user.email }, TOKEN_KEY, {
-    expiresIn: temp ? 1800 : parseInt(exp.getTime() / 1000),
-  }); // temp expires in 30 minutes
+export const newToken = (user, temp = false, forceExpire = false) => {
+  let options = {};
+  if (forceExpire) {
+    options = { expiresIn: '-1s' };
+  } else {
+    options = { expiresIn: temp ? 1800 : parseInt(exp.getTime() / 1000) };
+  }
+
+  const tokenjwt = jwt.sign({ userID: user._id, email: user.email }, TOKEN_KEY, options);
   return tokenjwt;
 };
 
@@ -62,7 +67,7 @@ export const sendSignUpEmail = (user, url) => {
     });
 };
 
-export const sendUpdateEmailVerification = ({ user, newEmail, token }) => {
+export const sendUpdateEmailVerification = (user, newEmail, token) => {
   const encodedEmail = btoa(newEmail);
   const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token}?${encodedEmail}`;
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
@@ -135,6 +140,7 @@ export const verifyEmailLink = async (req, res) => {
   }
 };
 
+// res is not used in this utility function
 export const verifyValidToken = async (req, tokenjwt) => {
   const { emailToken } = req.params;
 
@@ -172,9 +178,8 @@ export const resendNewEmailLink = async (req, res) => {
     const user = await User.findById(userId);
     const token = newToken(user, true);
 
-    if (req._parsedUrl.query?.length > 0) {
-      // decode email from query params
-      const newEmail = atob(req._parsedUrl.query);
+    if (req.query.newEmail) {
+      const newEmail = Buffer.from(req.query.newEmail, 'base64').toString('ascii');
       await sendUpdateEmailVerification(user, newEmail, token);
       res.status(200).json({ friendlyMessage: 'A new verification link has been sent to your updated email address.' });
     } else {
@@ -186,7 +191,6 @@ export const resendNewEmailLink = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(400).send({
-      error: error,
       friendlyMessage: 'There was an error sending a new verification email. Please try again or contact support.',
     });
   }
@@ -213,7 +217,7 @@ export const verifyUniqueEmail = async (req, res) => {
 
     if (error.message === 'Invalid email.') {
       statusCode = 422;
-    } else if (error.message === 'Email already exists.') {
+    } else if (error.message === 'Email address already exists.') {
       statusCode = 409;
     }
     res.status(statusCode).send({ error: error.message });
