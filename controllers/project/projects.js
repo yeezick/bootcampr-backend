@@ -2,7 +2,8 @@ import Project from '../../models/project.js';
 import User from '../../models/user.js';
 import { findCommonAvailability } from '../../utils/availability.js';
 import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
-import { moveTicketBetweenColumns, reorderColumn } from '../../utils/helpers/projects.js';
+import { addProjectEventsToCalendar, moveTicketBetweenColumns, reorderColumn } from '../../utils/helpers/projects.js';
+
 
 export const getAllProjects = async (req, res) => {
   try {
@@ -29,6 +30,8 @@ export const getOneProject = async (req, res) => {
       ])
       .exec();
     
+   //await addProjectEventsToCalendar(id)
+
     if (project) {
       return res.json(project);
     }

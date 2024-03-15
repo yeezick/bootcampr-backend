@@ -122,7 +122,7 @@ export const findAvailableDateTime = (commonAvailability, project, ref) => {
    const end = dayjs(start).add(1, 'hour').format('YYYY-MM-DDTHH:mm:ss')
 
    return {
-    start
+    start,
     end
    }
 }

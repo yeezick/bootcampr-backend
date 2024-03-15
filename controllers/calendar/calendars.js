@@ -49,7 +49,7 @@ export const fetchUserCalendar = async (req, res) => {
 
     const projectEvents = await Event.find({title: 'Project Start'})
     const convertedUserEvents = convertGoogleEventsForCalendar(userEvents);
-    console.log(convertedUserEvents)
+    
     res.status(200).send([...convertedUserEvents, ...projectEvents]);
   } catch (error) {
     console.error('Error fetching event:', error);
