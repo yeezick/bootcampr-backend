@@ -9,11 +9,11 @@ import axios from 'axios';
 import {
   applePieData,
   chatBotData,
-  dummyUserData,
   laterGatorData,
   sillyGooseData,
   starStruckData,
   pollyProductData,
+  functionalDevData,
 } from '../data/mocks/users.js';
 
 const reSeedDatabase = async () => {
@@ -46,7 +46,7 @@ const reSeedDatabase = async () => {
   // Fill a single project with users
   await fillProjectWithUsers(projects[0], designers.slice(0, 2), engineers.slice(0, 3), productManagers.slice(0, 1));
   projects[0].calendarId = await addCalendarToProject(projects[0]._id);
-  
+
   await addStaticSeedData(projects, users);
 
   for (const project of projects) {
@@ -71,8 +71,8 @@ reSeedDatabase()
 export const addStaticSeedData = async (projects, users) => {
   const staticProject = new Project(await generateProject());
   const starStruck = new User(await generateFakeUser('UX Designer', starStruckData, staticProject._id));
-  const dummyUser = new User(await generateFakeUser('UX Designer', dummyUserData, staticProject._id));
-  const sillyGoose = new User(await generateFakeUser('Software Engineer', sillyGooseData, staticProject._id));
+  const sillyGoose = new User(await generateFakeUser('UX Designer', sillyGooseData, staticProject._id));
+  const functionalDev = new User(await generateFakeUser('Software Engineer', functionalDevData, staticProject._id));
   const laterGator = new User(await generateFakeUser('Software Engineer', laterGatorData, staticProject._id));
   const applePie = new User(await generateFakeUser('Software Engineer', applePieData, staticProject._id));
   const pollyProduct = new User(await generateFakeUser('Product Manager', pollyProductData, staticProject._id));
@@ -90,7 +90,7 @@ export const addStaticSeedData = async (projects, users) => {
     title: 'Sample title',
     description: 'Sample description',
     status: 'toDo',
-    createdBy: dummyUser._id,
+    createdBy: functionalDev._id,
     projectId: staticProject._id,
   });
   sampleTicket.save();
@@ -102,8 +102,8 @@ export const addStaticSeedData = async (projects, users) => {
     completed: [],
   };
 
-  const staticUX = [starStruck, dummyUser];
-  const staticSWE = [sillyGoose, laterGator, applePie];
+  const staticUX = [starStruck, sillyGoose];
+  const staticSWE = [functionalDev, laterGator, applePie];
   const staticPM = [pollyProduct];
 
   await fillProjectWithUsers(staticProject, staticUX, staticSWE, staticPM);

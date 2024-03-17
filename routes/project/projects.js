@@ -16,7 +16,7 @@ const router = Router();
 
 // TODO: when would the frontend need to getAllProjects?
 router.get('/projects', getAllProjects);
-router.get('/projects/:id', getOneProject);
+router.get('/projects/:projectId', getOneProject);
 // TODO: This route should be protected by BC ADMIN
 router.post('/projects', createProject);
 // Takes in Query Parameter 'attributes' with values seperated by commas

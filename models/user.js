@@ -73,7 +73,7 @@ const User = new Schema(
     hasProfilePicture: { type: Boolean }, // should be deleted -- both of these properties can be consolidated with just "profilePicture"
     project: { type: Schema.Types.ObjectId, ref: 'Project' },
     projects: {
-      activeProject: { type: Schema.Types.ObjectId, ref: 'Project' },
+      activeProject: { type: Schema.Types.ObjectId, ref: 'Project', default: null },
       projects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     },
     payment: {
