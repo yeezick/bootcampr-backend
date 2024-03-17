@@ -4,7 +4,6 @@ import {
   deleteProject,
   getAllProjects,
   getOneProject,
-  getProjectMembers,
   getTeamCommonAvailability,
   moveTicketColumn,
   reorderProjectColumn,
