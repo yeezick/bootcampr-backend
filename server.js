@@ -12,7 +12,6 @@ import PushNotifications from './models/notifications.js';
 import User from './models/user.js';
 import { getReceiverParticipants, markMessagesAsRead } from './controllers/chat/thread.js';
 import { newMessageNotificationEmail } from './controllers/auth/emailVerification.js';
-import { generateSandboxProjectData } from './utils/data/projects.js';
 
 export const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.CALENDAR_CREDS),
@@ -23,7 +22,6 @@ export const auth = new google.auth.GoogleAuth({
 });
 
 export const calendar = google.calendar({ version: 'v3', auth });
-// export const sandboxProjectData = (async () => await generateSandboxProjectData())().then((res) => res);
 const app = express();
 const PORT = process.env.PORT || 8001;
 

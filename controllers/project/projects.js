@@ -34,8 +34,6 @@ export const getOneProject = async (req, res) => {
         ])
         .exec();
     }
-    console.log('project', project);
-
     if (project) {
       return res.json(project);
     }
@@ -43,20 +41,6 @@ export const getOneProject = async (req, res) => {
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: error.message });
-  }
-};
-
-export const getProjectMembers = async (req, res) => {
-  try {
-    const { projectId } = req.params;
-    const { attributes } = req.query;
-    const attributesToFetch = convertQueryAttributesToMongoString(attributes);
-    const project = await Project.findOne({ _id: projectId });
-    const memberIds = [...project.members.engineers, ...project.members.designers];
-    const members = await User.find({ _id: { $in: memberIds } }).select(attributesToFetch);
-    res.status(200).json(members);
-  } catch (err) {
-    console.error(err);
   }
 };
 
