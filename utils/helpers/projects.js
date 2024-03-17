@@ -45,6 +45,9 @@ export const generateProject = async (project = defaultProject) => {
   return {
     calendarId: '',
     chats: [],
+    completedInfo: {
+      presenting: null,
+    },
     goal,
     meetings: [],
     members: {
@@ -53,7 +56,12 @@ export const generateProject = async (project = defaultProject) => {
       productManagers: [],
     },
     problem,
-    tasks: [],
+    projectTracker: {
+      toDo: [],
+      inProgress: [],
+      underReview: [],
+      completed: [],
+    },
     timeline: {
       startDate: formattedStartDate,
       endDate: formattedEndDate,

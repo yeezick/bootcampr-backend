@@ -8,6 +8,7 @@ import {
   functionalDevData,
 } from './mocks/users.js';
 import { generateProject } from '../helpers/projects.js';
+import { generateDayJs } from '../../globals.js';
 
 export const defaultProject = {
   title: 'Travel Troubles',
@@ -34,11 +35,26 @@ export const generateSandboxProjectData = async () => {
     sandboxId,
   );
 
+  const createdAtDate = generateDayJs().format();
+  const sampleTicket = {
+    _id: 'sampleTicket',
+    description: 'Sample description',
+    comments: [],
+    createdBy: 'starStruck',
+    projectId: 'sandbox',
+    status: 'toDo',
+    title: 'Sample title',
+    createdAt: createdAtDate,
+    updatedAt: createdAtDate,
+    __v: 0,
+  };
+
   staticProject._id = sandboxId;
   staticProject.calendarId = 'sandbox';
   staticProject.members.designers = [starStruck, sillyGoose];
   staticProject.members.engineers = [functionalDev, laterGator, applePie];
   staticProject.members.productManagers = [pollyProduct];
+  staticProject.projectTracker.toDo = [sampleTicket];
 
   return staticProject;
 };

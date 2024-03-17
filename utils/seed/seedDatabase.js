@@ -95,13 +95,6 @@ export const addStaticSeedData = async (projects, users) => {
   });
   sampleTicket.save();
 
-  const sampleTaskBoard = {
-    toDo: [sampleTicket._id],
-    inProgress: [],
-    underReview: [],
-    completed: [],
-  };
-
   const staticUX = [starStruck, sillyGoose];
   const staticSWE = [functionalDev, laterGator, applePie];
   const staticPM = [pollyProduct];
@@ -109,7 +102,7 @@ export const addStaticSeedData = async (projects, users) => {
   await fillProjectWithUsers(staticProject, staticUX, staticSWE, staticPM);
 
   staticProject.calendarId = await addCalendarToProject(staticProject._id);
-  staticProject.projectTracker = sampleTaskBoard;
+  staticProject.projectTracker.toDo = [sampleTicket];
 
   projects.push(staticProject);
 

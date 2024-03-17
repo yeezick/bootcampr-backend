@@ -1,6 +1,5 @@
 import Project from '../../models/project.js';
 import User from '../../models/user.js';
-// import { sandboxProjectData } from '../../server.js';
 import { findCommonAvailability } from '../../utils/availability.js';
 import { generateSandboxProjectData } from '../../utils/data/projects.js';
 import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
