@@ -2,6 +2,7 @@ import { calendar } from '../../server.js';
 import { formatCalendarId } from '../../utils/helperFunctions.js';
 import Project from '../../models/project.js';
 import { convertGoogleEventsForCalendar } from '../../utils/helpers/calendarHelpers.js';
+import { generateDayJs } from '../../globals.js';
 /**
  * There are usage limits to this API. (https://developers.google.com/calendar/api/guides/quota)
  * Ex: only 60 calendars can be created within an hour
@@ -46,9 +47,53 @@ export const fetchUserCalendar = async (req, res) => {
     const convertedUserEvents = convertGoogleEventsForCalendar(userEvents);
     res.status(200).send(convertedUserEvents);
   } catch (error) {
-    console.error('Error fetching event:', error);
-    res.status(400).send(error);
+    const { calendarId } = req.params;
+    if (calendarId === 'sandbox') {
+      console.log;
+      res.status(200).send(generateSandboxEvents());
+    } else {
+      console.error('Error fetching event:', error);
+      res.status(400).send(error);
+    }
   }
+};
+
+const generateSandboxEvents = () => {
+  const events = [];
+
+  const sandboxAttendees = [
+    { email: 'star@struck.com', responseStatus: 'needsAction', comment: 'organizer' },
+    { email: 'silly@goose.com', responseStatus: 'needsAction' },
+    { email: 'svc.jira.swe@gmail.com', responseStatus: 'needsAction' },
+    { email: 'later@gator.com', responseStatus: 'needsAction' },
+    { email: 'apple@pie.com', responseStatus: 'needsAction' },
+    { email: 'polly@product.com', responseStatus: 'needsAction' },
+  ];
+
+  // start date should be project start date
+  // end date should be project end date
+  const startDate = generateDayJs().add(1, 'day').format();
+  const endDate = generateDayJs(startDate).add(3, 'week').format();
+  const currentEvent = {
+    attendees: sandboxAttendees,
+    // creator,
+    description: 'Sample event',
+    daysOfWeek: [1, 2, 3, 4, 5],
+    // Todo: FullCalendar handles time conversions in an unusual way, saving them as UTC instead of as ISO acounting for TZ. This is a workaround.
+    startRecur: startDate,
+    endRecur: endDate,
+    endTime: '08:30',
+    startTime: '08:00',
+    eventId: 'sampleEvent',
+    googleDateFields: {
+      endTime: endDate,
+      startTime: startDate,
+    },
+    hangoutLink: 'https://meet.google.com/',
+    title: 'Sample event',
+  };
+  console.log('currentEvent', currentEvent);
+  return [currentEvent];
 };
 
 // This does NOT return the events for each calendar.

@@ -39,7 +39,7 @@ export const convertGoogleEventsForCalendar = (googleEvents) => {
 
   const convertedEvents = [];
   for (const singleEvent of googleEvents) {
-    const { attendees, creator, description, end, id, location, start, summary, ...metaData } = singleEvent;
+    const { attendees, creator, description, end, id, location, start, summary } = singleEvent;
     const currentEvent = {
       attendees: attendees || null,
       creator,
@@ -52,7 +52,6 @@ export const convertGoogleEventsForCalendar = (googleEvents) => {
         startTime: start.dateTime,
       },
       hangoutLink: singleEvent.hangoutLink ? singleEvent.hangoutLink : '',
-      metaData,
       location,
       start: start.dateTime,
       timeZone: start.timeZone,

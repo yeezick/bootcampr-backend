@@ -26,6 +26,7 @@ export const getOneProject = async (req, res) => {
         .populate([
           { path: 'members.engineers' },
           { path: 'members.designers' },
+          { path: 'members.productManagers' },
           { path: 'projectTracker.toDo', select: '-projectTracker' },
           { path: 'projectTracker.inProgress', select: '-projectTracker' },
           { path: 'projectTracker.underReview', select: '-projectTracker' },
