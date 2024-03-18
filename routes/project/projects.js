@@ -10,7 +10,6 @@ import {
   reorderProjectColumn,
   updateProject,
   updateUserAndProject,
-  createProjectOrientation
 } from '../../controllers/project/projects.js';
 
 const router = Router();
@@ -35,7 +34,7 @@ router.patch('/project/reorder/:projectId', reorderProjectColumn);
 router.patch('/project/moveTicket/:projectId', moveTicketColumn);
 router.patch('/update-user-and-project', updateUserAndProject);
 router.get('/projects/:projectId/team-common-availability', getTeamCommonAvailability);
-router.get('/projects/:projectId/generate-project-orientation', createProjectOrientation)
-router.get('/projects/:projectId/generate-project-kickoff')
+
+
 
 export default router;

@@ -15,6 +15,7 @@ import {
   starStruckData,
   pollyProductData,
 } from '../data/mocks/users.js';
+import { generateProjectOrientation } from '../projectEvents.js';
 
 
 const reSeedDatabase = async () => {
@@ -59,7 +60,7 @@ const reSeedDatabase = async () => {
     await user.save();
   }
 
-  await axios.get(`http://localhost:8001/projects/${projectId}/generate-project-orientation`)
+  await generateProjectOrientation(projectId)
   
   return;
 };
@@ -76,21 +77,14 @@ reSeedDatabase()
 // Todo: move to a util file, project import currently fails script
 export const addStaticSeedData = async (projects, users) => {
   const staticProject = new Project(await generateProject());
-
-  const starStruck = new User(await generateFakeUser('UX Designer', starStruckData));
-
-  const dummyUser = new User(await generateFakeUser('UX Designer', dummyUserData));
-
-  const sillyGoose = new User(await generateFakeUser('Software Engineer', sillyGooseData));
-
-  const laterGator = new User(await generateFakeUser('Software Engineer', laterGatorData));
-
-  const applePie = new User(await generateFakeUser('Software Engineer', applePieData));
-
-  const pollyProduct = new User(await generateFakeUser('Product Manager', pollyProductData));
-
+  const starStruck = new User(await generateFakeUser('UX Designer', starStruckData, staticProject._id));
+  const dummyUser = new User(await generateFakeUser('UX Designer', dummyUserData, staticProject._id));
+  const sillyGoose = new User(await generateFakeUser('Software Engineer', sillyGooseData, staticProject._id));
+  const laterGator = new User(await generateFakeUser('Software Engineer', laterGatorData, staticProject._id));
+  const applePie = new User(await generateFakeUser('Software Engineer', applePieData, staticProject._id));
+  const pollyProduct = new User(await generateFakeUser('Product Manager', pollyProductData, staticProject._id));
   const noProjectUX = new User(
-    await generateFakeUser('Software Engineer', {
+    await generateFakeUser('UX Designer', {
       email: 'no@project.com',
       firstName: 'No',
       lastName: 'Project',

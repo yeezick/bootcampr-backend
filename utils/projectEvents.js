@@ -6,6 +6,7 @@ import { calendar } from '../googleCalendar.js';
 import { findCommonAvailability } from './availability.js';
 import { findAvailableDateTime } from './helpers/calendarHelpers.js';
 import { convertGoogleEventsForCalendar } from './helpers/calendarHelpers.js';
+import axios from 'axios';
 
 export const createGoogleEvent = async (eventInfo) => {
   let preparedEvent = {
@@ -20,39 +21,45 @@ export const createGoogleEvent = async (eventInfo) => {
 }
 
 export const generateProjectOrientation = async (projectId) => {
-  // console.log(projectId)
-  // const project = await Project.findById(projectId)
-  //     .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
-  //     .exec();
+  const project = await Project.findById(projectId)
+      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
+      .exec();
 
-  //   console.log(project)
-  // const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers]
-  // const attendees = members.map((member) => {
-  //   return {
-  //     email: member.email,
-  //     comment: 'not organizer'
-  //   }
-  // })
+    console.log(project)
+  const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers]
+  const attendees = members.map((member) => {
+    return {
+      email: member.email,
+      comment: 'not organizer'
+    }
+  })
 
-  // const start = dayjs(project.timeline.startDate).set('hour', 12).set('minute', 0).set('second', 0).format('YYYY-MM-DDTHH:mm:ss')
-  // const end = dayjs(project.timeline.startDate).set('hour', 13).set('minute', 0).set('second',0).format('YYYY-MM-DDTHH:mm:ss')
+  const start = dayjs(project.timeline.startDate).set('hour', 12).set('minute', 0).set('second', 0).format('YYYY-MM-DDTHH:mm:ss')
+  const end = dayjs(project.timeline.startDate).set('hour', 13).set('minute', 0).set('second',0).format('YYYY-MM-DDTHH:mm:ss')
 
-  // const eventInfo = {
-  //   summary: 'Orientation',
-  //   start: {
-  //     dateTime: start,
-  //     timeZone: 'America/New_York'
-  //   },
-  //   end: {
-  //     dateTime: end,
-  //     timeZone: 'America/New_York'
-  //   },
-  //   description: 'Project Orientation',
-  //   attendees,
-  //   calendarId: project.calendarId
-  // }
+  const eventInfo = {
+    summary: 'Orientation',
+    start: {
+      dateTime: start,
+      timeZone: 'America/New_York'
+    },
+    end: {
+      dateTime: end,
+      timeZone: 'America/New_York'
+    },
+    description: 'Project Orientation',
+    attendees,
+    calendarId: project.calendarId,
+    projectId
+  }
   
-  // return createGoogleEvent(eventInfo)
+  try {
+    const response = await axios.post(`http://localhost:8001/calendar/${project.calendarId}/generate-project-orientation`, eventInfo);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating project orientation', error);
+    return null;
+  }
   
 }
 
