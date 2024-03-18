@@ -3,7 +3,10 @@ import User from '../../models/user.js';
 import { findCommonAvailability } from '../../utils/availability.js';
 import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
 import { addProjectEventsToCalendar, moveTicketBetweenColumns, reorderColumn } from '../../utils/helpers/projects.js';
-
+import { createGoogleEvent } from '../../utils/projectEvents.js';
+import { calendar } from '../../googleCalendar.js';
+import { convertGoogleEventsForCalendar } from '../../utils/helpers/calendarHelpers.js';
+import dayjs from 'dayjs';
 
 export const getAllProjects = async (req, res) => {
   try {
@@ -179,3 +182,52 @@ export const moveTicketColumn = async (req, res) => {
     res.status(400).json({ message: 'Error moving tickets between columns.' });
   }
 };
+
+export const createProjectOrientation = async (req, res) => {
+  const { projectId } = req.params
+  const project = await Project.findById(projectId)
+      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
+      .exec();
+
+      console.log(project)
+  const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers]
+  const attendees = members.map((member) => {
+    return {
+      email: member.email,
+      comment: 'not organizer'
+    }
+  })
+
+  const start = dayjs(project.timeline.startDate).set('hour', 12).set('minute', 0).set('second', 0).format('YYYY-MM-DDTHH:mm:ss')
+  const end = dayjs(project.timeline.startDate).set('hour', 13).set('minute', 0).set('second',0).format('YYYY-MM-DDTHH:mm:ss')
+
+  const eventInfo = {
+    summary: 'Orientation',
+    start: {
+      dateTime: start,
+      timeZone: 'America/New_York'
+    },
+    end: {
+      dateTime: end,
+      timeZone: 'America/New_York'
+    },
+    description: 'Project Orientation',
+    attendees,
+    calendarId: project.calendarId
+  }
+  try{
+    let preparedEvent = {
+      calendarId: `${eventInfo.calendarId}@group.calendar.google.com`,
+      resource: eventInfo,
+      sendUpdates: 'all',
+    };
+
+    const { data: googleEvent } = await calendar.events.insert(preparedEvent);
+    console.log(googleEvent)
+    const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
+    res.status(200).send(convertedEvent[0]);
+  } catch (err) {
+    console.error(`Error creating event for calendar (${calendarId})`, error);
+    res.status(400).send(error);
+  }
+}
