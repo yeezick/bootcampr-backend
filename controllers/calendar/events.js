@@ -1,5 +1,5 @@
 import { formatCalendarId } from '../../utils/helperFunctions.js';
-import { calendar } from '../../server.js';
+import { calendar } from '../../googleCalendar.js';
 import { produce } from 'immer';
 import { addConferenceDataToGoogleEvent, convertGoogleEventsForCalendar } from '../../utils/helpers/calendarHelpers.js';
 

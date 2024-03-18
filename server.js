@@ -13,15 +13,15 @@ import User from './models/user.js';
 import { getReceiverParticipants, markMessagesAsRead } from './controllers/chat/thread.js';
 import { newMessageNotificationEmail } from './controllers/auth/emailVerification.js';
 
-export const auth = new google.auth.GoogleAuth({
-  credentials: JSON.parse(process.env.CALENDAR_CREDS),
-  scopes: ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.events'],
-  clientOptions: {
-    subject: process.env.CALENDAR_EMAIL,
-  },
-});
+// export const auth = new google.auth.GoogleAuth({
+//   credentials: JSON.parse(process.env.CALENDAR_CREDS),
+//   scopes: ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.events'],
+//   clientOptions: {
+//     subject: process.env.CALENDAR_EMAIL,
+//   },
+// });
 
-export const calendar = google.calendar({ version: 'v3', auth });
+// export const calendar = google.calendar({ version: 'v3', auth });
 
 const app = express();
 const PORT = process.env.PORT || 8001;

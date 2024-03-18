@@ -4,7 +4,7 @@ import Project from '../../models/project.js';
 import User from '../../models/user.js';
 import Ticket from '../../models/tickets.js';
 import { createChatbot, generateFakeUser, generateFakeUsers } from './utils/users.js';
-import { addCalendarToProject, generateProject, fillProjectWithUsers } from '../helpers/projects.js';
+import { addCalendarToProject, generateProject, fillProjectWithUsers, addProjectEventsToCalendar } from '../helpers/projects.js';
 import axios from 'axios';
 import {
   applePieData,
@@ -50,6 +50,8 @@ const reSeedDatabase = async () => {
   
   await addStaticSeedData(projects, users);
 
+  const projectId = projects[0]._id
+
   for (const project of projects) {
     await project.save();
   }
@@ -57,7 +59,7 @@ const reSeedDatabase = async () => {
     await user.save();
   }
 
-  //await addProjectEventsToCalendar(projects[0]._id)
+  await addProjectEventsToCalendar(projectId)
   
   return;
 };

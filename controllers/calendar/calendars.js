@@ -1,4 +1,4 @@
-import { calendar } from '../../server.js';
+import { calendar } from '../../googleCalendar.js';
 import { formatCalendarId } from '../../utils/helperFunctions.js';
 import Project from '../../models/project.js';
 import { convertGoogleEventsForCalendar } from '../../utils/helpers/calendarHelpers.js';

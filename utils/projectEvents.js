@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
 dayjs.extend(customParseFormat);
 import Project from '../models/project.js';
-//import { calendar } from '../server.js';
+import { calendar } from '../googleCalendar.js';
 import { findCommonAvailability } from './availability.js';
 import { findAvailableDateTime } from './helpers/calendarHelpers.js';
 import { convertGoogleEventsForCalendar } from './helpers/calendarHelpers.js';
@@ -20,10 +20,12 @@ export const createGoogleEvent = async (eventInfo) => {
 }
 
 export const generateProjectOrientation = async (projectId) => {
+  console.log(projectId)
   const project = await Project.findById(projectId)
       .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
       .exec();
 
+    console.log(project)
   const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers]
   const attendees = members.map((member) => {
     return {
@@ -58,7 +60,7 @@ export const generateProjectKickoffMeeting = async (projectId) => {
   const project = await Project.findById(projectId)
       .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
       .exec();
-
+console.log(project)
   const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers]
   const attendees = members.map((member) => {
     return {
