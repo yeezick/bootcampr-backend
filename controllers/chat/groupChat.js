@@ -91,7 +91,7 @@ export const updateGroupChat = async (req, res) => {
     const groupChat = await GroupChat.findOne({ _id: groupChatId }).populate('participants');
 
     const user = groupChat.participants.find((participant) => participant.userInfo._id.toString() === userId);
-    if (user && user.isAdmin === true) {
+    if (user) {
       const updatedData = {
         ...req.body,
         participants: [
