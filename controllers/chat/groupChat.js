@@ -2,49 +2,19 @@ import mongoose from 'mongoose';
 import dayjs from 'dayjs';
 import GroupChat from '../../models/chat/groupChat.js';
 import User from '../../models/user.js';
-import { sendChatInvite } from '../auth/emailVerification.js';
+import { saveNewGroupChat } from '../../utils/helpers/chatHelpers.js';
 import { getUserIdFromToken } from '../auth/auth.js';
-import { createBotMessage, fetchChatBot } from './chatbot.js';
+import { sendChatInvite } from '../auth/emailVerification.js';
+import { addJoinGroupChatMessage } from '../../utils/helpers/chatHelpers.js';
 
 export const createGroupChatRoom = async (req, res) => {
   try {
     let { participantIds, isTeamChat = false } = req.body;
     const authHeader = req.headers.authorization;
     const userId = getUserIdFromToken(authHeader);
-    const chatBotId = await fetchChatBot();
-    const groupName = isTeamChat ? 'Team Chat' : '';
-    const creatorId = isTeamChat ? chatBotId : mongoose.Types.ObjectId(userId);
 
-    const participants = participantIds.map((participantId) => ({
-      userInfo: mongoose.Types.ObjectId(participantId),
-      isAdmin: isTeamChat ? false : participantId === userId,
-      hasUnreadMessage: isTeamChat ? true : participantId !== userId,
-    }));
+    const newGroupChat = await saveNewGroupChat(participantIds, isTeamChat, userId);
 
-    const newGroupChat = new GroupChat({
-      groupName,
-      participants: participants,
-      creator: creatorId,
-    });
-
-    if (isTeamChat) {
-      const welcomeMessage = createBotMessage('welcome');
-      const iceBreakerMessage = createBotMessage('iceBreaker');
-      newGroupChat.messages = [...newGroupChat.messages, welcomeMessage, iceBreakerMessage];
-      newGroupChat.lastMessage = iceBreakerMessage;
-    }
-
-    const participantsWithoutAuthUser = participantIds.filter((participantId) => participantId !== userId);
-    const emailReceiverIds = isTeamChat ? participantIds : participantsWithoutAuthUser;
-
-    for (const participantId of emailReceiverIds) {
-      const user = await User.findById(participantId).select('email firstName');
-      if (user) {
-        sendChatInvite(user, newGroupChat._id);
-      }
-    }
-
-    await newGroupChat.save();
     res.status(201).json({
       chatRoom: newGroupChat,
       message: `Group chat created successfully by user with ID ${userId}.`,
@@ -153,7 +123,6 @@ export const updateGroupChatParticipants = async (req, res) => {
     const { groupChatId } = req.params;
     const participantIds = req.body;
     const groupChat = await GroupChat.findById(groupChatId);
-    await fetchChatBot();
 
     if (!groupChat) {
       return res.status(404).send('Group chat not found');
@@ -164,17 +133,13 @@ export const updateGroupChatParticipants = async (req, res) => {
       const userIsAlreadyParticipant = groupChat.participants.some((p) => p.userInfo._id.equals(user._id));
 
       if (user && !userIsAlreadyParticipant) {
-        const name = `${user.firstName} ${user.lastName}`;
-        const joinedChatMessage = createBotMessage('userJoinedChat', name);
-
         groupChat.participants.push({
           userInfo: user,
           isAdmin: false,
           hasUnreadMessage: true,
         });
-        groupChat['messages'].push(joinedChatMessage);
-        groupChat['lastMessage'] = joinedChatMessage;
-        // sendChatInviteEmail(user.project, user.email, user.firstName);
+        await addJoinGroupChatMessage(user, groupChat);
+        sendChatInvite(user, groupChat._id);
       }
     }
 
