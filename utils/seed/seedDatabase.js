@@ -60,7 +60,7 @@ const reSeedDatabase = async () => {
     await user.save();
   }
 
-  await generateProjectOrientation(projectId)
+  //await generateProjectOrientation(projectId)
   
   return;
 };

@@ -25,7 +25,6 @@ export const generateProjectOrientation = async (projectId) => {
       .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
       .exec();
 
-    console.log(project)
   const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers]
   const attendees = members.map((member) => {
     return {
@@ -48,6 +47,10 @@ export const generateProjectOrientation = async (projectId) => {
       timeZone: 'America/New_York'
     },
     description: 'Project Orientation',
+    googleMeetingInfo: {
+      enabled: true,
+      hangoutLink: false
+    },
     attendees,
     calendarId: project.calendarId,
     projectId
