@@ -7,7 +7,8 @@ import { getUserIdFromToken } from '../auth/auth.js';
 // this page for a general controller for both private and group chats
 const getThreadFields = async (chatModel, userId) => {
   const privateChatFields = '_id participants chatType lastActive lastMessage';
-  const groupChatFields = '_id participants groupName groupDescription groupPhoto chatType lastActive lastMessage';
+  const groupChatFields =
+    '_id participants groupName groupDescription groupPhoto chatType lastActive lastMessage isTeamChat';
   const fields = chatModel === GroupChat ? groupChatFields : privateChatFields;
 
   const threads = await chatModel

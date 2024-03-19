@@ -7,7 +7,6 @@ const GroupChat = new Schema(
     groupDescription: { type: String, default: 'Group' },
     groupPhoto: {
       type: String,
-      default: 'https://i.postimg.cc/L8jC1rSp/default-group-avatar.png',
     },
     participants: [
       {
@@ -40,6 +39,7 @@ const GroupChat = new Schema(
       isBotMessage: { type: Boolean, default: false },
     },
     chatType: { type: String, default: 'group', immutable: true },
+    isTeamChat: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
