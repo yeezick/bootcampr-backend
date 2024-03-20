@@ -6,14 +6,19 @@ import { calendar } from '../googleCalendar.js';
 import { findCommonAvailability } from './availability.js';
 import { findAvailableDateTime } from './helpers/calendarHelpers.js';
 import { convertGoogleEventsForCalendar } from './helpers/calendarHelpers.js';
-import axios from 'axios';
 
-export const createGoogleEvent = async (eventInfo) => {
+export const createGoogleEvent = async (eventInfo, projectId) => {
   let preparedEvent = {
     calendarId: `${eventInfo.calendarId}@group.calendar.google.com`,
     resource: eventInfo,
     sendUpdates: 'all',
   };
+
+  preparedEvent = produce(preparedEvent, (draft) => {
+    draft = { ...draft, ...addConferenceDataToGoogleEvent(projectId, eventInfo.summary, true) };
+    draft.resource = { ...eventInfo, ...draft.resource };
+    return draft;
+  });
 
   const { data: googleEvent } = await calendar.events.insert(preparedEvent);
   const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
@@ -47,23 +52,11 @@ export const generateProjectOrientation = async (projectId) => {
       timeZone: 'America/New_York'
     },
     description: 'Project Orientation',
-    googleMeetingInfo: {
-      enabled: true,
-      hangoutLink: false
-    },
     attendees,
-    calendarId: project.calendarId,
-    projectId
+    calendarId: project.calendarId
   }
   
-  try {
-    const response = await axios.post(`http://localhost:8001/calendar/${project.calendarId}/generate-project-orientation`, eventInfo);
-    return response.data;
-  } catch (error) {
-    console.error('Error creating project orientation', error);
-    return null;
-  }
-  
+  return createGoogleEvent(eventInfo, projectId)
 }
 
 
@@ -71,7 +64,7 @@ export const generateProjectKickoffMeeting = async (projectId) => {
   const project = await Project.findById(projectId)
       .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
       .exec();
-console.log(project)
+
   const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers]
   const attendees = members.map((member) => {
     return {
@@ -97,6 +90,5 @@ console.log(project)
     calendarId: project.calendarId
   }
 
-  return createGoogleEvent(eventInfo)
+  return createGoogleEvent(eventInfo, projectId)
 }
-
