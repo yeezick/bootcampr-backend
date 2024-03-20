@@ -3,6 +3,7 @@ import User from '../../models/user.js';
 import { findCommonAvailability } from '../../utils/availability.js';
 import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
 import { addProjectEventsToCalendar, moveTicketBetweenColumns, reorderColumn } from '../../utils/helpers/projects.js';
+import { generateProjectKickoffMeeting, generateProjectOrientation } from '../../utils/projectEvents.js';
 
 
 export const getAllProjects = async (req, res) => {
@@ -31,6 +32,8 @@ export const getOneProject = async (req, res) => {
       .exec();
     
    //await addProjectEventsToCalendar(id)
+   //await generateProjectOrientation(id)
+   //await generateProjectKickoffMeeting(id)
 
     if (project) {
       return res.json(project);

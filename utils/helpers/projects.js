@@ -99,6 +99,6 @@ export const moveTicketBetweenColumns = (newColumn, newColumnIdx, oldColumn, old
 };
 
 export const addProjectEventsToCalendar = async (projectId) => {
-  generateProjectKickoffMeeting(projectId)
-  generateProjectOrientation(projectId)
+  await generateProjectKickoffMeeting(projectId)
+  await generateProjectOrientation(projectId)
 }

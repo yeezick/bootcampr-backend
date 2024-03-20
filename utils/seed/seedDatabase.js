@@ -50,7 +50,7 @@ const reSeedDatabase = async () => {
   
   await addStaticSeedData(projects, users);
 
-  const projectId = projects[0]._id
+  //const projectId = projects[0]._id
 
   for (const project of projects) {
     await project.save();

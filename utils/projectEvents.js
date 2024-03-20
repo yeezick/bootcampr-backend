@@ -23,7 +23,6 @@ export const createGoogleEvent = async (eventInfo, projectId) => {
   });
 
   const { data: googleEvent } = await calendar.events.insert(preparedEvent);
-  console.log(googleEvent)
   const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
   return convertedEvent
 }
