@@ -180,4 +180,3 @@ export const moveTicketColumn = async (req, res) => {
     res.status(400).json({ message: 'Error moving tickets between columns.' });
   }
 };
-

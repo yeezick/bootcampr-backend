@@ -35,6 +35,4 @@ router.patch('/project/moveTicket/:projectId', moveTicketColumn);
 router.patch('/update-user-and-project', updateUserAndProject);
 router.get('/projects/:projectId/team-common-availability', getTeamCommonAvailability);
 
-
-
 export default router;

@@ -99,7 +99,6 @@ export const generateTeam = async (req, res) => {
 
         const commonAvailability = findCommonAvailability(finalTeam)
         const project = new Project(await generateProject())
-        
 
         const { 
             engineers, 
@@ -120,7 +119,6 @@ export const generateTeam = async (req, res) => {
         // Note: There is a calendar quota so we'll wait to immplement this with actual users
         // projects[0].calendarId = await addCalendarToProject(projects[0]._id);
         await project.save();
-
 
         for (const user of finalTeam) {
             await user.save();

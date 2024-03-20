@@ -43,7 +43,6 @@ export const generateProject = async (project = defaultProject) => {
   const endDateRaw = upcomingSundayRaw.add(duration, 'd');
   const formattedEndDate = endDateRaw.format('YYYY-MM-DD');
 
-
   return {
     calendarId: '',
     chats: [],
@@ -97,5 +96,3 @@ export const moveTicketBetweenColumns = (newColumn, newColumnIdx, oldColumn, old
   updatedNewColumn.splice(newColumnIdx, 0, removed);
   return [updatedOldColumn, updatedNewColumn];
 };
-
-
