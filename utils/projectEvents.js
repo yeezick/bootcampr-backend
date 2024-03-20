@@ -2,17 +2,25 @@ import dayjs from 'dayjs';
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
 dayjs.extend(customParseFormat);
 import Project from '../models/project.js';
+import { produce } from 'immer';
 import { calendar } from '../googleCalendar.js';
 import { findCommonAvailability } from './availability.js';
 import { findAvailableDateTime } from './helpers/calendarHelpers.js';
-import { convertGoogleEventsForCalendar } from './helpers/calendarHelpers.js';
+import { convertGoogleEventsForCalendar, addConferenceDataToGoogleEvent } from './helpers/calendarHelpers.js';
 
-export const createGoogleEvent = async (eventInfo) => {
+
+export const createGoogleEvent = async (eventInfo, projectId) => {
   let preparedEvent = {
     calendarId: `${eventInfo.calendarId}@group.calendar.google.com`,
     resource: eventInfo,
     sendUpdates: 'all',
   };
+
+  preparedEvent = produce(preparedEvent, (draft) => {
+    draft = { ...draft, ...addConferenceDataToGoogleEvent(projectId, eventInfo.summary, true) };
+    draft.resource = { ...eventInfo, ...draft.resource };
+    return draft;
+  });
 
   const { data: googleEvent } = await calendar.events.insert(preparedEvent);
   const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
@@ -20,12 +28,10 @@ export const createGoogleEvent = async (eventInfo) => {
 }
 
 export const generateProjectOrientation = async (projectId) => {
-  console.log(projectId)
   const project = await Project.findById(projectId)
       .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
       .exec();
 
-    console.log(project)
   const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers]
   const attendees = members.map((member) => {
     return {
@@ -52,7 +58,7 @@ export const generateProjectOrientation = async (projectId) => {
     calendarId: project.calendarId
   }
   
-  return createGoogleEvent(eventInfo)
+  return createGoogleEvent(eventInfo, projectId)
 }
 
 
@@ -60,7 +66,7 @@ export const generateProjectKickoffMeeting = async (projectId) => {
   const project = await Project.findById(projectId)
       .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
       .exec();
-console.log(project)
+
   const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers]
   const attendees = members.map((member) => {
     return {
@@ -86,6 +92,6 @@ console.log(project)
     calendarId: project.calendarId
   }
 
-  return createGoogleEvent(eventInfo)
+  return createGoogleEvent(eventInfo, projectId)
 }
 

@@ -30,7 +30,7 @@ export const getOneProject = async (req, res) => {
       ])
       .exec();
     
-   //await addProjectEventsToCalendar(id)
+   await addProjectEventsToCalendar(id)
 
     if (project) {
       return res.json(project);

@@ -59,7 +59,7 @@ const reSeedDatabase = async () => {
     await user.save();
   }
 
-  await addProjectEventsToCalendar(projectId)
+  //await addProjectEventsToCalendar(projectId)
   
   return;
 };
