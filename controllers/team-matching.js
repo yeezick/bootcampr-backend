@@ -1,6 +1,6 @@
 import Project from '../models/project.js'
 import { findCommonAvailability } from '../utils/availability.js';
-import { generateProject, fillProjectWithUsers, addProjectEventsToCalendar } from '../utils/helpers/projects.js';
+import { generateProject, fillProjectWithUsers} from '../utils/helpers/projects.js';
 
 import { 
     sortMembersByRole, 
@@ -120,7 +120,7 @@ export const generateTeam = async (req, res) => {
         // Note: There is a calendar quota so we'll wait to immplement this with actual users
         // projects[0].calendarId = await addCalendarToProject(projects[0]._id);
         await project.save();
-        await addProjectEventsToCalendar(project._id)
+
 
         for (const user of finalTeam) {
             await user.save();

@@ -2,7 +2,7 @@ import Project from '../../models/project.js';
 import User from '../../models/user.js';
 import { findCommonAvailability } from '../../utils/availability.js';
 import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
-import { addProjectEventsToCalendar, moveTicketBetweenColumns, reorderColumn } from '../../utils/helpers/projects.js';
+import { moveTicketBetweenColumns, reorderColumn } from '../../utils/helpers/projects.js';
 import { generateProjectKickoffMeeting, generateProjectOrientation } from '../../utils/projectEvents.js';
 
 export const getAllProjects = async (req, res) => {
@@ -29,11 +29,6 @@ export const getOneProject = async (req, res) => {
         { path: 'projectTracker.completed', select: '-projectTracker' },
       ])
       .exec();
-    
-   //await addProjectEventsToCalendar(id)
-   //await generateProjectOrientation(id)
-   //await generateProjectKickoffMeeting(id)
-
 
     if (project) {
       return res.json(project);
@@ -64,6 +59,9 @@ export const createProject = async (req, res) => {
   try {
     const newProject = new Project(req.body);
     await newProject.save();
+
+    //await generateProjectKickoffMeeting(newProject._id)
+    //await generateProjectOrientation(newProject._id)
     res.status(201).json(newProject);
   } catch (error) {
     console.log(error.message);
