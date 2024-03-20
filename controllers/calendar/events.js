@@ -137,29 +137,3 @@ export const deleteEvent = async (req, res) => {
 };
 
 
-export const createProjectOrientation = async (req, res) => {
-  const { calendarId } = req.params
-  const { projectId, ...eventInfo } = req.body;
-  
-  try{
-    let preparedEvent = {
-      calendarId: `${eventInfo.calendarId}@group.calendar.google.com`,
-      resource: eventInfo,
-      sendUpdates: 'all',
-    };
-
-    preparedEvent = produce(preparedEvent, (draft) => {
-      draft = { ...draft, ...addConferenceDataToGoogleEvent(projectId, eventInfo.summary, true) };
-      draft.resource = { ...eventInfo, ...draft.resource };
-      return draft;
-    });
-
-    const { data: googleEvent } = await calendar.events.insert(preparedEvent);
-    console.log(googleEvent)
-    const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
-    res.status(200).send(convertedEvent[0]);
-  } catch (err) {
-    console.error(`Error creating event for calendar (${calendarId})`, error);
-    res.status(400).send(error);
-  }
-}

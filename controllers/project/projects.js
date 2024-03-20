@@ -3,10 +3,6 @@ import User from '../../models/user.js';
 import { findCommonAvailability } from '../../utils/availability.js';
 import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
 import { addProjectEventsToCalendar, moveTicketBetweenColumns, reorderColumn } from '../../utils/helpers/projects.js';
-import { createGoogleEvent } from '../../utils/projectEvents.js';
-import { calendar } from '../../googleCalendar.js';
-import { convertGoogleEventsForCalendar } from '../../utils/helpers/calendarHelpers.js';
-import dayjs from 'dayjs';
 
 export const getAllProjects = async (req, res) => {
   try {
@@ -34,6 +30,7 @@ export const getOneProject = async (req, res) => {
       .exec();
     
    //await addProjectEventsToCalendar(id)
+
 
     if (project) {
       return res.json(project);
