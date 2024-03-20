@@ -36,6 +36,7 @@ export const addConferenceDataToGoogleEvent = (projectId, eventSummary, enableHa
  * @returns Array of converted events
  */
 export const convertGoogleEventsForCalendar = (googleEvents) => {
+  console.log(googleEvents)
   if (!googleEvents) {
     return [];
   }

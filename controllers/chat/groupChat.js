@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import dayjs from 'dayjs';
 import GroupChat from '../../models/chat/groupChat.js';
 import User from '../../models/user.js';
-import { newToken, sendChatInviteEmail } from '../auth/emailVerification.js';
+import { sendChatInvite } from '../auth/emailVerification.js';
 import { getUserIdFromToken } from '../auth/auth.js';
 import { createBotMessage, fetchChatBot } from './chatbot.js';
 
@@ -37,14 +37,12 @@ export const createGroupChatRoom = async (req, res) => {
     const participantsWithoutAuthUser = participantIds.filter((participantId) => participantId !== userId);
     const emailReceiverIds = isTeamChat ? participantIds : participantsWithoutAuthUser;
 
-    //This part will implement after implementation of front-end router protection
-    // for (const participantId of emailReceiverIds) {
-    //   const user = await User.findById(participantId).select('email firstName lastName');
-    // if (user) {
-    // const token = newToken(user, true)
-    //   tokenVerificationChatInvite(user, token);
-    // }
-    // }
+    for (const participantId of emailReceiverIds) {
+      const user = await User.findById(participantId).select('email firstName');
+      if (user) {
+        sendChatInvite(user, newGroupChat._id);
+      }
+    }
 
     await newGroupChat.save();
     res.status(201).json({

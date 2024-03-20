@@ -8,7 +8,6 @@ import { findCommonAvailability } from './availability.js';
 import { findAvailableDateTime } from './helpers/calendarHelpers.js';
 import { convertGoogleEventsForCalendar, addConferenceDataToGoogleEvent } from './helpers/calendarHelpers.js';
 
-
 export const createGoogleEvent = async (eventInfo, projectId) => {
   let preparedEvent = {
     calendarId: `${eventInfo.calendarId}@group.calendar.google.com`,
@@ -94,4 +93,3 @@ export const generateProjectKickoffMeeting = async (projectId) => {
 
   return createGoogleEvent(eventInfo, projectId)
 }
-

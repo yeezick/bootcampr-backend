@@ -37,12 +37,24 @@ export const signUp = async (req, res) => {
 
     const isExistingUser = await duplicateEmail(email);
     if (isExistingUser) {
-      return res.status(299).json({
-        invalidCredentials: true,
+      return res.status(409).json({
         message: `An account with Email ${email} already exists. Please try a different email address to register, or Sign In to your existing Bootcampr account.`,
+        invalidCredentials: true,
         existingAccount: true,
       });
     }
+
+    const requiredFields = ['email', 'firstName', 'lastName', 'password'];
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        message: `Missing required fields: ${missingFields.join(', ')}`,
+        invalidCredentials: true,
+        existingAccount: false,
+      });
+    }
+
     const passwordDigest = await bcrypt.hash(password, SALT_ROUNDS);
     const user = new User({ availability, email, firstName, lastName, passwordDigest, onboarded: false });
     await user.save();
@@ -80,7 +92,7 @@ export const signIn = async (req, res) => {
     let user = await User.findOne({ email }).select('+passwordDigest');
 
     if (!user) {
-      return res.status(299).json({
+      return res.status(404).json({
         invalidCredentials: true,
         message: `That Bootcampr account doesn't exist. Enter a different account or Sign Up to create a new one.`,
       });
@@ -103,7 +115,7 @@ export const signIn = async (req, res) => {
         const token = jwt.sign(payload, TOKEN_KEY);
         res.status(201).json({ user: secureUser, token });
       } else {
-        res.status(299).json({
+        res.status(401).json({
           invalidCredentials: true,
           message: "User ID and password don't match. Please try again.",
           tMsg: "User ID and password don't match. Please try again.",
@@ -127,11 +139,11 @@ export const verify = async (req, res) => {
     const bootcamprAuthToken = req.headers.authorization.split(' ')[1];
     const payload = jwt.verify(bootcamprAuthToken, TOKEN_KEY);
     if (payload) {
-      res.json(payload);
+      res.status(200).json(payload);
     }
   } catch (error) {
     console.log(error.message);
-    res.status(401).send('Not authorized');
+    res.status(401).json({ message: 'Not authorized' });
   }
 };
 
@@ -221,24 +233,27 @@ export const confirmPassword = async (req, res) => {
 export const resetPassword = async (req, res) => {
   try {
     const { email, userId } = req.body;
-    const user = await User.findOne({ email });
+    const loggedInUser = await User.findById(userId);
 
-    if (userId) {
-      const loggedInUser = await User.findById(userId);
+    if (!loggedInUser) {
+      return res.status(404).json({
+        status: false,
+        message: 'User not found.',
+        friendlyMessage: 'User not found. Please try again.',
+      });
+    }
 
-      // User enters an existing email in database, but does not match their logged in account
-      if (user && email !== loggedInUser.email) {
-        return res.status(401).json({
-          status: false,
-          message: `The email address ${email} is not associated with the user's account.`,
-          friendlyMessage: 'Incorrect email. Please enter the email address associated with your account.',
-        });
-      }
+    if (email !== loggedInUser.email) {
+      return res.status(401).json({
+        status: false,
+        message: `The email address ${email} is not associated with the user's account.`,
+        friendlyMessage: 'Incorrect email. Please enter the email address associated with your account.',
+      });
     }
 
     // generate verification token
-    const token = newToken(user, true);
-    const userInfo = { user, email, token };
+    const token = newToken(loggedInUser, true);
+    const userInfo = { user: loggedInUser, email, token };
 
     await resetPasswordEmailVerification(userInfo);
 
@@ -292,10 +307,6 @@ export const updateEmail = async (req, res) => {
     });
   } catch (error) {
     console.error(error.message);
-    res.status(400).json({
-      error: error.message,
-      friendlyMessage: 'There was an issue re-sending your verification email. Please try again or contact support',
-    });
     res.status(400).json({
       error: error.message,
       friendlyMessage: 'There was an issue re-sending your verification email. Please try again or contact support',

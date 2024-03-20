@@ -9,10 +9,15 @@ const today = new Date();
 const exp = new Date(today);
 exp.setDate(today.getDate() + 30);
 
-export const newToken = (user, temp = false) => {
-  const tokenjwt = jwt.sign({ userID: user._id, email: user.email }, TOKEN_KEY, {
-    expiresIn: temp ? 1800 : parseInt(exp.getTime() / 1000),
-  }); // temp expires in 30 minutes
+export const newToken = (user, temp = false, forceExpire = false) => {
+  let options = {};
+  if (forceExpire) {
+    options = { expiresIn: '-1s' };
+  } else {
+    options = { expiresIn: temp ? 1800 : parseInt(exp.getTime() / 1000) };
+  }
+
+  const tokenjwt = jwt.sign({ userID: user._id, email: user.email }, TOKEN_KEY, options);
   return tokenjwt;
 };
 
@@ -21,7 +26,7 @@ export const emailTokenVerification = async (user, token) => {
   sendSignUpEmail(user, url);
 };
 
-export const sendSignUpEmail = (user, url, verified = false) => {
+export const sendSignUpEmail = (user, url) => {
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
   const { email, firstName } = user;
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -34,8 +39,8 @@ export const sendSignUpEmail = (user, url, verified = false) => {
             <tr>
               <td style="font-size: 15px;">
                 <p style="color: black; margin: 0; margin-bottom: 20px; text-align: left;">Hi ${firstName}!</p>
-                <p style="color: black; margin: 0; margin-bottom: 2px; text-align: left;">You've signed up to be a beta Bootcampr!</p>
-                <p style="color: black; margin: 0; margin-bottom: 40px; text-align: left;">Confirm your email address to log in and start a short onboarding process.</p>
+                <p style="color: black; margin: 0; margin-bottom: 2px; text-align: left;">You've signed up to be a Bootcampr!</p>
+                <p style="color: black; margin: 0; margin-bottom: 40px; text-align: left;">Confirm your email address to log in.</p>
                 <a href=${url} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 11px; font-weight: 500; padding: 8px 20px; text-decoration: none; text-align: center;">Confirm your email address</a>
               </td>
             </tr>
@@ -62,7 +67,7 @@ export const sendSignUpEmail = (user, url, verified = false) => {
     });
 };
 
-export const sendUpdateEmailVerification = ({ user, newEmail, token }) => {
+export const sendUpdateEmailVerification = (user, newEmail, token) => {
   const encodedEmail = btoa(newEmail);
   const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token}?${encodedEmail}`;
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
@@ -135,6 +140,7 @@ export const verifyEmailLink = async (req, res) => {
   }
 };
 
+// res is not used in this utility function
 export const verifyValidToken = async (req, tokenjwt) => {
   const { emailToken } = req.params;
 
@@ -172,9 +178,8 @@ export const resendNewEmailLink = async (req, res) => {
     const user = await User.findById(userId);
     const token = newToken(user, true);
 
-    if (req._parsedUrl.query?.length > 0) {
-      // decode email from query params
-      const newEmail = atob(req._parsedUrl.query);
+    if (req.query.newEmail) {
+      const newEmail = Buffer.from(req.query.newEmail, 'base64').toString('ascii');
       await sendUpdateEmailVerification(user, newEmail, token);
       res.status(200).json({ friendlyMessage: 'A new verification link has been sent to your updated email address.' });
     } else {
@@ -186,7 +191,6 @@ export const resendNewEmailLink = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(400).send({
-      error: error,
       friendlyMessage: 'There was an error sending a new verification email. Please try again or contact support.',
     });
   }
@@ -213,7 +217,7 @@ export const verifyUniqueEmail = async (req, res) => {
 
     if (error.message === 'Invalid email.') {
       statusCode = 422;
-    } else if (error.message === 'Email already exists.') {
+    } else if (error.message === 'Email address already exists.') {
       statusCode = 409;
     }
     res.status(statusCode).send({ error: error.message });
@@ -309,14 +313,13 @@ export const sendUnreadMessagesEmail = (project, userId, email, firstName, unrea
     });
 };
 
-export const tokenVerificationChatInvite = async (user, token) => {
-  const url = `${process.env.BASE_URL}/project/${user.projectId}?inviteToken=${token}`;
+export const sendChatInvite = async (user, chatRoomId) => {
+  const url = `${process.env.BASE_URL}/notifications/${user._id}?type=chat&chatRoomId=${chatRoomId}`;
   sendChatInviteEmail(user, url);
 };
 export const sendChatInviteEmail = (user, url) => {
   const { firstName, email } = user;
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  const testEmail = 'svc.jira.swe@gmail.com';
   const bootcamprLogoURL = 'https://tinyurl.com/2s47km8b';
   const body = `
     <table style="background-color: #F2F4FF; width: 100%; max-width: 910px; min-height: 335px; margin: 0 auto; border-radius: 4px; padding: 25px 25px 125px 25px;">
@@ -325,11 +328,11 @@ export const sendChatInviteEmail = (user, url) => {
           <img src=${bootcamprLogoURL} alt="logo" style="height: 42px; width: auto; margin: 0 auto; margin-bottom: 25px;" draggable="false" />
           <table style="background-color: #FFFFFF; width: 100%; max-width: 560px; margin: 0 auto; padding: 20px;">
             <tr>
-              <td style="font-size: 16px; display: flex; flex-direction: column;">
+              <td style="font-size: 16px;">
                 <p style="color: black; margin: 0; margin-bottom: 32px; text-align: left;">Hi ${firstName}!</p>
                 <p style="color: black; margin: 0; text-align: left; font-weight: bold;">You have been invited to a new chat!</p>
-                <p style="color: black; margin: 0; margin-top: 8px; text-align: left;">Be the first to get the conversation going!</p>
-                <a href=${url} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 11px; font-weight: 500; padding: 8px 20px; text-decoration: none; align-self: center; margin-top:64px">Open chat</a>
+                <p style="color: black; margin: 0; margin-top: 8px; margin-bottom:64px; text-align: left;">Be the first to get the conversation going!</p>
+                <a href=${url} style="background-color: #FFA726; border-radius: 4px; color: black; font-size: 11px; font-weight: 500; padding: 8px 20px; text-decoration: none; align-self: center;">Open chat</a>
               </td>
             </tr>
           </table>
@@ -339,7 +342,7 @@ export const sendChatInviteEmail = (user, url) => {
 `;
 
   const msg = {
-    to: testEmail,
+    to: email,
     from: `${process.env.SENDGRID_EMAIL}`,
     subject: 'You have been invited to a new chat!',
     html: body,
@@ -348,7 +351,7 @@ export const sendChatInviteEmail = (user, url) => {
   sgMail
     .send(msg)
     .then(() => {
-      console.log(`Invited to a new chat email notification sent to ${testEmail} successfully`);
+      console.log(`Invited to a new chat email notification sent to ${email} successfully`);
     })
     .catch((error) => {
       console.log('Invitation email error');
