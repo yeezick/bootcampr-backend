@@ -64,8 +64,6 @@ export const createProject = async (req, res) => {
     const newProject = new Project(req.body);
     await newProject.save();
 
-    //await generateProjectKickoffMeeting(newProject._id)
-    //await generateProjectOrientation(newProject._id)
     res.status(201).json(newProject);
   } catch (error) {
     console.log(error.message);
