@@ -93,3 +93,37 @@ export const generateProjectKickoffMeeting = async (projectId) => {
 
   return createGoogleEvent(eventInfo, projectId)
 }
+
+export const generateProjectSubmissionMeeting = async(projectId) => {
+  const project = await Project.findById(projectId)
+      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
+      .exec();
+
+  const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers]
+  const attendees = members.map((member) => {
+    return {
+      email: member.email,
+      comment: 'not organizer'
+    }
+  })
+
+  const commonAvailability = findCommonAvailability(members)
+  const lastDateAndTime = findAvailableDateTime(commonAvailability, project, "last")
+
+  const eventInfo = {
+    summary: 'Project Submission',
+    start: {
+      dateTime: lastDateAndTime.start,
+      timeZone: 'America/New_York'
+    },
+    end: {
+      dateTime: lastDateAndTime.end,
+      timeZone: 'America/New_York'
+    },
+    description: 'Project Submission Meeting',
+    attendees,
+    calendarId: project.calendarId
+  }
+
+  return createGoogleEvent(eventInfo)
+}
