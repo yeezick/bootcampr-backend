@@ -26,7 +26,6 @@ export const createEvent = async (req, res) => {
         draft.resource = eventInfo;
       });
     }
-
     
     const { data: googleEvent } = await calendar.events.insert(preparedEvent);
     const convertedEvent = convertGoogleEventsForCalendar([googleEvent]);
