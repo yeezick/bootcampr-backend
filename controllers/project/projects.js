@@ -3,7 +3,7 @@ import User from '../../models/user.js';
 import { findCommonAvailability } from '../../utils/availability.js';
 import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
 import { moveTicketBetweenColumns, reorderColumn } from '../../utils/helpers/projects.js';
-import { generateProjectKickoffMeeting, generateProjectOrientation } from '../../utils/projectEvents.js';
+import { generateProjectKickoffMeeting, generateProjectOrientation, generateProjectSubmissionMeeting } from '../../utils/projectEvents.js';
 
 export const getAllProjects = async (req, res) => {
   try {
@@ -29,10 +29,14 @@ export const getOneProject = async (req, res) => {
         { path: 'projectTracker.completed', select: '-projectTracker' },
       ])
       .exec();
+    
+    // await generateProjectSubmissionMeeting(id)
 
     if (project) {
       return res.json(project);
     }
+
+    
   
     res.status(404).json({ message: 'Project not found.' });
   } catch (error) {

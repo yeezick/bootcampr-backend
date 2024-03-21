@@ -48,11 +48,9 @@ const reSeedDatabase = async () => {
   // Fill a single project with users
   await fillProjectWithUsers(projects[0], designers.slice(0, 2), engineers.slice(0, 3), productManagers.slice(0, 1));
   projects[0].calendarId = await addCalendarToProject(projects[0]._id);
-  const projectId = projects[0]._id
+  //const projectId = projects[0]._id
   
   await addStaticSeedData(projects, users);
-
-  //const projectId = projects[0]._id
 
   for (const project of projects) {
     await project.save();
@@ -60,8 +58,6 @@ const reSeedDatabase = async () => {
   for (const user of users) {
     await user.save();
   }
-
-  //await generateProjectOrientation(projectId)
   
   return;
 };

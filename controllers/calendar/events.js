@@ -2,6 +2,7 @@ import { formatCalendarId } from '../../utils/helperFunctions.js';
 import { calendar } from '../../googleCalendar.js';
 import { produce } from 'immer';
 import { addConferenceDataToGoogleEvent, convertGoogleEventsForCalendar } from '../../utils/helpers/calendarHelpers.js';
+import { generateProjectKickoffMeeting, generateProjectOrientation, generateProjectSubmissionMeeting } from '../../utils/projectEvents.js';
 
 export const createEvent = async (req, res) => {
   const { calendarId } = req.params;
@@ -134,5 +135,19 @@ export const deleteEvent = async (req, res) => {
     res.status(400).send(error);
   }
 };
+
+export const createProjectEvents = async (req, res) => {
+  const { projectId } = req.params
+  try {
+    const projectKickoff = await generateProjectKickoffMeeting(projectId)
+    const projectOrientation = await generateProjectOrientation(projectId)
+    const projectSubmission = await generateProjectSubmissionMeeting(projectId)
+
+    res.status(200).send({projectKickoff, projectOrientation, projectSubmission})
+  } catch(error) {
+    console.log('Error creating project events:', error)
+    res.status(400).send(error)
+  }
+}
 
 
