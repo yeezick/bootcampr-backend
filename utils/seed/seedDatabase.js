@@ -15,8 +15,6 @@ import {
   starStruckData,
   pollyProductData,
 } from '../data/mocks/users.js';
-import { generateProjectOrientation } from '../projectEvents.js';
-
 
 const reSeedDatabase = async () => {
   const env = process.env.NODE_ENV;
