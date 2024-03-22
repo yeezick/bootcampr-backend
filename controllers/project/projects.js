@@ -29,15 +29,11 @@ export const getOneProject = async (req, res) => {
         { path: 'projectTracker.completed', select: '-projectTracker' },
       ])
       .exec();
-    
-    // await generateProjectSubmissionMeeting(id)
 
     if (project) {
       return res.json(project);
     }
 
-    
-  
     res.status(404).json({ message: 'Project not found.' });
   } catch (error) {
     console.log(error.message);

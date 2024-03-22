@@ -28,7 +28,7 @@ export const createGoogleEvent = async (eventInfo, projectId) => {
 
 export const generateProjectOrientation = async (projectId) => {
   const project = await Project.findById(projectId)
-      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
+      .populate([{ path: 'members.engineers', select: 'email availability' }, { path: 'members.designers', select: 'email availability' }, { path: 'members.productManagers', select: 'email availability' }])
       .exec();
 
   const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers]
@@ -60,11 +60,10 @@ export const generateProjectOrientation = async (projectId) => {
   return createGoogleEvent(eventInfo, projectId)
 }
 
-
 export const generateProjectKickoffMeeting = async (projectId) => {
   const project = await Project.findById(projectId)
-      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
-      .exec();
+    .populate([{ path: 'members.engineers', select: 'email availability' }, { path: 'members.designers', select: 'email availability' }, { path: 'members.productManagers', select: 'email availability' }])
+    .exec();
 
   const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers]
   const attendees = members.map((member) => {
@@ -96,8 +95,8 @@ export const generateProjectKickoffMeeting = async (projectId) => {
 
 export const generateProjectSubmissionMeeting = async(projectId) => {
   const project = await Project.findById(projectId)
-      .populate([{ path: 'members.engineers' }, { path: 'members.designers' }, { path: 'members.productManagers' }])
-      .exec();
+    .populate([{ path: 'members.engineers', select: 'email availability' }, { path: 'members.designers', select: 'email availability' }, { path: 'members.productManagers', select: 'email availability' }])
+    .exec();
 
   const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers]
   const attendees = members.map((member) => {

@@ -90,7 +90,7 @@ export const findAvailableDateTime = (commonAvailability, project, ref) => {
   } else if (ref === "last") {
     availableDOTW = Object.keys(commonAvailability)[Object.keys(commonAvailability).length - 1]
   }
-
+ 
   const availableTime = dayjs(commonAvailability[availableDOTW][0][0], "h:mm A").format('HH:mm:ss')
 
   let DOTWNumber;

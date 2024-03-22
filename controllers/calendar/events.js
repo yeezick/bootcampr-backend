@@ -148,5 +148,3 @@ export const createProjectEvents = async (req, res) => {
     res.status(400).send(error)
   }
 }
-
-
