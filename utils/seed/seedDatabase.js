@@ -55,6 +55,7 @@ const reSeedDatabase = async () => {
   for (const user of users) {
     await user.save();
   }
+  
   return;
 };
 

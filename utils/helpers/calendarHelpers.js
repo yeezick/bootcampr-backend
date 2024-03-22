@@ -1,3 +1,6 @@
+import dayjs from 'dayjs';
+import customParseFormat from "dayjs/plugin/customParseFormat.js";
+dayjs.extend(customParseFormat);
 /**
  * Returns the data relevant to enabling or disbaling a hangout link.
  * Should be spread out directly into the preparedEvent payload of a google calendar api call.
@@ -78,3 +81,49 @@ const snakeCaseEventSummary = (projectId, eventSummary) => {
 
   return `${projectId}-${snakeCasedEventSummary}`;
 };
+
+export const findAvailableDateTime = (commonAvailability, project, ref) => {
+  let availableDOTW;
+
+  if(ref === "first"){
+    availableDOTW = Object.keys(commonAvailability)[0]
+  } else if (ref === "last") {
+    availableDOTW = Object.keys(commonAvailability)[Object.keys(commonAvailability).length - 1]
+  }
+ 
+  const availableTime = dayjs(commonAvailability[availableDOTW][0][0], "h:mm A").format('HH:mm:ss')
+
+  let DOTWNumber;
+  switch(availableDOTW){
+    case "SUN":
+      DOTWNumber = 0
+      break;
+    case "MON":
+      DOTWNumber = 1
+      break;
+    case "TUE":
+      DOTWNumber = 2
+      break;
+    case "WED":
+      DOTWNumber = 3
+      break;
+    case "THU":
+      DOTWNumber = 4
+      break;
+    case "FRI":
+      DOTWNumber = 5
+      break;
+    case "SAT":
+      DOTWNumber = 6
+      break;
+  }
+
+   const start = dayjs(`${ref === 'first' ? project.timeline.startDate : project.timeline.endDate} ${availableTime}`).day(DOTWNumber).format('YYYY-MM-DDTHH:mm:ss')
+   const end = dayjs(start).add(1, 'hour').format('YYYY-MM-DDTHH:mm:ss')
+
+   return {
+    start,
+    end
+   }
+}
+

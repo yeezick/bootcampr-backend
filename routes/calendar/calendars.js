@@ -16,7 +16,6 @@ const router = Router();
 router.get('/calendar/fetchAllCalendars', fetchAllCalendars);
 router.get('/calendar/:calendarId/fetchCalendar', fetchCalendar);
 router.get('/calendar/:calendarId/fetchCalendar/:userEmail', fetchUserCalendar);
-
 router.post('/calendar/createCalendar/:projectId', createCalendar);
 router.delete('/calendar/deleteAllCalendars', deleteAllCalendars);
 

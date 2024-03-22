@@ -4,6 +4,7 @@ import axios from 'axios';
 import dayjs from 'dayjs';
 import weekday from 'dayjs/plugin/weekday.js';
 import relativeTime from 'dayjs/plugin/relativeTime.js';
+import { generateProjectKickoffMeeting, generateProjectOrientation } from '../projectEvents.js';
 
 /**
  * Create a calendar instance for this project

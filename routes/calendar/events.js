@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createEvent, deleteCalendarEvents, fetchEvent, updateEvent, deleteEvent } from '../../controllers/calendar/events.js';
+import { createEvent, deleteCalendarEvents, fetchEvent, updateEvent, deleteEvent, createProjectEvents} from '../../controllers/calendar/events.js';
 const router = Router();
 
 // event routes
@@ -13,5 +13,6 @@ router.put('/calendar/:calendarId/updateEvent/:eventId', updateEvent);
 router.get('/calendar/:calendarId/fetchEvent/:eventId', fetchEvent);
 router.delete('/calendar/:calendarId/events', deleteCalendarEvents);
 router.delete('/calendar/:calendarId/fetchEvent/:eventId', deleteEvent);
+router.get('/calendar/:calendarId/:projectId/create-project-events', createProjectEvents);
 
 export default router;

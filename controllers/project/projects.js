@@ -3,6 +3,7 @@ import User from '../../models/user.js';
 import { findCommonAvailability } from '../../utils/availability.js';
 import { convertQueryAttributesToMongoString } from '../../utils/helperFunctions.js';
 import { moveTicketBetweenColumns, reorderColumn } from '../../utils/helpers/projects.js';
+import { generateProjectKickoffMeeting, generateProjectOrientation, generateProjectSubmissionMeeting } from '../../utils/projectEvents.js';
 
 export const getAllProjects = async (req, res) => {
   try {
@@ -126,7 +127,6 @@ export const getTeamCommonAvailability = async (req, res) => {
     if (project) {
       const members = [...project.members.engineers, ...project.members.designers, ...project.members.productManagers];
       const commonAvailability = findCommonAvailability(members);
-
       return res.json(commonAvailability);
     }
     res.status(404).json({ message: 'Project not found.' });
