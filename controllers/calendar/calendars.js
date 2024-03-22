@@ -47,18 +47,22 @@ export const fetchUserCalendar = async (req, res) => {
     const convertedUserEvents = convertGoogleEventsForCalendar(userEvents);
     res.status(200).send(convertedUserEvents);
   } catch (error) {
-    const { calendarId } = req.params;
-    if (calendarId === 'sandbox') {
-      console.log;
-      res.status(200).send(generateSandboxEvents());
-    } else {
-      console.error('Error fetching event:', error);
-      res.status(400).send(error);
-    }
+    console.error('Error fetching event:', error);
+    res.status(400).send(error);
   }
 };
 
-const generateSandboxEvents = () => {
+export const fetchSandboxCalendar = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.body;
+    res.status(200).send(generateSandboxEvents(startDate, endDate));
+  } catch (error) {
+    console.error('Error fetching event:', error);
+    res.status(400).send(error);
+  }
+};
+
+const generateSandboxEvents = (startDate, endDate) => {
   const events = [];
 
   const sandboxAttendees = [
@@ -70,18 +74,13 @@ const generateSandboxEvents = () => {
     { email: 'polly@product.com', responseStatus: 'needsAction' },
   ];
 
-  // start date should be project start date
-  // end date should be project end date
-  const startDate = generateDayJs().add(1, 'day').format();
-  const endDate = generateDayJs(startDate).add(3, 'week').format();
-  const currentEvent = {
+  const dailyStandUp = {
     attendees: sandboxAttendees,
-    // creator,
+    creator: 'starStruck',
     description: 'Sample event',
     daysOfWeek: [1, 2, 3, 4, 5],
-    // Todo: FullCalendar handles time conversions in an unusual way, saving them as UTC instead of as ISO acounting for TZ. This is a workaround.
-    startRecur: startDate,
-    endRecur: endDate,
+    startRecur: generateDayJs(startDate).format(),
+    endRecur: generateDayJs(endDate).format(),
     endTime: '08:30',
     startTime: '08:00',
     eventId: 'sampleEvent',
@@ -92,8 +91,9 @@ const generateSandboxEvents = () => {
     hangoutLink: 'https://meet.google.com/',
     title: 'Sample event',
   };
-  console.log('currentEvent', currentEvent);
-  return [currentEvent];
+
+  console.log('currentEvent', dailyStandUp);
+  return [dailyStandUp];
 };
 
 // This does NOT return the events for each calendar.

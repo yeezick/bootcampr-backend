@@ -5,6 +5,7 @@ import {
   fetchAllCalendars,
   fetchCalendar,
   fetchUserCalendar,
+  fetchSandboxCalendar,
 } from '../../controllers/calendar/calendars.js';
 
 const router = Router();
@@ -14,6 +15,7 @@ const router = Router();
 // GET all upcoming meetings for a project, 'x' number of days
 // GET all meetings for a project in 'x' - 'y' date range
 router.get('/calendar/fetchAllCalendars', fetchAllCalendars);
+router.post('/calendar/sandbox', fetchSandboxCalendar);
 router.get('/calendar/:calendarId/fetchCalendar', fetchCalendar);
 router.get('/calendar/:calendarId/fetchCalendar/:userEmail', fetchUserCalendar);
 
