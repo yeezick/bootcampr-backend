@@ -63,37 +63,71 @@ export const fetchSandboxCalendar = async (req, res) => {
 };
 
 const generateSandboxEvents = (startDate, endDate) => {
-  const events = [];
-
-  const sandboxAttendees = [
+  const designers = [
     { email: 'star@struck.com', responseStatus: 'needsAction', comment: 'organizer' },
     { email: 'silly@goose.com', responseStatus: 'needsAction' },
+  ];
+  const engineers = [
+    { email: 'later@gator.com', responseStatus: 'needsAction', comment: 'organizer' },
+    { email: 'apple@pie.com', responseStatus: 'needsAction' },
     { email: 'svc.jira.swe@gmail.com', responseStatus: 'needsAction' },
+  ];
+  const wholeTeam = [
+    { email: 'polly@product.com', responseStatus: 'needsAction', comment: 'organizer' },
     { email: 'later@gator.com', responseStatus: 'needsAction' },
     { email: 'apple@pie.com', responseStatus: 'needsAction' },
-    { email: 'polly@product.com', responseStatus: 'needsAction' },
+    { email: 'svc.jira.swe@gmail.com', responseStatus: 'needsAction' },
+    { email: 'star@struck.com', responseStatus: 'needsAction' },
+    { email: 'silly@goose.com', responseStatus: 'needsAction' },
   ];
 
-  const dailyStandUp = {
-    attendees: sandboxAttendees,
-    creator: 'starStruck',
-    description: 'Sample event',
+  const standupFields = {
+    backgroundColor: '#ecedf8',
+    borderColor: '#1a237e',
     daysOfWeek: [1, 2, 3, 4, 5],
+    description: 'Discuss progress and blockers.',
     startRecur: generateDayJs(startDate).format(),
     endRecur: generateDayJs(endDate).format(),
-    endTime: '08:30',
-    startTime: '08:00',
-    eventId: 'sampleEvent',
     googleDateFields: {
       endTime: endDate,
       startTime: startDate,
     },
     hangoutLink: 'https://meet.google.com/',
-    title: 'Sample event',
   };
 
-  console.log('currentEvent', dailyStandUp);
-  return [dailyStandUp];
+  const uxdStandup = {
+    attendees: designers,
+    creator: 'starStruck',
+    endTime: '08:30',
+    startTime: '08:00',
+    eventId: 'uxdStandup',
+    title: 'UXD daily stand-up ',
+    ...standupFields,
+  };
+
+  const sweStandUp = {
+    attendees: engineers,
+    creator: 'laterGator',
+    endTime: '09:30',
+    startTime: '09:00',
+    eventId: 'sweStandup',
+    title: 'SWE daily stand-up ',
+    ...standupFields,
+  };
+
+  const allTeamStandup = {
+    attendees: wholeTeam,
+    creator: 'pollyProduct',
+    endTime: '10:30',
+    startTime: '10:00',
+    eventId: 'allTeamStandup',
+    title: 'All-team meeting',
+    ...standupFields,
+  };
+
+  const sandboxEvents = [uxdStandup, sweStandUp, allTeamStandup];
+  console.log('sandboxevents', sandboxEvents);
+  return sandboxEvents;
 };
 
 // This does NOT return the events for each calendar.
