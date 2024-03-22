@@ -33,7 +33,6 @@ export const getOneProject = async (req, res) => {
     if (project) {
       return res.json(project);
     }
-
     res.status(404).json({ message: 'Project not found.' });
   } catch (error) {
     console.log(error.message);
@@ -59,7 +58,6 @@ export const createProject = async (req, res) => {
   try {
     const newProject = new Project(req.body);
     await newProject.save();
-
     res.status(201).json(newProject);
   } catch (error) {
     console.log(error.message);
