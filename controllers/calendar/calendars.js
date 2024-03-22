@@ -126,7 +126,6 @@ const generateSandboxEvents = (startDate, endDate) => {
   };
 
   const sandboxEvents = [uxdStandup, sweStandUp, allTeamStandup];
-  console.log('sandboxevents', sandboxEvents);
   return sandboxEvents;
 };
 
