@@ -7,13 +7,14 @@ import { getUserIdFromToken } from '../auth/auth.js';
 // this page for a general controller for both private and group chats
 const getThreadFields = async (chatModel, userId) => {
   const privateChatFields = '_id participants chatType lastActive lastMessage';
-  const groupChatFields = '_id participants groupName groupDescription groupPhoto chatType lastActive lastMessage';
+  const groupChatFields =
+    '_id participants groupName groupDescription groupPhoto chatType lastActive lastMessage isTeamChat';
   const fields = chatModel === GroupChat ? groupChatFields : privateChatFields;
 
   const threads = await chatModel
     .find({
       participants: {
-        $elemMatch: { participant: mongoose.Types.ObjectId(userId) },
+        $elemMatch: { userInfo: mongoose.Types.ObjectId(userId) },
       },
     })
     .select(fields);
@@ -23,7 +24,7 @@ const getThreadFields = async (chatModel, userId) => {
 export const getReceiverParticipants = async (chatRoomId, senderId, chatType) => {
   const ChatModel = chatType === 'group' ? GroupChat : PrivateChat;
   const chatRoom = await ChatModel.findById(chatRoomId);
-  return chatRoom.participants.filter((p) => p.participant.toString() !== senderId).map((p) => p.participant);
+  return chatRoom.participants.filter((p) => p.userInfo.toString() !== senderId).map((p) => p.userInfo);
 };
 
 export const markMessagesAsRead = async (chatRoomId, chatType, userId) => {
@@ -33,7 +34,7 @@ export const markMessagesAsRead = async (chatRoomId, chatType, userId) => {
       { _id: chatRoomId },
       { $set: { 'participants.$[elem].hasUnreadMessage': false } },
       {
-        arrayFilters: [{ 'elem.participant': mongoose.Types.ObjectId(userId) }],
+        arrayFilters: [{ 'elem.userInfo': mongoose.Types.ObjectId(userId) }],
       },
     );
   } catch (error) {
