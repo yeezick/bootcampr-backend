@@ -3,8 +3,8 @@ import Ticket from '../../models/tickets.js';
 
 export const createComment = async (req, res) => {
   try {
-    const { author, content, parentComment, ticketId, isReply } = req.body;
-    const comment = await new Comment({ author, content, isReply });
+    const { authorId, content, parentComment, ticketId, isReply } = req.body;
+    const comment = await new Comment({ authorId, content, isReply });
     await comment.save();
 
     if (parentComment) {

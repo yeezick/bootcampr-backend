@@ -9,6 +9,7 @@ import {
 } from './mocks/users.js';
 import { generateProject } from '../helpers/projects.js';
 import { generateDayJs } from '../../globals.js';
+import { generateHexadecimal } from '../helpers/utilityFunctions.js';
 
 export const defaultProject = {
   title: 'Travel Troubles',
@@ -37,7 +38,7 @@ export const generateSandboxProjectData = async () => {
 
   const createdAtDate = generateDayJs().format();
   const sampleTicket = {
-    _id: 'sampleTicket',
+    _id: generateHexadecimal(),
     description: 'Sample description',
     comments: [],
     createdBy: 'starStruck',
