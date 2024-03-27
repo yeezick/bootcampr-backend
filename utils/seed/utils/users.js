@@ -121,10 +121,10 @@ export const createChatbot = async (chatBotInfo) => {
  * @returns {Array<User>} an array of randomly generated users of indicated role type
  *
  */
-export const generateFakeUsers = async (quantity, role) => {
+export const generateFakeUsers = async (quantity, role, customInfo) => {
   const users = [];
   for (let i = 0; i < quantity; i++) {
-    const newUser = await generateFakeUser(role);
+    const newUser = await generateFakeUser(role, customInfo);
     users.push(new User(newUser));
   }
   return users;

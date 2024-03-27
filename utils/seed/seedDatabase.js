@@ -14,6 +14,7 @@ import {
   sillyGooseData,
   starStruckData,
   pollyProductData,
+  ozgeBootcamprData,
 } from '../data/mocks/users.js';
 
 const reSeedDatabase = async () => {
@@ -46,8 +47,10 @@ const reSeedDatabase = async () => {
   // Fill a single project with users
   await fillProjectWithUsers(projects[0], designers.slice(0, 2), engineers.slice(0, 3), productManagers.slice(0, 1));
   projects[0].calendarId = await addCalendarToProject(projects[0]._id);
-  
+
   await addStaticSeedData(projects, users);
+
+  await addStaticPaidUserSeedData(users);
 
   for (const project of projects) {
     await project.save();
@@ -114,4 +117,21 @@ export const addStaticSeedData = async (projects, users) => {
   projects.push(staticProject);
 
   users.push(...staticUX, ...staticSWE, noProjectUX, ...staticPM, chatBot);
+};
+
+export const addStaticPaidUserSeedData = async (users) => {
+  const ozgeBootcampr = new User(await generateFakeUser('Software Engineer', ozgeBootcamprData));
+  const waitlistInfo = {
+    payment: {
+      experience: 'waitlist',
+      paid: true,
+    },
+    onboarded: true,
+  };
+  const designers = await generateFakeUsers(10, 'UX Designer', waitlistInfo);
+  const engineers = await generateFakeUsers(15, 'Software Engineer', waitlistInfo);
+  const productManagers = await generateFakeUsers(5, 'Product Manager', waitlistInfo);
+  const usersInWaitlist = [...designers, ...engineers, ...productManagers];
+
+  users.push(ozgeBootcampr, ...usersInWaitlist);
 };
