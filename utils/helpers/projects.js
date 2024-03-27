@@ -78,6 +78,8 @@ export const fillProjectWithUsers = async (project, designers, engineers, produc
 
   users.forEach(async (user) => {
     user.project = project._id;
+    user.projects.activeProject = project._id;
+    user.projects.projects.push(project._id);
   });
 };
 

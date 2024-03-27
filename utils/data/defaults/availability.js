@@ -17,25 +17,15 @@ export const commonAvailableTimeslots = [
   ['1:00 PM', '2:00 PM'],
   ['2:00 PM', '2:30 PM'],
   ['3:00 PM', '4:00 PM'],
+  ['7:00 AM', '9:30 AM'],
+  ['7:00 AM', '1:00 PM'],
+  ['9:00 AM', '10:30 PM'],
+  ['9:00 AM', '9:00 PM'],
+  ['10:00 AM', '1:00 PM'],
+  ['10:00 AM', '7:00 PM'],
+  [('11:00 AM', '6:30 PM')],
 ];
-// export const commonAvailableTimeslots = [
-// ['7:00 AM', '9:30 AM'],
-// ['7:00 AM', '1:00 PM'],
-// ['9:00 AM', '10:30 PM'],
-// ['9:00 AM', '9:00 PM'],
-// ['10:00 AM', '1:00 PM'],
-// ['10:00 AM', '7:00 PM']
-// ['11:00 AM', '6:30 PM'],
-// ['12:00 PM', '5:30 PM'],
-// ['1:00 AM', '6:30 PM'],
-// ['2:00 PM', '7:00 PM'],
-// ['2:00 PM', '8:30 PM'],
-// ['5:30 PM', '9:00 PM'],
-// ['8:00 PM', '10:30 PM'],
-// ['9:00 AM', '5:00 PM'],
-// ['5:00 PM', '11:00 PM'],
-// ['6:00 PM', '9:00 PM']
-//   ];
+
 /**
  * Every time slot option for availability input in user friendly format
  */

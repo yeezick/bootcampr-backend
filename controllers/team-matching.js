@@ -1,6 +1,6 @@
 import Project from '../models/project.js';
 import { findCommonAvailability } from '../utils/availability.js';
-import { generateProject, fillProjectWithUsers } from '../utils/helpers/projects.js';
+import { generateProject, fillProjectWithUsers, addCalendarToProject } from '../utils/helpers/projects.js';
 import { getTeamChat } from '../utils/helpers/chatHelpers.js';
 import {
   sortMembersByRole,
@@ -12,6 +12,7 @@ import {
   getCollectionsByRole,
   determineNeededRoles,
   checkIfStartingMembersAreValid,
+  changeMemberPaymentExperience,
 } from '../utils/helpers/team-matching-helpers.js';
 
 // Open Questions:
@@ -105,11 +106,12 @@ export const generateTeam = async (req, res) => {
       );
     }
 
-    // Note: There is a calendar quota so we'll wait to immplement this with actual users
-    // projects[0].calendarId = await addCalendarToProject(projects[0]._id);
+    // Note: There is a calendar quota
+    project.calendarId = await addCalendarToProject(project._id);
     await project.save();
 
     for (const user of finalTeam) {
+      changeMemberPaymentExperience(user, 'active');
       await user.save();
     }
 

@@ -36,6 +36,27 @@ export const setupQueryParams = (req) => {
   };
 };
 
+/**
+ *
+ * @param {Object} user - The user object with related fields
+ * @param {('active', 'sandbox', 'unchosen', 'waitlist')} newExperience - The new status
+ */
+export const changeMemberPaymentExperience = (user, newExperience) => {
+  const isExperienceValid = ['active', 'sandbox', 'unchosen', 'waitlist'].includes(newExperience);
+
+  if (!user || typeof user !== 'object') {
+    throw new Error('Invalid user object');
+  }
+  if (!user.payment) {
+    throw new Error(`Payment details not found on user ${user._id}`);
+  }
+  if (!newExperience || !isExperienceValid) {
+    throw new Error('Invalid experience status');
+  }
+  user.payment.experience = newExperience;
+  console.log('exp', user.payment);
+};
+
 export const getNeededMembersByRoleWithMostOverlap = async (
   neededRoles,
   startingMembers,
@@ -110,11 +131,17 @@ export const findAndSetAStartingMember = (startingMembers, collectionsByRole, ne
 };
 
 export const fetchUnassignedUsersByRole = async (role, count = 50, offset = 0) => {
-  return await User.find({ role, project: null })
+  return await User.find({
+    role,
+    project: null,
+    'payment.experience': 'waitlist',
+    'payment.paid': true,
+    'projects.activeProject': null,
+  })
     .sort({ createdAt: 1 })
     .skip(offset)
     .limit(count)
-    .select('firstName lastName availability role project _id');
+    .select('firstName lastName availability role project payment projects _id');
 };
 
 export const filterOutStartingMembersFromCollections = (startingMembers, collectionsByRole) => {
@@ -223,7 +250,10 @@ export const checkIfStartingMembersAreValid = async (memberIds) => {
 
   startingMembers.forEach((member) => {
     if (member.project) {
-      return new Error(`User ${member._id} is already assigned to preojct ${member.project}`);
+      return new Error(`User ${member._id} is already assigned to project ${member.project}`);
+    }
+    if (!member.payment.paid) {
+      return new Error(`User ${member._id} is not a paid user`);
     }
   });
 
