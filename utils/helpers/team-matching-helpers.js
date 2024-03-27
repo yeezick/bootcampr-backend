@@ -40,7 +40,6 @@ export const setupQueryParams = (req) => {
  *
  * @param {Object} user - The user object with related fields
  * @param {('active', 'sandbox', 'unchosen', 'waitlist')} newExperience - The new status
- * @param {String} path
  */
 export const changeMemberPaymentExperience = (user, newExperience) => {
   const isExperienceValid = ['active', 'sandbox', 'unchosen', 'waitlist'].includes(newExperience);

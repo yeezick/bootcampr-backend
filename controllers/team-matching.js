@@ -106,7 +106,7 @@ export const generateTeam = async (req, res) => {
       );
     }
 
-    // Note: There is a calendar quota so we'll wait to immplement this with actual users
+    // Note: There is a calendar quota
     project.calendarId = await addCalendarToProject(project._id);
     await project.save();
 
