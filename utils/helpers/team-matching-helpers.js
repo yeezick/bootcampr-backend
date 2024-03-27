@@ -247,7 +247,7 @@ export const determineNeededRoles = (startingMembers) => {
  */
 export const checkIfStartingMembersAreValid = async (memberIds) => {
   const startingMembers = await User.find({ _id: { $in: memberIds } });
-  console.log('startingMembers', startingMembers);
+
   startingMembers.forEach((member) => {
     if (member.project) {
       return new Error(`User ${member._id} is already assigned to project ${member.project}`);
